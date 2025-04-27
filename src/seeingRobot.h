@@ -7,7 +7,7 @@ using namespace std;
 #ifndef SEEING_ROBOT_H
 #define SEEING_ROBOT_H
 
-class SeeingRobot {
+class SeeingRobot : public Robot {
 public:
     vector<Position> look(int x, int y);
 };

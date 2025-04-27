@@ -8,7 +8,7 @@ using namespace std;
 #ifndef THINKING_ROBOT_H
 #define THINKING_ROBOT_H
 
-class ThinkingRobot {
+class ThinkingRobot : public Robot {
     vector<Position> seenRobotPosition;
 
 public:
