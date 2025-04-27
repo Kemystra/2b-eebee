@@ -9,7 +9,7 @@ using namespace std;
 
 class SeeingRobot : public Robot {
 public:
-    vector<Position> look(int x, int y);
+    virtual vector<Position> look(int x, int y) = 0;
 };
 
 #endif  // SEEING_ROBOT_H

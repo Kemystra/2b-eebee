@@ -5,7 +5,7 @@
 #define MOVING_ROBOT_H
 
 class MovingRobot : public Robot {
-    void move(int x, int y);
+    virtual void move(int x, int y) = 0;
 };
 
 #endif  // MOVING_ROBOT_H

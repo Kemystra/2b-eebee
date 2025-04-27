@@ -9,10 +9,11 @@ using namespace std;
 #define THINKING_ROBOT_H
 
 class ThinkingRobot : public Robot {
+protected:
     vector<Position> seenRobotPosition;
 
 public:
-    void think(vector<Position> newRobotLocations);
+    virtual void think(vector<Position> newRobotLocations) = 0;
 };
 
 #endif  // THINKING_ROBOT_H
