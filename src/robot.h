@@ -7,12 +7,12 @@ struct Position {
 };
 
 class Robot {
-private:
+protected:
     Position position;
 public:
-    void gotHit();
-    void die();
-    void executeTurn();
+    virtual void gotHit() = 0;
+    virtual void die() = 0;
+    virtual void executeTurn() = 0;
 };
 
 #endif // !ROBOT_H
