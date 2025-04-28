@@ -1,8 +1,8 @@
 #include <iostream>
 
 
-#ifndef MATH_VECTOR_H
-#define MATH_VECTOR_H
+#ifndef VECTOR_2D_H
+#define VECTOR_2D_H
 
 class Vector2D {
 public:
@@ -18,4 +18,4 @@ public:
     Vector2D& operator-=(const Vector2D& other);
 };
 
-#endif // !MATH_VECTOR_H
+#endif // !VECTOR_2D_H
