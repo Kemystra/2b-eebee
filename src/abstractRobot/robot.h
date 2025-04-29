@@ -1,14 +1,11 @@
 #ifndef ROBOT_H 
 #define ROBOT_H
 
-struct Position {
-    int x;
-    int y;
-};
+#include "../vector2d.h"
 
 class Robot {
 protected:
-    Position position;
+    Vector2D position;
 public:
     virtual void gotHit() = 0;
     virtual void die() = 0;
