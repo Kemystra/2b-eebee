@@ -1,8 +1,7 @@
-#include "../vector2d.h"
-
-
 #ifndef ROBOT_H 
 #define ROBOT_H
+
+#include "../vector2d.h"
 
 class Robot {
 protected:

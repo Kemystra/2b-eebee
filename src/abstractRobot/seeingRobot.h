@@ -1,3 +1,6 @@
+#ifndef SEEING_ROBOT_H
+#define SEEING_ROBOT_H
+
 #include <vector>
 
 #include "robot.h"
@@ -5,9 +8,6 @@
 
 using namespace std;
 
-
-#ifndef SEEING_ROBOT_H
-#define SEEING_ROBOT_H
 
 class SeeingRobot : public Robot {
 public:

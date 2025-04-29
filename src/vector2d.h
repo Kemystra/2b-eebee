@@ -1,8 +1,7 @@
-#include <iostream>
-
-
 #ifndef VECTOR_2D_H
 #define VECTOR_2D_H
+
+#include <iostream>
 
 class Vector2D {
 public:

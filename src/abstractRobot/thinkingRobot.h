@@ -1,3 +1,6 @@
+#ifndef THINKING_ROBOT_H
+#define THINKING_ROBOT_H
+
 #include <vector>
 #include "../vector2d.h"
 
@@ -5,9 +8,6 @@
 
 using namespace std;
 
-
-#ifndef THINKING_ROBOT_H
-#define THINKING_ROBOT_H
 
 class ThinkingRobot : public Robot {
 public:

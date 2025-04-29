@@ -1,8 +1,9 @@
+#ifndef SHOOTING_ROBOT_H
+#define SHOOTING_ROBOT_H
+
 #include "robot.h"
 #include "../vector2d.h"
 
-#ifndef SHOOTING_ROBOT_H
-#define SHOOTING_ROBOT_H
 
 class ShootingRobot : public Robot {
 

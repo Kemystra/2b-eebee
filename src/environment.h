@@ -1,3 +1,6 @@
+#ifndef ENVIRONMENT_H
+#define ENVIRONMENT_H
+
 #include <vector>
 
 #include "abstractRobot/robot.h"
@@ -5,9 +8,6 @@
 
 using namespace std;
 
-
-#ifndef ENVIRONMENT_H
-#define ENVIRONMENT_H
 
 // Class to store everything related to the overall environment stuff
 // Implement environment checking here
