@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "abstractRobot/robot.h"
+#include "vector2d.h"
 
 using namespace std;
 
@@ -17,8 +18,8 @@ private:
     int width;
 
 public:
-    bool isRobotHere(int x, int y);
-    bool isPositionAvailable(int x, int y);
+    bool isRobotHere(Vector2D position);
+    bool isPositionAvailable(Vector2D position);
 };
 
 #endif  // ENVIRONMENT_H
