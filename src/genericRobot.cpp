@@ -16,7 +16,10 @@ void GenericRobot::die() {
 }
 
 void GenericRobot::gotHit() {
-    cout << "Got hit bruh" << endl;
+    // Calculate 70% probability
+    // If hit, then die mf
+
+    this->die();
 }
 
 void GenericRobot::executeTurn() {
