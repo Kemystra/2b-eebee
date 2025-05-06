@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "abstractRobot/robot.h"
+#include "genericRobot.h"
 #include "vector2d.h"
 
 using namespace std;
@@ -20,7 +20,7 @@ struct RobotParameter {
 // Implement environment checking here
 class Environment {
 private:
-    vector<Robot> robotList;
+    vector<GenericRobot> robotList;
 
     // Width and height of the battleground
     Vector2D dimension;

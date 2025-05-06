@@ -1,4 +1,5 @@
 #include "environment.h"
+#include "genericRobot.h"
 
 using namespace std;
 
@@ -10,6 +11,8 @@ Environment::Environment(
     this->maxStep = maxStep;
     this->dimension = dimension;
 
-    // Instantiate robots here
-    // and put into robotList
+    for (const RobotParameter &param : robotParams) {
+        GenericRobot robot(param.position, param.name);
+        this->robotList.push_back(robot);
+    }
 }
