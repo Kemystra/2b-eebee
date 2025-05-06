@@ -30,7 +30,7 @@ vector<Vector2D> GenericRobot::look(Vector2D center) {
     // Loop through a 3x3 square around center
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
-            Vector2D currentLookPosition = center + Vector2D(i, j);
+            Vector2D currentLookAbsolutePosition = position + center + Vector2D(i, j);
 
             // Ask the Environment if there's Robot here
             // If yes, add it to result
