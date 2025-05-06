@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "genericRobot.h"
@@ -7,8 +8,16 @@
 using namespace std;
 
 
-GenericRobot::GenericRobot(Vector2D initialPosition) {
+string GenericRobot::getName() const {
+    return this->name;
+}
+
+GenericRobot::GenericRobot(
+    Vector2D initialPosition,
+    string name
+) {
     this->position = initialPosition;
+    this->name = name;
 }
 
 void GenericRobot::die() {
@@ -54,7 +63,7 @@ vector<Vector2D> GenericRobot::look(Vector2D center) {
 void GenericRobot::fire(Vector2D target) {
     Vector2D targetAbsolutePosition = position + target;
     // Get robot from Environment
-    GenericRobot robot(Vector2D(0,0));
+    GenericRobot robot(Vector2D(0,0), "");
 
     robot.gotHit();
     shellCount--;
