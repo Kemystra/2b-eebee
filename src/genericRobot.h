@@ -12,16 +12,19 @@
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
-    GenericRobot(Vector2D initialPosition);
+    GenericRobot(Vector2D initialPosition, string name);
 
     void die() override;
     void gotHit() override;
     void executeTurn() override;
 
+    string getName() const;
+
 private:
     Vector2D position;
     int shellCount = 10;
     vector<Vector2D> seenRobotPosition = {};
+    string name;
 
     // SeeingRobot
     vector<Vector2D> look(Vector2D center) override;
