@@ -14,8 +14,9 @@ using namespace std;
 class Environment {
 private:
     vector<Robot> robotList;
-    int height;
-    int width;
+
+    // Width and height of the battleground
+    Vector2D dimension;
 
 public:
     bool isRobotHere(Vector2D position);
