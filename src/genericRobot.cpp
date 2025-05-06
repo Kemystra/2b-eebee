@@ -39,3 +39,10 @@ vector<Vector2D> GenericRobot::look(Vector2D center) {
 
     return lookResult;
 }
+
+void GenericRobot::fire(Vector2D target) {
+    // Get robot from Environment
+    GenericRobot robot(Vector2D(0,0));
+
+    robot.gotHit();
+}
