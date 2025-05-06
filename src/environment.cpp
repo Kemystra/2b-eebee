@@ -26,3 +26,18 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
 
     return false;
 }
+
+bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
+    // only 1 robot at 1 position
+    if (isRobotHere(positionToCheck))
+        return false;
+
+    // Cannot go out of bounds of the battleground
+    if(positionToCheck.x > dimension.x || positionToCheck.x < 0)
+        return false;
+
+    if(positionToCheck.y > dimension.y || positionToCheck.y < 0)
+        return false;
+
+    return true;
+}
