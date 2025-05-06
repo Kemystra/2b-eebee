@@ -23,7 +23,16 @@ void GenericRobot::gotHit() {
 }
 
 void GenericRobot::executeTurn() {
-    cout << "Oompa Loompa" << endl;
+    cout << "Execute turn" << endl;
+
+    // Generate later
+    Vector2D nextLookPosition(0,0);
+
+    vector<Vector2D> lookResult = look(nextLookPosition);
+
+    for (const Vector2D &pos : lookResult) {
+        fire(pos);
+    }
 }
 
 vector<Vector2D> GenericRobot::look(Vector2D center) {
