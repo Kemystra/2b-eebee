@@ -18,6 +18,11 @@ Environment::Environment(
     }
 }
 
-bool Environment::isRobotHere(Vector2D positionToCheck, GenericRobot &robot) const {
-    return robot.position == positionToCheck;
+bool Environment::isRobotHere(Vector2D positionToCheck) const {
+    for (const GenericRobot &robot : this->robotList) {
+        if (robot.position == positionToCheck)
+            return true;
+    }
+
+    return false;
 }

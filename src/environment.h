@@ -35,7 +35,7 @@ private:
 
 public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);
-    bool isRobotHere(Vector2D positionToCheck, GenericRobot &robot) const;
+    bool isRobotHere(Vector2D positionToCheck) const;
     bool isPositionAvailable(Vector2D position);
 };
 

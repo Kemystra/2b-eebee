@@ -39,7 +39,7 @@ private:
     // MovingRobot
     void move(Vector2D destination) override;
 
-    friend bool Environment::isRobotHere(Vector2D positionToCheck, GenericRobot &robot) const;
+    friend bool Environment::isRobotHere(Vector2D positionToCheck) const;
 };
 
 #endif  // GENERIC_ROBOT_H
