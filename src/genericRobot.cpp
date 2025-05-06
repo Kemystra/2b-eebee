@@ -46,6 +46,7 @@ void GenericRobot::fire(Vector2D target) {
     GenericRobot robot(Vector2D(0,0));
 
     robot.gotHit();
+    shellCount--;
 }
 
 void GenericRobot::move(Vector2D destination) {

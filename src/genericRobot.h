@@ -20,6 +20,7 @@ public:
 
 private:
     Vector2D position;
+    int shellCount = 10;
     vector<Vector2D> seenRobotPosition;
 
     // SeeingRobot
