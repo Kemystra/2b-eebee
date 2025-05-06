@@ -32,7 +32,7 @@ private:
     void fire(Vector2D target) override;
 
     // MovingRobot
-    void move(Vector2D direction) override;
+    void move(Vector2D destination) override;
 };
 
 #endif  // GENERIC_ROBOT_H

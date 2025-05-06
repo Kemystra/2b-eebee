@@ -47,3 +47,7 @@ void GenericRobot::fire(Vector2D target) {
 
     robot.gotHit();
 }
+
+void GenericRobot::move(Vector2D destination) {
+    position += destination;
+}
