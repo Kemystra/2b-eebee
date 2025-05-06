@@ -4,8 +4,6 @@
 #include "../vector2d.h"
 
 class Robot {
-protected:
-    Vector2D position;
 public:
     virtual void gotHit() = 0;
     virtual void die() = 0;
