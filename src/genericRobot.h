@@ -7,6 +7,7 @@
 #include "abstractRobot/seeingRobot.h"
 #include "abstractRobot/shootingRobot.h"
 #include "vector2d.h"
+#include "environment.h"
 #include <vector>
 
 
@@ -37,6 +38,8 @@ private:
 
     // MovingRobot
     void move(Vector2D destination) override;
+
+    friend bool Environment::isRobotHere(Vector2D positionToCheck, GenericRobot &robot) const;
 };
 
 #endif  // GENERIC_ROBOT_H

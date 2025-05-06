@@ -4,11 +4,16 @@
 #include <vector>
 #include <string>
 
-#include "genericRobot.h"
 #include "vector2d.h"
 
 using namespace std;
 
+
+// Forward declaration to avoid recursive includes
+// Basically Environment depends on GenericRobot, but GenericRobot ALSO depends on Environment
+// Compiler complains about this
+// Instead of including, we just write the declaration directly
+class GenericRobot;
 
 struct RobotParameter {
     string name;
@@ -30,7 +35,7 @@ private:
 
 public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);
-    bool isRobotHere(Vector2D position);
+    bool isRobotHere(Vector2D positionToCheck, GenericRobot &robot) const;
     bool isPositionAvailable(Vector2D position);
 };
 

@@ -1,5 +1,6 @@
 #include "environment.h"
 #include "genericRobot.h"
+#include "vector2d.h"
 
 using namespace std;
 
@@ -15,4 +16,8 @@ Environment::Environment(
         GenericRobot robot(param.position, param.name);
         this->robotList.push_back(robot);
     }
+}
+
+bool Environment::isRobotHere(Vector2D positionToCheck, GenericRobot &robot) const {
+    return robot.position == positionToCheck;
 }
