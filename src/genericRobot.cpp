@@ -9,7 +9,6 @@ using namespace std;
 
 GenericRobot::GenericRobot(Vector2D initialPosition) {
     this->position = initialPosition;
-    this->seenRobotPosition = {};
 }
 
 void GenericRobot::die() {

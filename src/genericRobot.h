@@ -21,7 +21,7 @@ public:
 private:
     Vector2D position;
     int shellCount = 10;
-    vector<Vector2D> seenRobotPosition;
+    vector<Vector2D> seenRobotPosition = {};
 
     // SeeingRobot
     vector<Vector2D> look(Vector2D center) override;
