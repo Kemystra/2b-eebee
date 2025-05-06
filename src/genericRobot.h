@@ -18,6 +18,19 @@ public:
     void die() override;
     void gotHit() override;
     void executeTurn() override;
+
+private:
+    // SeeingRobot
+    void look(Vector2D center) override;
+
+    // ThinkingRobot
+    void think() override;
+
+    // ShootingRobot
+    void fire(Vector2D target) override;
+
+    // MovingRobot
+    void move(Vector2D direction) override;
 };
 
 #endif  // GENERIC_ROBOT_H
