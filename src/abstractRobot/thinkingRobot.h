@@ -11,7 +11,7 @@ using namespace std;
 
 class ThinkingRobot : public Robot {
 public:
-    virtual void think(vector<Vector2D> newRobotLocations) = 0;
+    virtual void think() = 0;
 };
 
 #endif  // THINKING_ROBOT_H
