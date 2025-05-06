@@ -11,7 +11,7 @@ using namespace std;
 
 class SeeingRobot : public Robot {
 public:
-    virtual void look(Vector2D center) = 0;
+    virtual vector<Vector2D> look(Vector2D center) = 0;
 };
 
 #endif  // SEEING_ROBOT_H

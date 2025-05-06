@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "genericRobot.h"
 #include "vector2d.h"
@@ -8,6 +9,7 @@ using namespace std;
 
 GenericRobot::GenericRobot(Vector2D initialPosition) {
     this->position = initialPosition;
+    this->seenRobotPosition = {};
 }
 
 void GenericRobot::die() {
@@ -20,4 +22,20 @@ void GenericRobot::gotHit() {
 
 void GenericRobot::executeTurn() {
     cout << "Oompa Loompa" << endl;
+}
+
+vector<Vector2D> GenericRobot::look(Vector2D center) {
+    vector<Vector2D> lookResult = {};
+
+    // Loop through a 3x3 square around center
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            Vector2D currentLookPosition = center + Vector2D(i, j);
+
+            // Ask the Environment if there's Robot here
+            // If yes, add it to result
+        }
+    }
+
+    return lookResult;
 }

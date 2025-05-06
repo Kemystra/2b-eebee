@@ -7,11 +7,10 @@
 #include "abstractRobot/seeingRobot.h"
 #include "abstractRobot/shootingRobot.h"
 #include "vector2d.h"
+#include <vector>
+
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
-protected:
-    Vector2D position;
-
 public:
     GenericRobot(Vector2D initialPosition);
 
@@ -20,8 +19,11 @@ public:
     void executeTurn() override;
 
 private:
+    Vector2D position;
+    vector<Vector2D> seenRobotPosition;
+
     // SeeingRobot
-    void look(Vector2D center) override;
+    vector<Vector2D> look(Vector2D center) override;
 
     // ThinkingRobot
     void think() override;
