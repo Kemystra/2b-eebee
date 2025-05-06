@@ -15,6 +15,11 @@ public:
     
     Vector2D& operator+=(const Vector2D& other);
     Vector2D& operator-=(const Vector2D& other);
+
+    // This function doesn't accept 'self' parameter, so it must not be a member function
+    // Putting it as friend function isn't technically needed; operator== doesn't need private members anyway
+    // it's simply just to imply that it is related to this class
+    friend bool operator==(const Vector2D& a, const Vector2D& b);
 };
 
 #endif // !VECTOR_2D_H

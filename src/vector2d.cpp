@@ -26,3 +26,7 @@ Vector2D& Vector2D::operator-=(const Vector2D& other) {
 
     return *this;
 }
+
+bool operator==(const Vector2D& a, const Vector2D& b) {
+    return (a.x == b.x) && (a.y == b.y);
+}
