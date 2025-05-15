@@ -41,3 +41,31 @@ bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
 
     return true;
 }
+
+void Environment::printMap() const {
+    // Print column headers (X axis)
+    cout << "   ";
+    for (int x = 0; x < dimension.x; ++x) {
+        cout << x << " ";
+    }
+    cout << "\n";
+    for (int y = 0; y < dimension.y; ++y) {
+        // Print row header (Y axis)
+        cout << y << " |";
+        for (int x = 0; x < dimension.x; ++x) {
+            Vector2D pos(x, y);
+            bool found = false;
+            for (const GenericRobot &robot : robotList) {
+                if (robot.getPosition() == pos) {
+                    cout << robot.getSymbol() << " ";
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) cout << ". ";
+        }
+        cout << "|\n";
+    }
+    // Print cardinal directions
+    cout << "\nN (up)\nS (down)\nE (right)\nW (left)\n";
+}
