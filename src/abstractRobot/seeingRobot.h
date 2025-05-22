@@ -10,6 +10,8 @@ using namespace std;
 
 
 class SeeingRobot : public Robot {
+protected:
+    vector<Vector2D> seenRobotPosition = {};
 public:
     virtual vector<Vector2D> look(Vector2D center) = 0;
 };

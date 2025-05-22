@@ -6,7 +6,7 @@
 
 
 class ShootingRobot : public Robot {
-private:
+protected:
     int shellCount = 10;
     // Fire a shot at a position
     // Shot position is calculated offset from robot's position

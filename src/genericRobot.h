@@ -31,7 +31,6 @@ public:
 
 private:
     Vector2D position;
-    vector<Vector2D> seenRobotPosition = {};
     string name;
 
     vector<LookComponent*> LookComponents = {};
