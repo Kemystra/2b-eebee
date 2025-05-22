@@ -14,6 +14,9 @@
 #include <vector>
 
 
+struct RobotUpgrades {
+};
+
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
     GenericRobot(Vector2D initialPosition, string name, Environment* env);
@@ -32,6 +35,9 @@ public:
 private:
     Vector2D position;
     string name;
+
+    int respawnCountLeft = 3;
+    vector<RobotUpgrades> upgrades = {};
 
     vector<LookComponent*> lookComponents = {};
     vector<MoveComponent*> moveComponents = {};
