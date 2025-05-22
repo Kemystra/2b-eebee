@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "genericRobot.h"
+#include "environment.h"
 #include "vector2d.h"
 
 using namespace std;
@@ -14,10 +15,12 @@ string GenericRobot::getName() const {
 
 GenericRobot::GenericRobot(
     Vector2D initialPosition,
-    string name
+    string name,
+    Environment* env
 ) {
     this->position = initialPosition;
     this->name = name;
+    this->environment = env;
 }
 
 void GenericRobot::die() {

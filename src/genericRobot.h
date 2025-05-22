@@ -16,7 +16,7 @@
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
-    GenericRobot(Vector2D initialPosition, string name);
+    GenericRobot(Vector2D initialPosition, string name, Environment* env);
 
     void die() override;
     void gotHit() override;
@@ -36,6 +36,9 @@ private:
     vector<LookComponent*> LookComponents = {};
     vector<MoveComponent*> MoveComponents = {};
     vector<DieComponent*> DieComponents = {};
+
+    // The current environment this robot is in
+    Environment* environment;
 
     // SeeingRobot
     vector<Vector2D> look(Vector2D center) override;

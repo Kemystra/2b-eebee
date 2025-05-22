@@ -13,7 +13,7 @@ Environment::Environment(
     this->dimension = dimension;
 
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param.position, param.name);
+        GenericRobot robot(param.position, param.name, this);
         this->robotList.push_back(robot);
     }
 }
