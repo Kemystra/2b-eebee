@@ -6,9 +6,11 @@
 
 
 class ShootingRobot : public Robot {
-
+private:
+    int shellCount = 10;
     // Fire a shot at a position
     // Shot position is calculated offset from robot's position
+public:
     virtual void fire(Vector2D target) = 0;
 };
 
