@@ -38,7 +38,7 @@ void GenericRobot::executeTurn() {
     cout << "Execute turn" << endl;
 
     // Generate later
-    Vector2D nextLookPosition(0,0);
+    Vector2D nextLookPosition(1,1);
 
     vector<Vector2D> lookResult = look(nextLookPosition);
 
@@ -55,8 +55,9 @@ vector<Vector2D> GenericRobot::look(Vector2D center) {
         for (int j = -1; j <= 1; j++) {
             Vector2D currentLookAbsolutePosition = position + center + Vector2D(i, j);
 
-            // Ask the Environment if there's Robot here
-            // If yes, add it to result
+            lookResult.push_back(
+                environment->isRobotHere(currentLookAbsolutePosition)
+            );
         }
     }
 
@@ -65,10 +66,10 @@ vector<Vector2D> GenericRobot::look(Vector2D center) {
 
 void GenericRobot::fire(Vector2D target) {
     Vector2D targetAbsolutePosition = position + target;
-    // Get robot from Environment
-    GenericRobot robot(Vector2D(0,0), "");
 
-    robot.gotHit();
+    GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
+
+    targetRobot->gotHit();
     shellCount--;
 }
 

@@ -18,6 +18,20 @@ Environment::Environment(
     }
 }
 
+void Environment::gameLoop() {
+    if (step > maxStep)
+        gameOver();
+
+    for (GenericRobot& robot : this->robotList) {
+        robot.executeTurn();
+    }
+
+    if (robotList.size() == 0)
+        gameOver();
+
+    step++;
+}
+
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
     for (const GenericRobot &robot : this->robotList) {
         if (robot.getPosition() == positionToCheck)
@@ -25,6 +39,15 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
     }
 
     return false;
+}
+
+GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
+    for (GenericRobot &robot : this->robotList) {
+        if (robot.getPosition() == positionToCheck)
+            return &robot;
+    }
+
+    return nullptr;
 }
 
 bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
