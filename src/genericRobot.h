@@ -6,8 +6,11 @@
 #include "abstractRobot/thinkingRobot.h"
 #include "abstractRobot/seeingRobot.h"
 #include "abstractRobot/shootingRobot.h"
+
 #include "vector2d.h"
 #include "environment.h"
+#include "component/component.h"
+
 #include <vector>
 
 
@@ -31,6 +34,10 @@ private:
     int shellCount = 10;
     vector<Vector2D> seenRobotPosition = {};
     string name;
+
+    vector<LookComponent*> LookComponents;
+    vector<MoveComponent*> MoveComponents;
+    vector<DieComponent*> DieComponents;
 
     // SeeingRobot
     vector<Vector2D> look(Vector2D center) override;

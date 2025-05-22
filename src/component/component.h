@@ -6,7 +6,7 @@ class Component {
 };
 
 // Use when die()
-class DyingComponent : public Component {
+class DieComponent : public Component {
     void use() override;
 };
 
