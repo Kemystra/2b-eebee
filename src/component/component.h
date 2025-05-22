@@ -1,23 +1,26 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
-class Component {
+#include "../vector2d.h"
+
+#include <vector>
+
+using namespace std;
+
+
+// Use when die()
+class DieComponent {
     virtual void use() = 0;
 };
 
-// Use when die()
-class DieComponent : public Component {
-    void use() override;
-};
-
 // Use during look()
-class LookComponent : public Component {
-    void use() override;
+class LookComponent {
+    virtual vector<Vector2D> use() = 0;
 };
 
 // Use during move()
-class MoveComponent : public Component {
-    void use() override;
+class MoveComponent {
+    virtual void use() = 0;
 };
 
 #endif  // COMPONENT_H
