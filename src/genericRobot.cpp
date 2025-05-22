@@ -41,6 +41,13 @@ void GenericRobot::executeTurn() {
     Vector2D nextLookPosition(1,1);
 
     vector<Vector2D> lookResult = look(nextLookPosition);
+    for (LookComponent* comp : this->lookComponents) {
+        vector<Vector2D> temp = comp->use();
+
+        // Appending the components' result into the lookResult
+        // This is how to combine 2 vectors
+        lookResult.insert(lookResult.end(), temp.begin(), temp.end());
+    }
 
     for (const Vector2D &pos : lookResult) {
         fire(pos);

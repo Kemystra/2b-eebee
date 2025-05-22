@@ -33,9 +33,9 @@ private:
     Vector2D position;
     string name;
 
-    vector<LookComponent*> LookComponents = {};
-    vector<MoveComponent*> MoveComponents = {};
-    vector<DieComponent*> DieComponents = {};
+    vector<LookComponent*> lookComponents = {};
+    vector<MoveComponent*> moveComponents = {};
+    vector<DieComponent*> dieComponents = {};
 
     // The current environment this robot is in
     Environment* environment;

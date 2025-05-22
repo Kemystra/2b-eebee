@@ -10,16 +10,19 @@ using namespace std;
 
 // Use when die()
 class DieComponent {
+public:
     virtual void use() = 0;
 };
 
 // Use during look()
 class LookComponent {
+public:
     virtual vector<Vector2D> use() = 0;
 };
 
 // Use during move()
 class MoveComponent {
+public:
     virtual void use() = 0;
 };
 
