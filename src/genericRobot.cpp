@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "genericRobot.h"
+#include "abstractRobot/robot.h"
 #include "environment.h"
 #include "vector2d.h"
 
@@ -23,8 +24,12 @@ GenericRobot::GenericRobot(
     this->environment = env;
 }
 
-void GenericRobot::die() {
-    cout << "You're dead" << endl;
+DeadState GenericRobot::die() {
+    if (respawnCountLeft == 0)
+        return DeadState::Dead;
+
+    respawnCountLeft--;
+    return DeadState::Respawn;
 }
 
 void GenericRobot::gotHit() {

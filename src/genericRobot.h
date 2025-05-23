@@ -25,7 +25,7 @@ class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobo
 public:
     GenericRobot(Vector2D initialPosition, string name, Environment* env);
 
-    void die() override;
+    DeadState die() override;
     void gotHit() override;
     void executeTurn() override;
 
