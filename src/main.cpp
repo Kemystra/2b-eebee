@@ -20,7 +20,8 @@ int main (int argc, char *argv[]) {
         r1, r2, r3
     }; // Add robots as needed
     Environment env(maxStep, dimension, robotParams);
-    env.printMap(); // Print the empty 40x40 grid
+
+    env.gameLoop();
 
     // Read configuration from the input file
     // Initialize the Environment class

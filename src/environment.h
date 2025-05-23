@@ -26,7 +26,7 @@ private:
     Vector2D dimension;
 
     int maxStep;
-    int step;
+    int step = 0;
 
 public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);

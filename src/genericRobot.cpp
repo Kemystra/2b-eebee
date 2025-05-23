@@ -92,3 +92,8 @@ char GenericRobot::getSymbol() const {
 Vector2D GenericRobot::getPosition() const {
     return position;
 }
+
+// No upgrades, so return empty vector
+vector<RobotUpgrades> GenericRobot::getUpgrades() const {
+    return vector<RobotUpgrades>();
+}
