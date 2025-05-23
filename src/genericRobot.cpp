@@ -120,3 +120,7 @@ Vector2D GenericRobot::getPosition() const {
 vector<RobotUpgrades> GenericRobot::getUpgrades() const {
     return vector<RobotUpgrades>();
 }
+
+void GenericRobot::setShellCount(int newShellCount){
+    shellCount = newShellCount;
+}
