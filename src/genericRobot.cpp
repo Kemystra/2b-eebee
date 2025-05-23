@@ -40,15 +40,16 @@ void GenericRobot::executeTurn() {
     // Generate later
     Vector2D nextLookPosition(1,1);
 
-    vector<Vector2D> lookResult = look(nextLookPosition);
+    vector<Vector2D> lookResult = look(nextLookPosition.x, nextLookPosition.y);
 
     for (const Vector2D &pos : lookResult) {
-        fire(pos);
+        fire(pos.x, pos.y);
     }
 }
 
-vector<Vector2D> GenericRobot::look(Vector2D center) {
+vector<Vector2D> GenericRobot::look(int x, int y) {
     vector<Vector2D> lookResult = {};
+    Vector2D center(x, y);
 
     // Loop through a 3x3 square around center
     for (int i = -1; i <= 1; i++) {
@@ -64,7 +65,8 @@ vector<Vector2D> GenericRobot::look(Vector2D center) {
     return lookResult;
 }
 
-void GenericRobot::fire(Vector2D target) {
+void GenericRobot::fire(int x, int y) {
+    Vector2D target(x, y);
     Vector2D targetAbsolutePosition = position + target;
 
     GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
@@ -73,8 +75,8 @@ void GenericRobot::fire(Vector2D target) {
     shellCount--;
 }
 
-void GenericRobot::move(Vector2D destination) {
-    position += destination;
+void GenericRobot::move(int x, int y) {
+    position += Vector2D(x,y);
 }
 
 char GenericRobot::getSymbol() const {
