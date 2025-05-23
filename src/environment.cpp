@@ -32,6 +32,10 @@ void Environment::gameLoop() {
     step++;
 }
 
+void Environment::gameOver() {
+    
+}
+
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
     for (const GenericRobot &robot : this->robotList) {
         if (robot.getPosition() == positionToCheck)

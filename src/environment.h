@@ -5,15 +5,10 @@
 #include <string>
 
 #include "vector2d.h"
+#include "genericRobot.h"
 
 using namespace std;
 
-
-// Forward declaration to avoid recursive includes
-// Basically Environment depends on GenericRobot, but GenericRobot ALSO depends on Environment
-// Compiler complains about this
-// Instead of including, we just write the declaration directly
-class GenericRobot;
 
 struct RobotParameter {
     string name;

@@ -8,9 +8,14 @@
 #include "abstractRobot/shootingRobot.h"
 
 #include "vector2d.h"
-#include "environment.h"
 
 #include <vector>
+
+// Forward declaration to avoid recursive includes
+// Basically Environment depends on GenericRobot, but GenericRobot ALSO depends on Environment
+// Compiler complains about this
+// Instead of including, we just write the declaration directly
+class Environment;
 
 
 enum RobotUpgrades {
@@ -52,8 +57,6 @@ private:
 
     // MovingRobot
     void move(int x, int y) override;
-
-    friend bool Environment::isRobotHere(Vector2D positionToCheck) const;
 };
 
 #endif  // GENERIC_ROBOT_H

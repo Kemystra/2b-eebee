@@ -11,7 +11,14 @@ int main (int argc, char *argv[]) {
     // 40x40 grid
     Vector2D dimension(40, 40);
     int maxStep = 100; // or any value you want
-    vector<RobotParameter> robotParams; // Add robots as needed
+
+    RobotParameter r1 = {"bruh", Vector2D(8,9)};
+    RobotParameter r2 = {"shit", Vector2D(34,9)};
+    RobotParameter r3 = {"ass", Vector2D(8,23)};
+
+    vector<RobotParameter> robotParams = {
+        r1, r2, r3
+    }; // Add robots as needed
     Environment env(maxStep, dimension, robotParams);
     env.printMap(); // Print the empty 40x40 grid
 

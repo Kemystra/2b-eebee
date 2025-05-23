@@ -79,6 +79,10 @@ void GenericRobot::move(int x, int y) {
     position += Vector2D(x,y);
 }
 
+void GenericRobot::think() {
+
+}
+
 char GenericRobot::getSymbol() const {
     // Use the first letter of the robot's name as its symbol (capitalized)
     return name.empty() ? '?' : toupper(name[0]);
