@@ -37,9 +37,6 @@ public:
     char getSymbol() const;
 
 protected:
-    // The current environment this robot is in
-    Environment* environment;
-
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;
 
