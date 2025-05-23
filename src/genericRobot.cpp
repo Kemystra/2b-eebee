@@ -39,7 +39,7 @@ void GenericRobot::gotHit() {
     this->die();
 }
 
-void GenericRobot::executeTurn() {
+void GenericRobot::thinkAndExecute() {
     cout << "Execute turn" << endl;
 
     // Generate later
@@ -82,10 +82,6 @@ void GenericRobot::fire(int x, int y) {
 
 void GenericRobot::move(int x, int y) {
     position += Vector2D(x,y);
-}
-
-void GenericRobot::think() {
-
 }
 
 char GenericRobot::getSymbol() const {

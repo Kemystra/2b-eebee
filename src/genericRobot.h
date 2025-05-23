@@ -26,7 +26,7 @@ public:
 
     DeadState die() override;
     void gotHit() override;
-    void executeTurn() override;
+    void thinkAndExecute() override;
 
     string getName() const override;
     Vector2D getPosition() const override;
@@ -46,9 +46,6 @@ protected:
 
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;
-
-    // ThinkingRobot
-    void think() override;
 
     // ShootingRobot
     void fire(int x, int y) override;
