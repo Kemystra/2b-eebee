@@ -9,7 +9,6 @@
 
 #include "vector2d.h"
 #include "environment.h"
-#include "component/component.h"
 
 #include <vector>
 
@@ -38,10 +37,6 @@ private:
 
     int respawnCountLeft = 3;
     vector<RobotUpgrades> upgrades = {};
-
-    vector<LookComponent*> lookComponents = {};
-    vector<MoveComponent*> moveComponents = {};
-    vector<DieComponent*> dieComponents = {};
 
     // The current environment this robot is in
     Environment* environment;
