@@ -19,17 +19,25 @@ Environment::Environment(
 }
 
 void Environment::gameLoop() {
-    if (step > maxStep)
-        gameOver();
+    while (maxStep > step) {
+        for (GenericRobot &robot : this->robotList) {
+            printMap();
+            robot.thinkAndExecute();
+        }
 
-    for (GenericRobot& robot : this->robotList) {
-        robot.executeTurn();
+        cout << step << endl;
+
+        if (robotList.size() == 0)
+            gameOver();
+
+        step++;
     }
 
-    if (robotList.size() == 0)
-        gameOver();
+    gameOver();
+}
 
-    step++;
+void Environment::gameOver() {
+    cout << "Game Over" << endl;
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
