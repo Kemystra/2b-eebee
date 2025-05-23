@@ -8,6 +8,10 @@
 
 using namespace std;
 
+
+// More forward declaration
+class Environment;
+
 enum DeadState {
     Respawn, Dead
 };
@@ -15,11 +19,15 @@ enum DeadState {
 enum RobotUpgrades {
 };
 
+
 class Robot {
 private:
     // These will have to be initialized
     string name;
     Vector2D position;
+
+    int respawnCountLeft = 3;
+    Environment* environment;
 
 public:
     virtual void gotHit() = 0;

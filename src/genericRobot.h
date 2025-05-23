@@ -37,11 +37,6 @@ public:
     char getSymbol() const;
 
 protected:
-    Vector2D position;
-    string name;
-
-    int respawnCountLeft = 3;
-
     // The current environment this robot is in
     Environment* environment;
 
