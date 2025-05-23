@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -42,13 +43,24 @@ void GenericRobot::gotHit() {
 void GenericRobot::thinkAndExecute() {
     cout << "Execute turn" << endl;
 
+    // Fucking redundant, but needed since inheritance REEEE-
+    int maxFireDistance = getMaxFiringDistance();
+    int bulletsPerShot = getBulletsPerShot();
+
     // Generate later
     Vector2D nextLookPosition(1,1);
 
     vector<Vector2D> lookResult = look(nextLookPosition.x, nextLookPosition.y);
 
     for (const Vector2D &pos : lookResult) {
-        fire(pos.x, pos.y);
+        int distance = this->position.distance(pos);
+
+        if (distance > maxFireDistance)
+            continue;
+
+        for (int i = 0; i < bulletsPerShot; i++) {
+            fire(pos.x, pos.y);
+        }
     }
 }
 
