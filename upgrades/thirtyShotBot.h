@@ -6,6 +6,6 @@
 class ThirtyShotBot:public GenericRobot{
     public:
         void fire(int x, int y) override;
-        int getBulletsPerShot() const override;
+        void setShellCount(int newShellCount);
 };
 #endif

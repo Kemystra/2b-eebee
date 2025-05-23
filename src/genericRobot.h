@@ -57,6 +57,7 @@ protected:
     // Upgrade necessities
     int getBulletsPerShot() const override;
     int getMaxFiringDistance() const override;
+    void setShellCount(int newShellCount);
 };
 
 #endif  // GENERIC_ROBOT_H
