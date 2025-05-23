@@ -72,3 +72,12 @@ void GenericRobot::fire(Vector2D target) {
 void GenericRobot::move(Vector2D destination) {
     position += destination;
 }
+
+char GenericRobot::getSymbol() const {
+    // Use the first letter of the robot's name as its symbol (capitalized)
+    return name.empty() ? '?' : toupper(name[0]);
+}
+
+Vector2D GenericRobot::getPosition() const {
+    return position;
+}

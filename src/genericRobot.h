@@ -20,6 +20,11 @@ public:
     void executeTurn() override;
 
     string getName() const;
+    Vector2D getPosition() const;
+
+    // Print the map grid with robot positions and cardinal directions
+    // Assumes Environment will call this and provide access to all robots
+    char getSymbol() const;
 
 private:
     Vector2D position;

@@ -37,6 +37,8 @@ public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);
     bool isRobotHere(Vector2D positionToCheck) const;
     bool isPositionAvailable(Vector2D positionToCheck) const;
+    // Print the map grid with robot positions and cardinal directions
+    void printMap() const;
 };
 
 #endif  // ENVIRONMENT_H
