@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "genericRobot.h"
+#include "environment.h"
 #include "vector2d.h"
 
 using namespace std;
@@ -14,10 +15,12 @@ string GenericRobot::getName() const {
 
 GenericRobot::GenericRobot(
     Vector2D initialPosition,
-    string name
+    string name,
+    Environment* env
 ) {
     this->position = initialPosition;
     this->name = name;
+    this->environment = env;
 }
 
 void GenericRobot::die() {
@@ -35,42 +38,45 @@ void GenericRobot::executeTurn() {
     cout << "Execute turn" << endl;
 
     // Generate later
-    Vector2D nextLookPosition(0,0);
+    Vector2D nextLookPosition(1,1);
 
-    vector<Vector2D> lookResult = look(nextLookPosition);
+    vector<Vector2D> lookResult = look(nextLookPosition.x, nextLookPosition.y);
 
     for (const Vector2D &pos : lookResult) {
-        fire(pos);
+        fire(pos.x, pos.y);
     }
 }
 
-vector<Vector2D> GenericRobot::look(Vector2D center) {
+vector<Vector2D> GenericRobot::look(int x, int y) {
     vector<Vector2D> lookResult = {};
+    Vector2D center(x, y);
 
     // Loop through a 3x3 square around center
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
             Vector2D currentLookAbsolutePosition = position + center + Vector2D(i, j);
 
-            // Ask the Environment if there's Robot here
-            // If yes, add it to result
+            lookResult.push_back(
+                environment->isRobotHere(currentLookAbsolutePosition)
+            );
         }
     }
 
     return lookResult;
 }
 
-void GenericRobot::fire(Vector2D target) {
+void GenericRobot::fire(int x, int y) {
+    Vector2D target(x, y);
     Vector2D targetAbsolutePosition = position + target;
-    // Get robot from Environment
-    GenericRobot robot(Vector2D(0,0), "");
 
-    robot.gotHit();
+    GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
+
+    targetRobot->gotHit();
     shellCount--;
 }
 
-void GenericRobot::move(Vector2D destination) {
-    position += destination;
+void GenericRobot::move(int x, int y) {
+    position += Vector2D(x,y);
 }
 
 char GenericRobot::getSymbol() const {

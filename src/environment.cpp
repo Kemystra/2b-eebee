@@ -13,18 +13,41 @@ Environment::Environment(
     this->dimension = dimension;
 
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param.position, param.name);
+        GenericRobot robot(param.position, param.name, this);
         this->robotList.push_back(robot);
     }
 }
 
+void Environment::gameLoop() {
+    if (step > maxStep)
+        gameOver();
+
+    for (GenericRobot& robot : this->robotList) {
+        robot.executeTurn();
+    }
+
+    if (robotList.size() == 0)
+        gameOver();
+
+    step++;
+}
+
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
     for (const GenericRobot &robot : this->robotList) {
-        if (robot.position == positionToCheck)
+        if (robot.getPosition() == positionToCheck)
             return true;
     }
 
     return false;
+}
+
+GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
+    for (GenericRobot &robot : this->robotList) {
+        if (robot.getPosition() == positionToCheck)
+            return &robot;
+    }
+
+    return nullptr;
 }
 
 bool Environment::isPositionAvailable(Vector2D positionToCheck) const {

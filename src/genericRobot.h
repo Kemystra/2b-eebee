@@ -6,14 +6,19 @@
 #include "abstractRobot/thinkingRobot.h"
 #include "abstractRobot/seeingRobot.h"
 #include "abstractRobot/shootingRobot.h"
+
 #include "vector2d.h"
 #include "environment.h"
+
 #include <vector>
 
 
+enum RobotUpgrades {
+};
+
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
-    GenericRobot(Vector2D initialPosition, string name);
+    GenericRobot(Vector2D initialPosition, string name, Environment* env);
 
     void die() override;
     void gotHit() override;
@@ -28,21 +33,25 @@ public:
 
 private:
     Vector2D position;
-    int shellCount = 10;
-    vector<Vector2D> seenRobotPosition = {};
     string name;
 
+    int respawnCountLeft = 3;
+    vector<RobotUpgrades> upgrades = {};
+
+    // The current environment this robot is in
+    Environment* environment;
+
     // SeeingRobot
-    vector<Vector2D> look(Vector2D center) override;
+    vector<Vector2D> look(int x, int y) override;
 
     // ThinkingRobot
     void think() override;
 
     // ShootingRobot
-    void fire(Vector2D target) override;
+    void fire(int x, int y) override;
 
     // MovingRobot
-    void move(Vector2D destination) override;
+    void move(int x, int y) override;
 
     friend bool Environment::isRobotHere(Vector2D positionToCheck) const;
 };
