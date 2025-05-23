@@ -36,7 +36,7 @@ public:
     // Assumes Environment will call this and provide access to all robots
     char getSymbol() const;
 
-private:
+protected:
     Vector2D position;
     string name;
 
