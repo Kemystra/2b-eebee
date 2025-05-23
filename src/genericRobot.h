@@ -36,6 +36,7 @@ public:
     // Assumes Environment will call this and provide access to all robots
     char getSymbol() const;
 
+
 protected:
     // These will have to be initialized
     string name;
@@ -52,6 +53,10 @@ protected:
 
     // MovingRobot
     void move(int x, int y) override;
+
+    // Upgrade necessities
+    int getBulletsPerShot() const override;
+    int getMaxFiringDistance() const override;
 };
 
 #endif  // GENERIC_ROBOT_H

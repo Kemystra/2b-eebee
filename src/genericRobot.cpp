@@ -83,6 +83,14 @@ void GenericRobot::fire(int x, int y) {
     shellCount--;
 }
 
+int GenericRobot::getBulletsPerShot() const {
+    return 1;
+}
+
+int GenericRobot::getMaxFiringDistance() const {
+    return 1;
+}
+
 void GenericRobot::move(int x, int y) {
     position += Vector2D(x,y);
 }

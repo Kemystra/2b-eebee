@@ -12,6 +12,10 @@ protected:
     // Shot position is calculated offset from robot's position
 public:
     virtual void fire(int x, int y) = 0;
+
+    // Needed for upgrades
+    virtual int getMaxFiringDistance() const = 0;
+    virtual int getBulletsPerShot() const = 0;
 };
 
 #endif // SHOOTING_ROBOT_H
