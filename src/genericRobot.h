@@ -37,6 +37,13 @@ public:
     char getSymbol() const;
 
 protected:
+    // These will have to be initialized
+    string name;
+    Vector2D position;
+
+    int respawnCountLeft = 3;
+    Environment* environment;
+
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;
 

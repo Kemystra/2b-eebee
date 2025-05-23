@@ -21,14 +21,6 @@ enum RobotUpgrades {
 
 
 class Robot {
-private:
-    // These will have to be initialized
-    string name;
-    Vector2D position;
-
-    int respawnCountLeft = 3;
-    Environment* environment;
-
 public:
     virtual void gotHit() = 0;
     virtual DeadState die() = 0;
