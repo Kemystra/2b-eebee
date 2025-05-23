@@ -14,7 +14,7 @@
 #include <vector>
 
 
-struct RobotUpgrades {
+enum RobotUpgrades {
 };
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
