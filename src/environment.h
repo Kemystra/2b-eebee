@@ -35,8 +35,15 @@ private:
 
 public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);
+
     bool isRobotHere(Vector2D positionToCheck) const;
+    GenericRobot* getRobotAtPosition(Vector2D positionToCheck);
     bool isPositionAvailable(Vector2D positionToCheck) const;
+    // Print the map grid with robot positions and cardinal directions
+    void printMap() const;
+
+    void gameLoop();
+    void gameOver();
 };
 
 #endif  // ENVIRONMENT_H
