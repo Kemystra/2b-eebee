@@ -2,3 +2,4 @@
 log.txt
 *.o
 *.json
+.vscode
