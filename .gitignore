@@ -1,5 +1,16 @@
+.vscode/
+
+# Generated executables
+
+## Linux stronk
+*.out
+
+## Absolute Win$hit
 *.exe
+
+
+# Log file
 log.txt
+
+# Built object files
 *.o
-*.json
-.vscode
