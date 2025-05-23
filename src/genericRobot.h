@@ -18,8 +18,7 @@
 class Environment;
 
 
-enum RobotUpgrades {
-};
+
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
@@ -29,8 +28,9 @@ public:
     void gotHit() override;
     void executeTurn() override;
 
-    string getName() const;
-    Vector2D getPosition() const;
+    string getName() const override;
+    Vector2D getPosition() const override;
+    vector<RobotUpgrades> getUpgrades() const override;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
@@ -41,7 +41,6 @@ private:
     string name;
 
     int respawnCountLeft = 3;
-    vector<RobotUpgrades> upgrades = {};
 
     // The current environment this robot is in
     Environment* environment;
