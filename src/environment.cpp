@@ -25,6 +25,8 @@ void Environment::gameLoop() {
             robot.thinkAndExecute();
         }
 
+        cout << step << endl;
+
         if (robotList.size() == 0)
             gameOver();
 

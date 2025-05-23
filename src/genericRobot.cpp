@@ -54,16 +54,19 @@ void GenericRobot::thinkAndExecute() {
 
 vector<Vector2D> GenericRobot::look(int x, int y) {
     vector<Vector2D> lookResult = {};
-    Vector2D center(x, y);
 
     // Loop through a 3x3 square around center
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
-            Vector2D currentLookAbsolutePosition = position + center + Vector2D(i, j);
 
-            lookResult.push_back(
-                environment->isRobotHere(currentLookAbsolutePosition)
-            );
+            // Center of look coordinate + offset
+            Vector2D relativePositionToLook = Vector2D(x, y) + Vector2D(i, j);
+
+            // Same position, but from the whole grid point of view
+            Vector2D absolutePositionToLook = this->position + relativePositionToLook;
+
+            if (environment->isRobotHere(absolutePositionToLook))
+                lookResult.push_back(relativePositionToLook);
         }
     }
 
