@@ -1,5 +1,6 @@
-#include <algorithm>
+#include <cstdint>
 #include <iostream>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -18,11 +19,17 @@ string GenericRobot::getName() const {
 GenericRobot::GenericRobot(
     Vector2D initialPosition,
     string name,
-    Environment* env
+    Environment* env,
+    uint_fast64_t rngSeed
 ) {
     this->position = initialPosition;
     this->name = name;
     this->environment = env;
+
+    // A seed initialize the random number generator (RNG)
+    // The advantage is that if we gave it the same seed
+    // it will always generate the same sequence of random numbers
+    this->rng = mt19937_64(rngSeed);
 }
 
 DeadState GenericRobot::die() {

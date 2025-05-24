@@ -10,6 +10,8 @@
 #include "vector2d.h"
 
 #include <vector>
+#include <cstdint>
+#include <random>
 
 // Forward declaration to avoid recursive includes
 // Basically Environment depends on GenericRobot, but GenericRobot ALSO depends on Environment
@@ -22,7 +24,7 @@ class Environment;
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
-    GenericRobot(Vector2D initialPosition, string name, Environment* env);
+    GenericRobot(Vector2D initialPosition, string name, Environment* env, uint_fast64_t rngSeed);
 
     DeadState die() override;
     void gotHit() override;
@@ -44,6 +46,10 @@ protected:
 
     int respawnCountLeft = 3;
     Environment* environment;
+
+    // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
+    // I chose a random one lol
+    mt19937_64 rng;
 
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;
