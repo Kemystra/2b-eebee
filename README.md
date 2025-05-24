@@ -5,7 +5,7 @@ robot go boom boom
 
 For basic compiling:
 ```cmd
-g++ -I abstractRobot/ *.cpp -o main.out
+g++ -I abstractRobot/ *.cpp -I upgrades/ *.h -o main.exe
 ```
 
 As more folder is added, you have to specify multiple `-I <folder_name>` in the compiler command.

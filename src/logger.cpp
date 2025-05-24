@@ -26,4 +26,10 @@ Logger::~Logger() {
     }
 }
 
+void Logger::error(const string& message){
+    string errorMessage = "Error: " + message;
+    outputToConsole(errorMessage);
+    outputToFile(errorMessage,"log.txt");
+}
+
 

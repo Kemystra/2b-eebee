@@ -4,6 +4,14 @@
 #include "abstractRobot/robot.h"
 #include "environment.h"
 #include "logger.h"
+#include "upgrades/hideBot.h"
+#include "upgrades/jumpBot.h"
+#include "upgrades/longShotBot.h"
+#include "upgrades/scoutBot.h"
+#include "upgrades/semiAutoBot.h"
+#include "upgrades/thirtyShotBot.h"
+#include "upgrades/trackBot.h"
+
 using namespace std;
 
 
@@ -34,9 +42,6 @@ int main (int argc, char *argv[]) {
     // Run Robot::execute_turn() for each robot
     // Re-enter robot if dead
     // Repeat till no robots left / steps finish
-    Logger logger;
-    logger.log("Simulation started");
-    logger.log("Initializing environment...");
-    logger.log("Environment initialized");
+    
     return 0;
 }
