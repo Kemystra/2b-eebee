@@ -6,7 +6,7 @@
 
 
 class MovingRobot : public Robot {
-    virtual void move(Vector2D destination) = 0;
+    virtual void move(int x, int y) = 0;
 };
 
 #endif  // MOVING_ROBOT_H

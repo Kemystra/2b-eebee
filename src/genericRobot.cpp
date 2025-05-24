@@ -1,8 +1,11 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include "genericRobot.h"
+#include "abstractRobot/robot.h"
+#include "environment.h"
 #include "vector2d.h"
 
 using namespace std;
@@ -14,14 +17,20 @@ string GenericRobot::getName() const {
 
 GenericRobot::GenericRobot(
     Vector2D initialPosition,
-    string name
+    string name,
+    Environment* env
 ) {
     this->position = initialPosition;
     this->name = name;
+    this->environment = env;
 }
 
-void GenericRobot::die() {
-    cout << "You're dead" << endl;
+DeadState GenericRobot::die() {
+    if (respawnCountLeft == 0)
+        return DeadState::Dead;
+
+    respawnCountLeft--;
+    return DeadState::Respawn;
 }
 
 void GenericRobot::gotHit() {
@@ -31,44 +40,83 @@ void GenericRobot::gotHit() {
     this->die();
 }
 
-void GenericRobot::executeTurn() {
+void GenericRobot::thinkAndExecute() {
     cout << "Execute turn" << endl;
 
-    // Generate later
-    Vector2D nextLookPosition(0,0);
+    // Fucking redundant, but needed since inheritance REEEE-
+    int maxFireDistance = getMaxFiringDistance();
+    int bulletsPerShot = getBulletsPerShot();
 
-    vector<Vector2D> lookResult = look(nextLookPosition);
+    // Generate later
+    Vector2D nextLookPosition(1,1);
+
+    vector<Vector2D> lookResult = look(nextLookPosition.x, nextLookPosition.y);
 
     for (const Vector2D &pos : lookResult) {
-        fire(pos);
+        int distance = this->position.distance(pos);
+
+        if (distance > maxFireDistance)
+            continue;
+
+        for (int i = 0; i < bulletsPerShot; i++) {
+            fire(pos.x, pos.y);
+        }
     }
 }
 
-vector<Vector2D> GenericRobot::look(Vector2D center) {
+vector<Vector2D> GenericRobot::look(int x, int y) {
     vector<Vector2D> lookResult = {};
 
     // Loop through a 3x3 square around center
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
-            Vector2D currentLookAbsolutePosition = position + center + Vector2D(i, j);
 
-            // Ask the Environment if there's Robot here
-            // If yes, add it to result
+            // Center of look coordinate + offset
+            Vector2D relativePositionToLook = Vector2D(x, y) + Vector2D(i, j);
+
+            // Same position, but from the whole grid point of view
+            Vector2D absolutePositionToLook = this->position + relativePositionToLook;
+
+            if (environment->isRobotHere(absolutePositionToLook))
+                lookResult.push_back(relativePositionToLook);
         }
     }
 
     return lookResult;
 }
 
-void GenericRobot::fire(Vector2D target) {
+void GenericRobot::fire(int x, int y) {
+    Vector2D target(x, y);
     Vector2D targetAbsolutePosition = position + target;
-    // Get robot from Environment
-    GenericRobot robot(Vector2D(0,0), "");
 
-    robot.gotHit();
+    GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
+
+    targetRobot->gotHit();
     shellCount--;
 }
 
-void GenericRobot::move(Vector2D destination) {
-    position += destination;
+int GenericRobot::getBulletsPerShot() const {
+    return 1;
+}
+
+int GenericRobot::getMaxFiringDistance() const {
+    return 1;
+}
+
+void GenericRobot::move(int x, int y) {
+    position += Vector2D(x,y);
+}
+
+char GenericRobot::getSymbol() const {
+    // Use the first letter of the robot's name as its symbol (capitalized)
+    return name.empty() ? '?' : toupper(name[0]);
+}
+
+Vector2D GenericRobot::getPosition() const {
+    return position;
+}
+
+// No upgrades, so return empty vector
+vector<RobotUpgrades> GenericRobot::getUpgrades() const {
+    return vector<RobotUpgrades>();
 }

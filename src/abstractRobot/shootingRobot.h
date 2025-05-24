@@ -6,10 +6,16 @@
 
 
 class ShootingRobot : public Robot {
-
+protected:
+    int shellCount = 10;
     // Fire a shot at a position
     // Shot position is calculated offset from robot's position
-    virtual void fire(Vector2D target) = 0;
+public:
+    virtual void fire(int x, int y) = 0;
+
+    // Needed for upgrades
+    virtual int getMaxFiringDistance() const = 0;
+    virtual int getBulletsPerShot() const = 0;
 };
 
 #endif // SHOOTING_ROBOT_H
