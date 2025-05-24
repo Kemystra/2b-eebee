@@ -15,6 +15,7 @@ class Logger{
         void log(const string& message);
         void outputToConsole(const string& message) ;
         void outputToFile(const string& message, const string& filename);
+        void error(const string& message);
 
 };
 
