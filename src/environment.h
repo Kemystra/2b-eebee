@@ -10,12 +10,6 @@
 using namespace std;
 
 
-struct RobotParameter {
-    string name;
-    Vector2D position;
-};
-
-
 // Class to store everything related to the overall environment stuff
 // Implement environment checking here
 class Environment {

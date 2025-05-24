@@ -19,17 +19,18 @@
 // Instead of including, we just write the declaration directly
 class Environment;
 
-
-
+struct RobotParameter {
+    string name;
+    Vector2D position;
+    char symbol;
+};
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
     GenericRobot(
-        Vector2D initialPosition,
-        string name,
+        RobotParameter robotParam,
         Environment* env,
-        uint_fast64_t rngSeed,
-        char symbol
+        uint_fast64_t rngSeed
     );
 
     DeadState die() override;

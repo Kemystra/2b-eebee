@@ -6,21 +6,21 @@
 
 #include "genericRobot.h"
 #include "abstractRobot/robot.h"
-#include "environment.h"
 #include "vector2d.h"
+#include "environment.h"
 
 using namespace std;
 
 
 GenericRobot::GenericRobot(
-    Vector2D initialPosition,
-    string name,
+    RobotParameter robotParam,
     Environment* env,
-    uint_fast64_t rngSeed,
-    char symbol
+    uint_fast64_t rngSeed
 ) {
-    this->position = initialPosition;
-    this->name = name;
+    this->position = robotParam.position;
+    this->name = robotParam.name;
+    this->symbol = robotParam.symbol;
+
     this->environment = env;
 
     // A seed initialize the random number generator (RNG)
@@ -28,7 +28,6 @@ GenericRobot::GenericRobot(
     // it will always generate the same sequence of random numbers
     this->rng = mt19937_64(rngSeed);
 
-    this->symbol = symbol;
 }
 
 DeadState GenericRobot::die() {
@@ -124,8 +123,7 @@ string GenericRobot::getName() const {
 }
 
 char GenericRobot::getSymbol() const {
-    // Use the first letter of the robot's name as its symbol (capitalized)
-    return name.empty() ? '?' : toupper(name[0]);
+    return this->symbol;
 }
 
 Vector2D GenericRobot::getPosition() const {
