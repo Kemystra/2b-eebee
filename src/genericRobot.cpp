@@ -41,7 +41,9 @@ DeadState GenericRobot::die() {
 }
 
 void GenericRobot::gotHit() {
-    this->die();
+    // Die probability is 70%, or 0.7
+    if (randomBool(0.7))
+        this->die();
 }
 
 void GenericRobot::thinkAndExecute() {
@@ -66,6 +68,13 @@ void GenericRobot::thinkAndExecute() {
             fire(pos.x, pos.y);
         }
     }
+
+    // Generate x and y between -1, 0, or 1
+    // Note that we only generate integers here
+    uniform_int_distribution<int> next_x(-1,1);
+    uniform_int_distribution<int> next_y(-1,1);
+
+    move(next_x(rng), next_y(rng));
 }
 
 vector<Vector2D> GenericRobot::look(int x, int y) {
