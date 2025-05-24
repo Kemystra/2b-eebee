@@ -24,7 +24,13 @@ class Environment;
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
-    GenericRobot(Vector2D initialPosition, string name, Environment* env, uint_fast64_t rngSeed);
+    GenericRobot(
+        Vector2D initialPosition,
+        string name,
+        Environment* env,
+        uint_fast64_t rngSeed,
+        char symbol
+    );
 
     DeadState die() override;
     void gotHit() override;
@@ -36,12 +42,13 @@ public:
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
-    char getSymbol() const;
+    char getSymbol() const override;
 
 
 protected:
     // These will have to be initialized
     string name;
+    char symbol;
     Vector2D position;
 
     int respawnCountLeft = 3;

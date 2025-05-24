@@ -12,15 +12,12 @@
 using namespace std;
 
 
-string GenericRobot::getName() const {
-    return this->name;
-}
-
 GenericRobot::GenericRobot(
     Vector2D initialPosition,
     string name,
     Environment* env,
-    uint_fast64_t rngSeed
+    uint_fast64_t rngSeed,
+    char symbol
 ) {
     this->position = initialPosition;
     this->name = name;
@@ -30,6 +27,8 @@ GenericRobot::GenericRobot(
     // The advantage is that if we gave it the same seed
     // it will always generate the same sequence of random numbers
     this->rng = mt19937_64(rngSeed);
+
+    this->symbol = symbol;
 }
 
 DeadState GenericRobot::die() {
@@ -118,6 +117,10 @@ int GenericRobot::getMaxFiringDistance() const {
 
 void GenericRobot::move(int x, int y) {
     position += Vector2D(x,y);
+}
+
+string GenericRobot::getName() const {
+    return this->name;
 }
 
 char GenericRobot::getSymbol() const {
