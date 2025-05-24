@@ -8,6 +8,7 @@
 #include "abstractRobot/shootingRobot.h"
 
 #include "vector2d.h"
+#include "logger.h"
 
 #include <vector>
 #include <cstdint>
@@ -54,6 +55,7 @@ protected:
 
     int respawnCountLeft = 3;
     Environment* environment;
+    Logger logger;
 
     // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
     // I chose a random one lol

@@ -27,7 +27,6 @@ GenericRobot::GenericRobot(
     // The advantage is that if we gave it the same seed
     // it will always generate the same sequence of random numbers
     this->rng = mt19937_64(rngSeed);
-
 }
 
 DeadState GenericRobot::die() {
@@ -45,9 +44,6 @@ void GenericRobot::gotHit() {
 }
 
 void GenericRobot::thinkAndExecute() {
-    cout << "Execute turn" << endl;
-
-    // Fucking redundant, but needed since inheritance REEEE-
     int maxFireDistance = getMaxFiringDistance();
     int bulletsPerShot = getBulletsPerShot();
 
