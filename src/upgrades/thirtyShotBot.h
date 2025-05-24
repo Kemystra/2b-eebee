@@ -1,7 +1,7 @@
 #ifndef THIRTYSHOTBOT_H
 #define THIRTYSHOTBOT_H
 
-#include "../src/genericRobot.h"
+#include "../genericRobot.h"
 
 class ThirtyShotBot:public GenericRobot{
     public:

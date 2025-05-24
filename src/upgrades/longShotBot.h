@@ -1,7 +1,7 @@
 #ifndef LONGSHOTBOT_H
 #define LONGSHOTBOT_H
 
-#include "../src/genericRobot.h"
+#include "../genericRobot.h"
 
 class LongShotBot:public GenericRobot{
     public:

@@ -1,7 +1,7 @@
 #ifndef SCOUTBOT_H
 #define SCOUTBOT_H
 
-#include "../src/genericRobot.h"
+#include "../genericRobot.h"
 
 class ScoutBot:public GenericRobot{
     public:
