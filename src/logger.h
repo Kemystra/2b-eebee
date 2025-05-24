@@ -8,7 +8,7 @@
 using namespace std;
 class Logger{
     private:
-       ofstream logFile;
+        ofstream logFile;
     public:
         Logger();
         ~Logger();
@@ -20,4 +20,4 @@ class Logger{
 };
 
 
-#endif // LOGGER_H
+    #endif // LOGGER_H
