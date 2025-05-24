@@ -4,6 +4,10 @@
 
 #include <random>
 
+// Needed for sleep function
+#include <chrono>
+#include <thread>
+
 using namespace std;
 
 Environment::Environment(
@@ -20,7 +24,7 @@ Environment::Environment(
     mt19937_64 rng(69420);
 
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param.position, param.name, this, rng());
+        GenericRobot robot(param, this, rng());
         this->robotList.push_back(robot);
     }
 }
@@ -30,14 +34,19 @@ void Environment::gameLoop() {
         for (GenericRobot &robot : this->robotList) {
             printMap();
             robot.thinkAndExecute();
+            this_thread::sleep_for(
+                chrono::milliseconds(robotActionInterval)
+            );
         }
-
-        cout << step << endl;
 
         if (robotList.size() == 0)
             gameOver();
 
         step++;
+
+        this_thread::sleep_for(
+            chrono::milliseconds(stepInterval)
+        );
     }
 
     gameOver();

@@ -22,6 +22,10 @@ private:
     int maxStep;
     int step = 0;
 
+    // Values in milliseconds
+    int robotActionInterval = 100;
+    int stepInterval = 200;
+
 public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);
 
