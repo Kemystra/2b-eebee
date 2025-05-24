@@ -41,9 +41,6 @@ DeadState GenericRobot::die() {
 }
 
 void GenericRobot::gotHit() {
-    // Calculate 70% probability
-    // If hit, then die mf
-
     this->die();
 }
 
@@ -130,4 +127,14 @@ vector<RobotUpgrades> GenericRobot::getUpgrades() const {
 
 void GenericRobot::setShellCount(int newShellCount){
     shellCount = newShellCount;
+}
+
+bool GenericRobot::randomBool(double probability) {
+    uniform_real_distribution<double> dist(0.0, 1.0);
+
+    // Generate a number between 0 and 1, and check if it's below probability
+    // if yes (which depends on the value of probability) return true
+    // else return false
+    double num = dist(this->rng);
+    return num < probability;
 }

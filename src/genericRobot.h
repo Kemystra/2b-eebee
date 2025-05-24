@@ -51,6 +51,9 @@ protected:
     // I chose a random one lol
     mt19937_64 rng;
 
+    // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
+    bool randomBool(double probability);
+
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;
 
