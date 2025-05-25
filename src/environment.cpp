@@ -13,7 +13,8 @@ using namespace std;
 Environment::Environment(
     int maxStep,
     Vector2D dimension,
-    vector<RobotParameter> robotParams
+    vector<RobotParameter> robotParams,
+    Logger* logger
 ) {
     this->maxStep = maxStep;
     this->dimension = dimension;
@@ -23,8 +24,10 @@ Environment::Environment(
     // so that all the robots won't do the same thing at the same time
     mt19937_64 rng(69420);
 
+    this->logger = logger;
+
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param, this, rng());
+        GenericRobot robot(param, this, rng(), logger);
         this->robotList.push_back(&robot);
     }
 }
