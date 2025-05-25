@@ -8,8 +8,11 @@
 #include "abstractRobot/shootingRobot.h"
 
 #include "vector2d.h"
+#include "logger.h"
 
 #include <vector>
+#include <cstdint>
+#include <random>
 
 // Forward declaration to avoid recursive includes
 // Basically Environment depends on GenericRobot, but GenericRobot ALSO depends on Environment
@@ -17,12 +20,19 @@
 // Instead of including, we just write the declaration directly
 class Environment;
 
-
-
+struct RobotParameter {
+    string name;
+    Vector2D position;
+    char symbol;
+};
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
-    GenericRobot(Vector2D initialPosition, string name, Environment* env);
+    GenericRobot(
+        RobotParameter robotParam,
+        Environment* env,
+        uint_fast64_t rngSeed
+    );
 
     DeadState die() override;
     void gotHit() override;
@@ -34,16 +44,25 @@ public:
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
-    char getSymbol() const;
+    char getSymbol() const override;
 
 
 protected:
     // These will have to be initialized
     string name;
+    char symbol;
     Vector2D position;
 
     int respawnCountLeft = 3;
     Environment* environment;
+    Logger logger;
+
+    // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
+    // I chose a random one lol
+    mt19937_64 rng;
+
+    // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
+    bool randomBool(double probability);
 
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;

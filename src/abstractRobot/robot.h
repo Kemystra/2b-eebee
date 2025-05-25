@@ -27,6 +27,7 @@ public:
 
     virtual vector<RobotUpgrades> getUpgrades() const = 0;
     virtual string getName() const = 0;
+    virtual char getSymbol() const = 0;
     virtual Vector2D getPosition() const = 0;
 };
 

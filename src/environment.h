@@ -10,12 +10,6 @@
 using namespace std;
 
 
-struct RobotParameter {
-    string name;
-    Vector2D position;
-};
-
-
 // Class to store everything related to the overall environment stuff
 // Implement environment checking here
 class Environment {
@@ -27,6 +21,10 @@ private:
 
     int maxStep;
     int step = 0;
+
+    // Values in milliseconds
+    int robotActionInterval = 100;
+    int stepInterval = 200;
 
 public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);

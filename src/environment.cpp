@@ -2,6 +2,12 @@
 #include "genericRobot.h"
 #include "vector2d.h"
 
+#include <random>
+
+// Needed for sleep function
+#include <chrono>
+#include <thread>
+
 using namespace std;
 
 Environment::Environment(
@@ -12,8 +18,13 @@ Environment::Environment(
     this->maxStep = maxStep;
     this->dimension = dimension;
 
+    // Temporary RNG to seed the robots RNG
+    // We are using another RNG instead of just passing the same seed
+    // so that all the robots won't do the same thing at the same time
+    mt19937_64 rng(69420);
+
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param.position, param.name, this);
+        GenericRobot robot(param, this, rng());
         this->robotList.push_back(robot);
     }
 }
@@ -23,14 +34,19 @@ void Environment::gameLoop() {
         for (GenericRobot &robot : this->robotList) {
             printMap();
             robot.thinkAndExecute();
+            this_thread::sleep_for(
+                chrono::milliseconds(robotActionInterval)
+            );
         }
-
-        cout << step << endl;
 
         if (robotList.size() == 0)
             gameOver();
 
         step++;
+
+        this_thread::sleep_for(
+            chrono::milliseconds(stepInterval)
+        );
     }
 
     gameOver();

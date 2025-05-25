@@ -1,28 +1,32 @@
-#include <algorithm>
+#include <cstdint>
 #include <iostream>
+#include <random>
 #include <string>
 #include <vector>
 
 #include "genericRobot.h"
 #include "abstractRobot/robot.h"
-#include "environment.h"
 #include "vector2d.h"
+#include "environment.h"
 
 using namespace std;
 
 
-string GenericRobot::getName() const {
-    return this->name;
-}
-
 GenericRobot::GenericRobot(
-    Vector2D initialPosition,
-    string name,
-    Environment* env
+    RobotParameter robotParam,
+    Environment* env,
+    uint_fast64_t rngSeed
 ) {
-    this->position = initialPosition;
-    this->name = name;
+    this->position = robotParam.position;
+    this->name = robotParam.name;
+    this->symbol = robotParam.symbol;
+
     this->environment = env;
+
+    // A seed initialize the random number generator (RNG)
+    // The advantage is that if we gave it the same seed
+    // it will always generate the same sequence of random numbers
+    this->rng = mt19937_64(rngSeed);
 }
 
 DeadState GenericRobot::die() {
@@ -34,16 +38,12 @@ DeadState GenericRobot::die() {
 }
 
 void GenericRobot::gotHit() {
-    // Calculate 70% probability
-    // If hit, then die mf
-
-    this->die();
+    // Die probability is 70%, or 0.7
+    if (randomBool(0.7))
+        this->die();
 }
 
 void GenericRobot::thinkAndExecute() {
-    cout << "Execute turn" << endl;
-
-    // Fucking redundant, but needed since inheritance REEEE-
     int maxFireDistance = getMaxFiringDistance();
     int bulletsPerShot = getBulletsPerShot();
 
@@ -62,6 +62,13 @@ void GenericRobot::thinkAndExecute() {
             fire(pos.x, pos.y);
         }
     }
+
+    // Generate x and y between -1, 0, or 1
+    // Note that we only generate integers here
+    uniform_int_distribution<int> next_x(-1,1);
+    uniform_int_distribution<int> next_y(-1,1);
+
+    move(next_x(rng), next_y(rng));
 }
 
 vector<Vector2D> GenericRobot::look(int x, int y) {
@@ -107,9 +114,12 @@ void GenericRobot::move(int x, int y) {
     position += Vector2D(x,y);
 }
 
+string GenericRobot::getName() const {
+    return this->name;
+}
+
 char GenericRobot::getSymbol() const {
-    // Use the first letter of the robot's name as its symbol (capitalized)
-    return name.empty() ? '?' : toupper(name[0]);
+    return this->symbol;
 }
 
 Vector2D GenericRobot::getPosition() const {
@@ -123,4 +133,14 @@ vector<RobotUpgrades> GenericRobot::getUpgrades() const {
 
 void GenericRobot::setShellCount(int newShellCount){
     shellCount = newShellCount;
+}
+
+bool GenericRobot::randomBool(double probability) {
+    uniform_real_distribution<double> dist(0.0, 1.0);
+
+    // Generate a number between 0 and 1, and check if it's below probability
+    // if yes (which depends on the value of probability) return true
+    // else return false
+    double num = dist(this->rng);
+    return num < probability;
 }
