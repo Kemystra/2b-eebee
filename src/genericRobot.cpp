@@ -65,12 +65,27 @@ void GenericRobot::thinkAndExecute() {
         }
     }
 
+    bool validMovement = false;
+
     // Generate x and y between -1, 0, or 1
     // Note that we only generate integers here
-    uniform_int_distribution<int> next_x(-1,1);
-    uniform_int_distribution<int> next_y(-1,1);
+    uniform_int_distribution<int> next_x_generator(-1,1);
+    uniform_int_distribution<int> next_y_generator(-1,1);
+    int next_x = 0;
+    int next_y = 0;
 
-    move(next_x(rng), next_y(rng));
+    // Keep generating next movement
+    // until a valid one is found
+    while (!validMovement) {
+        next_x = next_x_generator(rng);
+        next_y = next_y_generator(rng);
+
+        validMovement = environment->isPositionAvailable(
+            this->position + Vector2D(next_x, next_y)
+        );
+    }
+
+    move(next_x, next_y);
 }
 
 vector<Vector2D> GenericRobot::look(int x, int y) {
