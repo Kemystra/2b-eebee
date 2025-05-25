@@ -41,6 +41,5 @@ int main (int argc, char *argv[]) {
     // Run Robot::execute_turn() for each robot
     // Re-enter robot if dead
     // Repeat till no robots left / steps finish
-    
     return 0;
 }

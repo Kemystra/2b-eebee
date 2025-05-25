@@ -1,7 +1,7 @@
 #include "logger.h"
 
 Logger::Logger() {
-    logFile.open("log.txt", ios::app);
+    logFile.open("log.txt");
 }
 
 void Logger::outputToConsole(const string& message) {
