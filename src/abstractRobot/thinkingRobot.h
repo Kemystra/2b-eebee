@@ -11,7 +11,7 @@ using namespace std;
 
 class ThinkingRobot : public Robot {
 public:
-    virtual void think() = 0;
+    virtual void thinkAndExecute() = 0;
 };
 
 #endif  // THINKING_ROBOT_H

@@ -5,20 +5,9 @@
 #include <string>
 
 #include "vector2d.h"
+#include "genericRobot.h"
 
 using namespace std;
-
-
-// Forward declaration to avoid recursive includes
-// Basically Environment depends on GenericRobot, but GenericRobot ALSO depends on Environment
-// Compiler complains about this
-// Instead of including, we just write the declaration directly
-class GenericRobot;
-
-struct RobotParameter {
-    string name;
-    Vector2D position;
-};
 
 
 // Class to store everything related to the overall environment stuff
@@ -31,12 +20,23 @@ private:
     Vector2D dimension;
 
     int maxStep;
-    int step;
+    int step = 0;
+
+    // Values in milliseconds
+    int robotActionInterval = 100;
+    int stepInterval = 200;
 
 public:
     Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);
+
     bool isRobotHere(Vector2D positionToCheck) const;
+    GenericRobot* getRobotAtPosition(Vector2D positionToCheck);
     bool isPositionAvailable(Vector2D positionToCheck) const;
+    // Print the map grid with robot positions and cardinal directions
+    void printMap() const;
+
+    void gameLoop();
+    void gameOver();
 };
 
 #endif  // ENVIRONMENT_H
