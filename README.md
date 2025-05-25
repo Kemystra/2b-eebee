@@ -14,14 +14,14 @@ As more folder is added, you have to specify multiple `-I <folder_name>` in the 
 ### Base Upgrades :
 <ol>
   <li>
-    #### Moving Type
+    Moving Type
     <ul>
       <li>HideBot</li>
       <li>JumpBot</li>
     </ul>
   </li>
   <li>
-    #### Shooting Type
+    Shooting Type
     <ul>
       <li>LongShotBot</li>
       <li>SemiAutoBot</li>
@@ -32,7 +32,7 @@ As more folder is added, you have to specify multiple `-I <folder_name>` in the 
     </ul>
   </li>
   <li>
-    #### Seeing Type
+    Seeing Type
     <ul>
       <li>ScoutBot</li>
       <li>TrackBot</li>
