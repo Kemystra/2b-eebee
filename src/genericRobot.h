@@ -31,7 +31,8 @@ public:
     GenericRobot(
         RobotParameter robotParam,
         Environment* env,
-        uint_fast64_t rngSeed
+        uint_fast64_t rngSeed,
+        Logger* logger
     );
 
     DeadState die() override;
@@ -52,10 +53,10 @@ protected:
     string name;
     char symbol;
     Vector2D position;
-
     int respawnCountLeft = 3;
+
     Environment* environment;
-    Logger logger;
+    Logger* logger;
 
     // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
     // I chose a random one lol

@@ -1,11 +1,11 @@
 #include <cstdint>
-#include <iostream>
 #include <random>
 #include <string>
 #include <vector>
 
 #include "genericRobot.h"
 #include "abstractRobot/robot.h"
+#include "logger.h"
 #include "vector2d.h"
 #include "environment.h"
 
@@ -15,13 +15,15 @@ using namespace std;
 GenericRobot::GenericRobot(
     RobotParameter robotParam,
     Environment* env,
-    uint_fast64_t rngSeed
+    uint_fast64_t rngSeed,
+    Logger* logger
 ) {
     this->position = robotParam.position;
     this->name = robotParam.name;
     this->symbol = robotParam.symbol;
 
     this->environment = env;
+    this->logger = logger;
 
     // A seed initialize the random number generator (RNG)
     // The advantage is that if we gave it the same seed
