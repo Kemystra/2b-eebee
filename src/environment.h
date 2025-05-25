@@ -14,7 +14,7 @@ using namespace std;
 // Implement environment checking here
 class Environment {
 private:
-    vector<GenericRobot> robotList;
+    vector<GenericRobot*> robotList;
 
     // Width and height of the battleground
     Vector2D dimension;

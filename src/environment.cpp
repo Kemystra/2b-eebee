@@ -25,15 +25,15 @@ Environment::Environment(
 
     for (const RobotParameter &param : robotParams) {
         GenericRobot robot(param, this, rng());
-        this->robotList.push_back(robot);
+        this->robotList.push_back(&robot);
     }
 }
 
 void Environment::gameLoop() {
     while (maxStep > step) {
-        for (GenericRobot &robot : this->robotList) {
+        for (GenericRobot* robot : this->robotList) {
             printMap();
-            robot.thinkAndExecute();
+            robot->thinkAndExecute();
             this_thread::sleep_for(
                 chrono::milliseconds(robotActionInterval)
             );
@@ -57,8 +57,8 @@ void Environment::gameOver() {
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
-    for (const GenericRobot &robot : this->robotList) {
-        if (robot.getPosition() == positionToCheck)
+    for (GenericRobot* robot : this->robotList) {
+        if (robot->getPosition() == positionToCheck)
             return true;
     }
 
@@ -66,9 +66,9 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
 }
 
 GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
-    for (GenericRobot &robot : this->robotList) {
-        if (robot.getPosition() == positionToCheck)
-            return &robot;
+    for (GenericRobot* robot : this->robotList) {
+        if (robot->getPosition() == positionToCheck)
+            return robot;
     }
 
     return nullptr;
@@ -102,9 +102,9 @@ void Environment::printMap() const {
         for (int x = 0; x < dimension.x; ++x) {
             Vector2D pos(x, y);
             bool found = false;
-            for (const GenericRobot &robot : robotList) {
-                if (robot.getPosition() == pos) {
-                    cout << robot.getSymbol() << " ";
+            for (GenericRobot* robot : robotList) {
+                if (robot->getPosition() == pos) {
+                    cout << robot->getSymbol() << " ";
                     found = true;
                     break;
                 }
