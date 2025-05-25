@@ -2,6 +2,7 @@
 #include "genericRobot.h"
 #include "vector2d.h"
 
+#include <memory>
 #include <random>
 
 // Needed for sleep function
@@ -26,15 +27,29 @@ Environment::Environment(
 
     this->logger = logger;
 
+    // By default, C++ store objects on the stack memory
+    // Every time an object goes out-of-scope (here, on each loop iteration), it will be destroyed
+    // Using raw pointers, all the robots that are created will be destroyed except the last one.
+    //
+    // To avoid that you have to store them on the heap memory (using the 'new' keyword)
+    // Problem with that is we have to 'delete' the objects afterwards
+    // which is a massive pain in the ass.
+    //
+    // Instead, we are going to use 'smart pointers' (here, it is unique_ptr)
+    // It will automatically 'delete' our object when the program ends.
+    //
+    // Note that unique_ptr also means that Environment now 'owns' the robots object
+    // Important note for later.
     for (const RobotParameter &param : robotParams) {
         GenericRobot robot(param, this, rng(), logger);
-        this->robotList.push_back(&robot);
+
+        this->robotList.push_back(make_unique<GenericRobot>(robot));
     }
 }
 
 void Environment::gameLoop() {
     while (maxStep > step) {
-        for (GenericRobot* robot : this->robotList) {
+        for (unique_ptr<GenericRobot> &robot : this->robotList) {
             printMap();
             robot->thinkAndExecute();
             this_thread::sleep_for(
@@ -60,7 +75,7 @@ void Environment::gameOver() {
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
-    for (GenericRobot* robot : this->robotList) {
+    for (const unique_ptr<GenericRobot> &robot : this->robotList) {
         if (robot->getPosition() == positionToCheck)
             return true;
     }
@@ -69,9 +84,12 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
 }
 
 GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
-    for (GenericRobot* robot : this->robotList) {
+    for (unique_ptr<GenericRobot> &robot : this->robotList) {
         if (robot->getPosition() == positionToCheck)
-            return robot;
+
+            // To return the raw pointer to the object, use get()
+            // DO NOT RETURN THE unique_ptr ITSELF
+            return robot.get();
     }
 
     return nullptr;
@@ -105,7 +123,7 @@ void Environment::printMap() const {
         for (int x = 0; x < dimension.x; ++x) {
             Vector2D pos(x, y);
             bool found = false;
-            for (GenericRobot* robot : robotList) {
+            for (const unique_ptr<GenericRobot> &robot : robotList) {
                 if (robot->getPosition() == pos) {
                     cout << robot->getSymbol() << " ";
                     found = true;

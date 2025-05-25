@@ -1,6 +1,7 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -15,7 +16,9 @@ using namespace std;
 // Implement environment checking here
 class Environment {
 private:
-    vector<GenericRobot*> robotList;
+    // We cannot use raw pointer here
+    // See the constructor implementation in environment.cpp
+    vector<unique_ptr<GenericRobot>> robotList;
     Logger* logger;
 
     // Width and height of the battleground
