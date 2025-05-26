@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cmath>
 #include <random>
 #include <string>
 #include <vector>
@@ -43,13 +44,29 @@ void GenericRobot::thinkAndExecute() {
     int maxFireDistance = getMaxFiringDistance();
     int bulletsPerShot = getBulletsPerShot();
 
-    // Generate later
-    Vector2D nextLookPosition(1,1);
+    // Generate x and y between -1, 0, or 1
+    // Note that we only generate integers here
+    uniform_int_distribution<int> next_x_generator(-1,1);
+    uniform_int_distribution<int> next_y_generator(-1,1);
 
-    vector<Vector2D> lookResult = look(nextLookPosition.x, nextLookPosition.y);
+    // Will be used for look() and move()
+    int next_x = 0;
+    int next_y = 0;
+
+    bool validLookCenter = false;
+    while (!validLookCenter) {
+        next_x = next_x_generator(rng);
+        next_y = next_y_generator(rng);
+
+        // Center of vision must be within bounds
+        // simply for efficiency
+        validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
+    }
+
+    vector<Vector2D> lookResult = look(next_x, next_y);
 
     for (const Vector2D &pos : lookResult) {
-        int distance = this->position.distance(pos);
+        int distance = calcDistance(this->position, pos);
 
         if (distance > maxFireDistance)
             continue;
@@ -60,13 +77,6 @@ void GenericRobot::thinkAndExecute() {
     }
 
     bool validMovement = false;
-
-    // Generate x and y between -1, 0, or 1
-    // Note that we only generate integers here
-    uniform_int_distribution<int> next_x_generator(-1,1);
-    uniform_int_distribution<int> next_y_generator(-1,1);
-    int next_x = 0;
-    int next_y = 0;
 
     // Keep generating next movement
     // until a valid one is found
@@ -95,8 +105,15 @@ vector<Vector2D> GenericRobot::look(int x, int y) {
             // Same position, but from the whole grid point of view
             Vector2D absolutePositionToLook = this->position + relativePositionToLook;
 
-            if (environment->isRobotHere(absolutePositionToLook))
-                lookResult.push_back(relativePositionToLook);
+            if (!environment->isRobotHere(absolutePositionToLook))
+                continue;
+
+            GenericRobot* seenRobot = environment->getRobotAtPosition(absolutePositionToLook);
+            // If you are looking at urself, skip
+            if (seenRobot == this)
+                continue;
+
+            lookResult.push_back(relativePositionToLook);
         }
     }
 
@@ -166,4 +183,16 @@ void GenericRobot::selfLog(const string& msg) {
     this->logger->log(
         name + ": " + msg
     );
+}
+
+// A crude way to give the distance based on 'square area'
+int GenericRobot::calcDistance(Vector2D a, Vector2D b) const {
+    Vector2D diff = a - b;
+    Vector2D absDiff = Vector2D(abs(diff.x), abs(diff.y));
+
+    // Return the bigger difference, either x or y
+    if (absDiff.x > absDiff.y)
+        return absDiff.x;
+    else
+        return absDiff.y;
 }

@@ -79,6 +79,13 @@ protected:
     void setShellCount(int newShellCount);
 
     void selfLog(const string& msg);
+
+    // GenericRobot uses a 'square' area to see if a robot is in shooting range
+    // in LongShotBot however, it uses a different way of calculating distance (called taxicab distance)
+    // These 2 way of checking is incompatible, so you have to override it
+    //
+    // I love Goh
+    int calcDistance(Vector2D a, Vector2D b) const;
 };
 
 #endif  // GENERIC_ROBOT_H
