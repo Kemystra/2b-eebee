@@ -68,7 +68,7 @@ void GenericRobot::thinkAndExecute() {
 
     for (const Vector2D &pos : lookResult) {
         selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
-        int distance = calcDistance(this->position, pos);
+        int distance = calcDistance(pos);
         if (distance > maxFireDistance)
             continue;
 
@@ -137,7 +137,9 @@ void GenericRobot::fire(int x, int y) {
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
         environment->notifyKill(this, targetRobot, deadState);
     }
-
+    else {
+        selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
+    }
     shellCount--;
 }
 
@@ -192,13 +194,10 @@ void GenericRobot::selfLog(const string& msg) {
 }
 
 // A crude way to give the distance based on 'square area'
-int GenericRobot::calcDistance(Vector2D a, Vector2D b) const {
-    Vector2D diff = a - b;
-    Vector2D absDiff = Vector2D(abs(diff.x), abs(diff.y));
-
+int GenericRobot::calcDistance(Vector2D a) const {
     // Return the bigger difference, either x or y
-    if (absDiff.x > absDiff.y)
-        return absDiff.x;
+    if (a.x > a.y)
+        return a.x;
     else
-        return absDiff.y;
+        return a.y;
 }
