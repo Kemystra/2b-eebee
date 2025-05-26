@@ -1,7 +1,9 @@
 #include "environment.h"
+#include "abstractRobot/robot.h"
 #include "genericRobot.h"
 #include "vector2d.h"
 
+#include <algorithm>
 #include <memory>
 #include <random>
 
@@ -136,4 +138,22 @@ void Environment::printMap() const {
     }
     // Print cardinal directions
     cout << "\nN (up)\nS (down)\nE (right)\nW (left)\n";
+}
+
+void Environment::notifyDead(DeadState deadState, GenericRobot* caller) {
+    // This thing returns an iterator type with a long typename that I can't even find
+    // just gonna use auto here lol
+    auto it = find(robotList.begin(), robotList.end(), caller);
+
+    // If respawn move to respawn queue
+    switch (deadState) {
+        case DeadState::Respawn:
+            respawnQueue.push(*it);
+            robotList.erase(it);
+        break;
+
+        case DeadState::Dead:
+            robotList.erase(it);
+        break;
+    }
 }

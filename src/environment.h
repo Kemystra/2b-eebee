@@ -3,8 +3,10 @@
 
 #include <memory>
 #include <vector>
+#include <queue>
 #include <string>
 
+#include "abstractRobot/robot.h"
 #include "logger.h"
 #include "vector2d.h"
 #include "genericRobot.h"
@@ -19,6 +21,9 @@ private:
     // We cannot use raw pointer here
     // See the constructor implementation in environment.cpp
     vector<unique_ptr<GenericRobot>> robotList;
+
+    // First robot in, first robot out
+    queue<unique_ptr<GenericRobot>> respawnQueue;
     Logger* logger;
 
     // Width and height of the battleground
@@ -47,6 +52,8 @@ public:
 
     void gameLoop();
     void gameOver();
+
+    void notifyDead(DeadState deadState, GenericRobot* caller);
 };
 
 #endif  // ENVIRONMENT_H
