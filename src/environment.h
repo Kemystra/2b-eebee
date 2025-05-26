@@ -61,6 +61,7 @@ public:
     void gameOver();
 
     void notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState);
+    vector<unique_ptr<GenericRobot>>::iterator getRobotIndex(GenericRobot* robot);
 };
 
 #endif  // ENVIRONMENT_H
