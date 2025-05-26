@@ -7,7 +7,7 @@
 
 using namespace std;
 
-struct RobotInfo{
+struct RobotInfo{ // Structure to hold robot information
     string type;
     string name;
     int x;
@@ -15,7 +15,7 @@ struct RobotInfo{
     bool isRandomPosition;
 };
 
-class ParameterFileReader{
+class ParameterFileReader{ // Class to read and parse a parameter file for a robot simulation
     public:
     class ParseError: public runtime_error{
         using runtime_error::runtime_error;
@@ -23,7 +23,7 @@ class ParameterFileReader{
 
     ParameterFileReader() = default;
 
-    bool readFile(const string&filename, bool requireAllParams = true);
+    bool readFile(const string&filename, bool requireAllParams = true); // Read and parse the parameter file
 
     int getM() const {return m;}
     int getN() const {return n;}
