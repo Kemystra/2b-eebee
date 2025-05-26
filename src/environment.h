@@ -1,9 +1,13 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
+#include <memory>
 #include <vector>
+#include <queue>
 #include <string>
 
+#include "abstractRobot/robot.h"
+#include "logger.h"
 #include "vector2d.h"
 #include "genericRobot.h"
 
@@ -14,7 +18,17 @@ using namespace std;
 // Implement environment checking here
 class Environment {
 private:
-    vector<GenericRobot> robotList;
+    // We cannot use raw pointer here
+    // See the constructor implementation in environment.cpp
+    vector<unique_ptr<GenericRobot>> robotList;
+
+    // First robot in, first robot out
+    queue<unique_ptr<GenericRobot>> respawnQueue;
+
+    // Robots to upgrade
+
+
+    Logger* logger;
 
     // Width and height of the battleground
     Vector2D dimension;
@@ -27,16 +41,27 @@ private:
     int stepInterval = 200;
 
 public:
-    Environment(int maxStep, Vector2D dimension, vector<RobotParameter> robotParams);
+    Environment(
+        int maxStep,
+        Vector2D dimension,
+        vector<RobotParameter> robotParams,
+        Logger* logger
+    );
 
     bool isRobotHere(Vector2D positionToCheck) const;
-    GenericRobot* getRobotAtPosition(Vector2D positionToCheck);
     bool isPositionAvailable(Vector2D positionToCheck) const;
+    bool isWithinBounds(Vector2D positionToCheck) const;
+
+    GenericRobot* getRobotAtPosition(Vector2D positionToCheck);
+
     // Print the map grid with robot positions and cardinal directions
     void printMap() const;
 
     void gameLoop();
     void gameOver();
+
+    void notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState);
+    vector<unique_ptr<GenericRobot>>::iterator getRobotIndex(GenericRobot* robot);
 };
 
 #endif  // ENVIRONMENT_H

@@ -3,6 +3,7 @@
 
 #include "abstractRobot/robot.h"
 #include "environment.h"
+#include "logger.h"
 
 using namespace std;
 
@@ -11,6 +12,9 @@ int main (int argc, char *argv[]) {
     // 40x40 grid
     Vector2D dimension(40, 40);
     int maxStep = 100; // or any value you want
+
+    // Init logger
+    Logger logger;
 
     RobotParameter r1 = {"bruh", Vector2D(8,9), 'A'};
     RobotParameter r2 = {"shit", Vector2D(34,9), 'B'};
@@ -26,7 +30,7 @@ int main (int argc, char *argv[]) {
     vector<RobotParameter> robotParams = {
         r1, r2, r3, r4, r5, r6, r7, r8, r9, r10
     }; // Add robots as needed
-    Environment env(maxStep, dimension, robotParams);
+    Environment env(maxStep, dimension, robotParams, &logger);
 
     env.gameLoop();
 
