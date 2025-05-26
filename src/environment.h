@@ -49,8 +49,11 @@ public:
     );
 
     bool isRobotHere(Vector2D positionToCheck) const;
-    GenericRobot* getRobotAtPosition(Vector2D positionToCheck);
     bool isPositionAvailable(Vector2D positionToCheck) const;
+    bool isWithinBounds(Vector2D positionToCheck) const;
+
+    GenericRobot* getRobotAtPosition(Vector2D positionToCheck);
+
     // Print the map grid with robot positions and cardinal directions
     void printMap() const;
 

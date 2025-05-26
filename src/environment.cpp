@@ -98,11 +98,11 @@ GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
 }
 
 bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
-    // only 1 robot at 1 position
-    if (isRobotHere(positionToCheck))
-        return false;
+    // Position is available if no robots there and it's within bounds
+    return !isRobotHere(positionToCheck) || isWithinBounds(positionToCheck);
+}
 
-    // Cannot go out of bounds of the battleground
+bool Environment::isWithinBounds(Vector2D positionToCheck) const {
     if(positionToCheck.x > dimension.x || positionToCheck.x < 0)
         return false;
 
