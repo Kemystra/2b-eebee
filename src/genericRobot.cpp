@@ -39,12 +39,6 @@ DeadState GenericRobot::die() {
     return DeadState::Respawn;
 }
 
-void GenericRobot::gotHit() {
-    // Die probability is 70%, or 0.7
-    if (randomBool(0.7))
-        this->die();
-}
-
 void GenericRobot::thinkAndExecute() {
     int maxFireDistance = getMaxFiringDistance();
     int bulletsPerShot = getBulletsPerShot();
@@ -115,7 +109,11 @@ void GenericRobot::fire(int x, int y) {
 
     GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
 
-    targetRobot->gotHit();
+    // call die() directly
+    // Allow flexibility of 'killing' the oponent later since we can set the probability
+    if(randomBool(0.7))
+        targetRobot->die();
+
     shellCount--;
 }
 

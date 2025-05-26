@@ -36,7 +36,6 @@ public:
     );
 
     DeadState die() override;
-    void gotHit() override;
     void thinkAndExecute() override;
 
     string getName() const override;
