@@ -161,3 +161,9 @@ bool GenericRobot::randomBool(double probability) {
     double num = dist(this->rng);
     return num < probability;
 }
+
+void GenericRobot::selfLog(const string& msg) {
+    this->logger->log(
+        name + ": " + msg
+    );
+}

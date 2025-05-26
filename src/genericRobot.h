@@ -77,6 +77,8 @@ protected:
     int getBulletsPerShot() const override;
     int getMaxFiringDistance() const override;
     void setShellCount(int newShellCount);
+
+    void selfLog(const string& msg);
 };
 
 #endif  // GENERIC_ROBOT_H
