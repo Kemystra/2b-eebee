@@ -3,13 +3,13 @@
 #include "genericRobot.h"
 #include "vector2d.h"
 
-#include <algorithm>
 #include <memory>
 #include <random>
 
 // Needed for sleep function
 #include <chrono>
 #include <thread>
+#include <vector>
 
 using namespace std;
 
@@ -143,20 +143,31 @@ void Environment::printMap() const {
 void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState) {
     // find() returns an iterator type with a long typename that I can't even find
     // just gonna use auto here lol
-    auto victim_iterator = find(robotList.begin(), robotList.end(), victim);
-    auto killer_iterator = find(robotList.begin(), robotList.end(), killer);
+    auto victimIterator = getRobotIndex(victim);
+    auto killerIterator = getRobotIndex(killer);
 
     // Later need to add upgrade mechanism
 
     // If respawn move to respawn queue, else just delete urself lol
     switch (deadState) {
         case DeadState::Respawn:
-            respawnQueue.push(*victim_iterator);
-            robotList.erase(victim_iterator);
+            respawnQueue.push(move(*victimIterator));
+            robotList.erase(victimIterator);
         break;
 
         case DeadState::Dead:
-            robotList.erase(victim_iterator);
+            robotList.erase(victimIterator);
         break;
     }
+}
+
+// This ugly type is unfortunately needed for quite a few vector operations
+vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRobot* robot) {
+    for (int i = 0; i < robotList.size(); i++) {
+        if(robotList[i].get() == robot)
+            return robotList.begin() + i;
+    }
+
+    // should never happen, will need error class for this
+    return robotList.end();
 }
