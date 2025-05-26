@@ -140,20 +140,23 @@ void Environment::printMap() const {
     cout << "\nN (up)\nS (down)\nE (right)\nW (left)\n";
 }
 
-void Environment::notifyDead(DeadState deadState, GenericRobot* caller) {
-    // This thing returns an iterator type with a long typename that I can't even find
+void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState) {
+    // find() returns an iterator type with a long typename that I can't even find
     // just gonna use auto here lol
-    auto it = find(robotList.begin(), robotList.end(), caller);
+    auto victim_iterator = find(robotList.begin(), robotList.end(), victim);
+    auto killer_iterator = find(robotList.begin(), robotList.end(), killer);
 
-    // If respawn move to respawn queue
+    // Later need to add upgrade mechanism
+
+    // If respawn move to respawn queue, else just delete urself lol
     switch (deadState) {
         case DeadState::Respawn:
-            respawnQueue.push(*it);
-            robotList.erase(it);
+            respawnQueue.push(*victim_iterator);
+            robotList.erase(victim_iterator);
         break;
 
         case DeadState::Dead:
-            robotList.erase(it);
+            robotList.erase(victim_iterator);
         break;
     }
 }

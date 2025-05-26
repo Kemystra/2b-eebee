@@ -24,6 +24,10 @@ private:
 
     // First robot in, first robot out
     queue<unique_ptr<GenericRobot>> respawnQueue;
+
+    // Robots to upgrade
+
+
     Logger* logger;
 
     // Width and height of the battleground
@@ -53,7 +57,7 @@ public:
     void gameLoop();
     void gameOver();
 
-    void notifyDead(DeadState deadState, GenericRobot* caller);
+    void notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState);
 };
 
 #endif  // ENVIRONMENT_H
