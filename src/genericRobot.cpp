@@ -111,8 +111,10 @@ void GenericRobot::fire(int x, int y) {
 
     // call die() directly
     // Allow flexibility of 'killing' the oponent later since we can set the probability
-    if(randomBool(0.7))
-        targetRobot->die();
+    if(randomBool(0.7)) {
+        DeadState deadState = targetRobot->die();
+        environment->notifyKill(this, targetRobot, deadState);
+    }
 
     shellCount--;
 }
