@@ -22,7 +22,6 @@ enum RobotUpgrades {
 
 class Robot {
 public:
-    virtual void gotHit() = 0;
     virtual DeadState die() = 0;
 
     virtual vector<RobotUpgrades> getUpgrades() const = 0;
