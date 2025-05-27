@@ -161,8 +161,7 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
     }
 }
 
-// This ugly type is unfortunately needed for quite a few vector operations
-vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIterator(GenericRobot* robot) {
+RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
     for (int i = 0; i < robotList.size(); i++) {
         if(robotList[i].get() == robot)
             return robotList.begin() + i;
@@ -170,6 +169,10 @@ vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIterator(Generic
 
     // should never happen, will need error class for this
     return robotList.end();
+}
+
+void Environment::applyRobotUpgrades() {
+
 }
 
 vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
