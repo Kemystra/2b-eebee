@@ -141,10 +141,12 @@ void Environment::printMap() const {
 }
 
 void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState) {
-    // find() returns an iterator type with a long typename that I can't even find
-    // just gonna use auto here lol
-    auto victimIterator = getRobotIterator(victim);
-    auto killerIterator = getRobotIterator(killer);
+    RobotPtrIterator victimIterator = getRobotIterator(victim);
+    RobotPtrIterator killerIterator = getRobotIterator(killer);
+
+    // Add to upgrade list and notify the robot
+    robotsToUpgrade.push_back(killerIterator);
+    killer->chosenForUpgrade();
 
     // Later need to add upgrade mechanism
 
@@ -171,6 +173,11 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
     return robotList.end();
 }
 
+// We cannot upgrade the right after kill
+// notifyKill() is called while the robot is running thinkAndExecute()
+// Upgrading the robot involves destroying the original object and replacing them with a new one
+// If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
+// So we will only upgrade them at the start of each round
 void Environment::applyRobotUpgrades() {
 
 }

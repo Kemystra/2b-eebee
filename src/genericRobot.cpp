@@ -198,3 +198,7 @@ int GenericRobot::calcDistance(Vector2D a) const {
     // Return the bigger difference, either x or y
     return max(abs(a.x), abs(a.y));
 }
+
+void GenericRobot::chosenForUpgrade() {
+
+}
