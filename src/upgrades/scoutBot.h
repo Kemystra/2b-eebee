@@ -6,6 +6,8 @@
 class ScoutBot:public GenericRobot{
     public:
         vector<Vector2D> scout();
+    protected:
+        int scoutCount =3;
 };
 
 #endif

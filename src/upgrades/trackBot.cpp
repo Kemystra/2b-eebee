@@ -3,6 +3,10 @@
 
 void TrackBot::track(Vector2D positionOfRobot) {
     // Check if the position is within the bounds of the environment
+    if (this->trackedBots.size() >= trackCount) {
+        selfLog("Cannot track more robots, maximum tracking limit reached.");
+        return;
+    }
     if (!environment->isWithinBounds(positionOfRobot)) {
         selfLog("Cannot track robot at (" + to_string(positionOfRobot.x) + ", " + to_string(positionOfRobot.y) + ") - out of bounds.");
         return;
