@@ -4,7 +4,9 @@
 #include "../genericRobot.h"
 class JumpBot:public GenericRobot{
     public:
-        void jump(int x, int y);
+        void jump(Vector2D target); // Jump to a target position
+    protected:
+        int jumpAmount = 3;
 };
 
 

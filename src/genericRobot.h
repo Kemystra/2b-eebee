@@ -53,6 +53,7 @@ protected:
     char symbol;
     Vector2D position;
     int respawnCountLeft = 3;
+    vector<int> movementRange={-1,1};
 
     Environment* environment;
     Logger* logger;
