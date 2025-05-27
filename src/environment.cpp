@@ -171,3 +171,7 @@ vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRob
     // should never happen, will need error class for this
     return robotList.end();
 }
+
+vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
+    return this->robotList;
+}
