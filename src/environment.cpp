@@ -183,7 +183,6 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
     // should never happen, will need error class for this
     return robotList.end();
 }
-
 // We cannot upgrade the robots right after they kill
 // notifyKill() is called while the robot is running thinkAndExecute()
 // Upgrading the robot involves destroying the original object and replacing them with a new one
@@ -217,6 +216,9 @@ void Environment::applyRobotRespawn() {
 
 void Environment::applyRobotDie() {
 
+
+vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
+    return this->robotList;
 }
 
 vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
