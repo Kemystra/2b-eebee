@@ -22,7 +22,7 @@ int main (int argc, char *argv[]) {
     RobotParameter r4 = {"dick", Vector2D(2,23), 'D'};
     RobotParameter r5 = {"erection", Vector2D(10,23), 'E'};
     RobotParameter r6 = {"fucker", Vector2D(8,33), 'F'};
-    RobotParameter r7 = {"gay", Vector2D(15,23), 'G'};
+    RobotParameter r7 = {"gaygyatt", Vector2D(15,23), 'G'};
     RobotParameter r8 = {"horny", Vector2D(11,1), 'H'};
     RobotParameter r9 = {"itty bitty tiddy", Vector2D(0,0), 'I'};
     RobotParameter r10 = {"jesus", Vector2D(19,11), 'J'};
