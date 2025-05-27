@@ -215,7 +215,7 @@ void Environment::applyRobotRespawn() {
 }
 
 void Environment::applyRobotDie() {
-
+}
 
 vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
     return this->robotList;
