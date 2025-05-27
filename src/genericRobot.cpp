@@ -34,6 +34,7 @@ GenericRobot::GenericRobot(
 
 DeadState GenericRobot::die() {
     if (respawnCountLeft == 0)
+        selfLog("Robot " + name + " has died and cannot respawn anymore.");
         return DeadState::Dead;
 
     respawnCountLeft--;
@@ -66,12 +67,13 @@ void GenericRobot::thinkAndExecute() {
     vector<Vector2D> lookResult = look(next_x, next_y);
 
     for (const Vector2D &pos : lookResult) {
-        int distance = calcDistance(this->position, pos);
-
+        selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
+        int distance = calcDistance(pos);
         if (distance > maxFireDistance)
             continue;
 
         for (int i = 0; i < bulletsPerShot; i++) {
+            selfLog("Attemting to fire at: (" + to_string(pos.x)+ ", " + to_string(pos.y) + ")");
             fire(pos.x, pos.y);
         }
     }
@@ -94,7 +96,7 @@ void GenericRobot::thinkAndExecute() {
 
 vector<Vector2D> GenericRobot::look(int x, int y) {
     vector<Vector2D> lookResult = {};
-
+    selfLog("Looking.");
     // Loop through a 3x3 square around center
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
@@ -105,14 +107,16 @@ vector<Vector2D> GenericRobot::look(int x, int y) {
             // Same position, but from the whole grid point of view
             Vector2D absolutePositionToLook = this->position + relativePositionToLook;
 
+            // If no robots, go to next cycle
             if (!environment->isRobotHere(absolutePositionToLook))
-                continue;
+                continue;                                           
 
             GenericRobot* seenRobot = environment->getRobotAtPosition(absolutePositionToLook);
             // If you are looking at urself, skip
             if (seenRobot == this)
                 continue;
 
+            // If robot is found, add their coordinates to the lookResult
             lookResult.push_back(relativePositionToLook);
         }
     }
@@ -125,14 +129,17 @@ void GenericRobot::fire(int x, int y) {
     Vector2D targetAbsolutePosition = position + target;
 
     GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
-
+    selfLog("Fired at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
     // call die() directly
     // Allow flexibility of 'killing' the oponent later since we can set the probability
     if(randomBool(0.7)) {
         DeadState deadState = targetRobot->die();
+        selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
         environment->notifyKill(this, targetRobot, deadState);
     }
-
+    else {
+        selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
+    }
     shellCount--;
 }
 
@@ -146,6 +153,7 @@ int GenericRobot::getMaxFiringDistance() const {
 
 void GenericRobot::move(int x, int y) {
     position += Vector2D(x,y);
+    selfLog("Moved to " + to_string(position.x) + ", " + to_string(position.y));
 }
 
 string GenericRobot::getName() const {
@@ -186,13 +194,7 @@ void GenericRobot::selfLog(const string& msg) {
 }
 
 // A crude way to give the distance based on 'square area'
-int GenericRobot::calcDistance(Vector2D a, Vector2D b) const {
-    Vector2D diff = a - b;
-    Vector2D absDiff = Vector2D(abs(diff.x), abs(diff.y));
-
+int GenericRobot::calcDistance(Vector2D a) const {
     // Return the bigger difference, either x or y
-    if (absDiff.x > absDiff.y)
-        return absDiff.x;
-    else
-        return absDiff.y;
+    return max(abs(a.x), abs(a.y));
 }

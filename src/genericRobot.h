@@ -85,7 +85,7 @@ protected:
     // These 2 way of checking is incompatible, so you have to override it
     //
     // I love Goh
-    int calcDistance(Vector2D a, Vector2D b) const;
+    int calcDistance(Vector2D a) const;
 };
 
 #endif  // GENERIC_ROBOT_H

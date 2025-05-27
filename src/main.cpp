@@ -16,16 +16,16 @@ int main (int argc, char *argv[]) {
     // Init logger
     Logger logger;
 
-    RobotParameter r1 = {"bruh", Vector2D(8,9), 'A'};
-    RobotParameter r2 = {"shit", Vector2D(34,9), 'B'};
-    RobotParameter r3 = {"ass", Vector2D(8,23), 'C'};
-    RobotParameter r4 = {"ass", Vector2D(2,23), 'D'};
-    RobotParameter r5 = {"ass", Vector2D(10,23), 'E'};
-    RobotParameter r6 = {"ass", Vector2D(8,33), 'F'};
-    RobotParameter r7 = {"ass", Vector2D(15,23), 'G'};
-    RobotParameter r8 = {"ass", Vector2D(11,1), 'H'};
-    RobotParameter r9 = {"ass", Vector2D(0,0), 'I'};
-    RobotParameter r10 = {"ass", Vector2D(19,11), 'J'};
+    RobotParameter r1 = {"ass", Vector2D(8,9), 'A'};
+    RobotParameter r2 = {"boobs", Vector2D(34,9), 'B'};
+    RobotParameter r3 = {"cunt", Vector2D(8,23), 'C'};
+    RobotParameter r4 = {"dick", Vector2D(2,23), 'D'};
+    RobotParameter r5 = {"erection", Vector2D(10,23), 'E'};
+    RobotParameter r6 = {"fucker", Vector2D(8,33), 'F'};
+    RobotParameter r7 = {"gaygyatt", Vector2D(15,23), 'G'};
+    RobotParameter r8 = {"horny", Vector2D(11,1), 'H'};
+    RobotParameter r9 = {"itty bitty tiddy", Vector2D(0,0), 'I'};
+    RobotParameter r10 = {"jesus", Vector2D(19,11), 'J'};
 
     vector<RobotParameter> robotParams = {
         r1, r2, r3, r4, r5, r6, r7, r8, r9, r10
