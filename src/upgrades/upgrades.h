@@ -30,6 +30,7 @@ enum Upgrade {
     TrackBot
 };
 
+// List out all upgrades under a track
 vector<Upgrade> getUpgradesUnderTrack(UpgradeTrack track);
 
 #endif  // UPGRADES_H

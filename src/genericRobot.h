@@ -9,6 +9,7 @@
 
 #include "vector2d.h"
 #include "logger.h"
+#include "upgrades/upgrades.h"
 
 #include <vector>
 #include <cstdint>
@@ -26,24 +27,6 @@ struct RobotParameter {
     char symbol;
 };
 
-enum UpgradeTrack {
-    Moving,
-    Shooting,
-    Seeing
-};
-
-enum Upgrade {
-    HideBot,
-    JumpBot,
-    LongShotBot,
-    SemiAutoBot,
-    ThirtyShotBot,
-    LandmineBot,
-    BombBot,
-    LaserBot,
-    ScoutBot,
-    TrackBot
-};
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:

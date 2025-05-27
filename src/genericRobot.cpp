@@ -7,6 +7,7 @@
 #include "genericRobot.h"
 #include "abstractRobot/robot.h"
 #include "logger.h"
+#include "upgrades/upgrades.h"
 #include "vector2d.h"
 #include "environment.h"
 
@@ -201,5 +202,19 @@ int GenericRobot::calcDistance(Vector2D a) const {
 }
 
 void GenericRobot::chosenForUpgrade() {
+    // Select track within the possible upgrade tracks
+    uniform_int_distribution<int> trackIndexGen(0, possibleUpgradeTrack.size() - 1);
+    int chosenTrackIndex = trackIndexGen(rng);
+    UpgradeTrack chosenTrack = possibleUpgradeTrack[chosenTrackIndex];
 
+    // List out all upgrades under a track
+    vector<Upgrade> upgradesToChoose = getUpgradesUnderTrack(chosenTrack);
+
+    // Select upgrades under the track
+    uniform_int_distribution<int> upgradeIndexGen(0, upgradesToChoose.size() - 1);
+    int chosenUpgradeIndex = upgradeIndexGen(rng);
+    Upgrade chosenUpgrade = upgradesToChoose[chosenUpgradeIndex];
+
+    // Store chosen upgrade for the next upgrade cycle
+    pendingUpgrades.push_back(chosenUpgrade);
 }
