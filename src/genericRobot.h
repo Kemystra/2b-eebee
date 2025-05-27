@@ -27,6 +27,12 @@ struct RobotParameter {
     char symbol;
 };
 
+// Robot status on the upgrading
+enum UpgradeState {
+    AvailableForUpgrade,
+    UpgradeFull
+};
+
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
@@ -40,7 +46,7 @@ public:
     DeadState die() override;
     void thinkAndExecute() override;
 
-    void chosenForUpgrade();
+    UpgradeState chosenForUpgrade();
 
     string getName() const override;
     Vector2D getPosition() const override;

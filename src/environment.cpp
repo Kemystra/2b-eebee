@@ -51,6 +51,8 @@ Environment::Environment(
 
 void Environment::gameLoop() {
     while (maxStep > step) {
+        applyRobotUpgrades();
+
         for (unique_ptr<GenericRobot> &robot : this->robotList) {
             printMap();
             robot->thinkAndExecute();
@@ -144,9 +146,11 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
     RobotPtrIterator victimIterator = getRobotIterator(victim);
     RobotPtrIterator killerIterator = getRobotIterator(killer);
 
-    // Add to upgrade list and notify the robot
-    robotsToUpgrade.push_back(killerIterator);
-    killer->chosenForUpgrade();
+    // Notify the robot on upgrading
+    UpgradeState upgradeState = killer->chosenForUpgrade();
+    if (upgradeState == AvailableForUpgrade)
+        // Add to upgrade list
+        robotsToUpgrade.push_back(killerIterator);
 
     // Later need to add upgrade mechanism
 

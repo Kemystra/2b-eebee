@@ -201,7 +201,12 @@ int GenericRobot::calcDistance(Vector2D a) const {
     return max(abs(a.x), abs(a.y));
 }
 
-void GenericRobot::chosenForUpgrade() {
+UpgradeState GenericRobot::chosenForUpgrade() {
+    // Check for the current upgrade and pending upgrade count
+    // Stop if already enough
+    if (upgrades.size() + pendingUpgrades.size() == 3)
+        return UpgradeFull;
+
     // Select track within the possible upgrade tracks
     uniform_int_distribution<int> trackIndexGen(0, possibleUpgradeTrack.size() - 1);
     int chosenTrackIndex = trackIndexGen(rng);
@@ -217,4 +222,6 @@ void GenericRobot::chosenForUpgrade() {
 
     // Store chosen upgrade for the next upgrade cycle
     pendingUpgrades.push_back(chosenUpgrade);
+
+    return AvailableForUpgrade;
 }
