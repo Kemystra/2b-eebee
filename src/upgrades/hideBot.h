@@ -6,6 +6,8 @@
 class HideBot:public GenericRobot{
     public:
         void hide();
+    protected:
+        int hideAmount = 3; // Number of times the bot can hide
 };
 
 

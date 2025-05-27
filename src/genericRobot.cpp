@@ -47,8 +47,8 @@ void GenericRobot::thinkAndExecute() {
 
     // Generate x and y between -1, 0, or 1
     // Note that we only generate integers here
-    uniform_int_distribution<int> next_x_generator(-1,1);
-    uniform_int_distribution<int> next_y_generator(-1,1);
+    uniform_int_distribution<int> next_x_generator(this->movementRange[0], this->movementRange[1]);
+    uniform_int_distribution<int> next_y_generator(this->movementRange[0],this->movementRange[1]);
 
     // Will be used for look() and move()
     int next_x = 0;
