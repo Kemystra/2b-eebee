@@ -3,11 +3,12 @@
 
 #include "../genericRobot.h"
 #include <variant>
+#include <memory>
 class TrackBot:public GenericRobot{
     private:
-        vector<variant<string,int>> trackedBot;  //  saves tracked robot name and coordinates in form of ['robotName', x-coordinate, y-coordinate]
+        vector<GenericRobot*> trackedBots;  //  saves tracked robot pointers
     public:
-        void track();
+        void track(Vector2D positionOfRobot); // track a robot at a given position
 };
 
 #endif
