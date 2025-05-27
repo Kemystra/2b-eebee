@@ -143,8 +143,8 @@ void Environment::printMap() const {
 void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState) {
     // find() returns an iterator type with a long typename that I can't even find
     // just gonna use auto here lol
-    auto victimIterator = getRobotIndex(victim);
-    auto killerIterator = getRobotIndex(killer);
+    auto victimIterator = getRobotIterator(victim);
+    auto killerIterator = getRobotIterator(killer);
 
     // Later need to add upgrade mechanism
 
@@ -162,7 +162,7 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
 }
 
 // This ugly type is unfortunately needed for quite a few vector operations
-vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRobot* robot) {
+vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIterator(GenericRobot* robot) {
     for (int i = 0; i < robotList.size(); i++) {
         if(robotList[i].get() == robot)
             return robotList.begin() + i;
