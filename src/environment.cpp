@@ -146,7 +146,7 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
     RobotPtrIterator victimIterator = getRobotIterator(victim);
     RobotPtrIterator killerIterator = getRobotIterator(killer);
 
-    // Notify the robot on upgrading
+    // Notify the robot on upgrading and check its upgrade-related state
     UpgradeState upgradeState = killer->chosenForUpgrade();
     if (upgradeState == AvailableForUpgrade)
         // Add to upgrade list
@@ -181,7 +181,7 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
 // notifyKill() is called while the robot is running thinkAndExecute()
 // Upgrading the robot involves destroying the original object and replacing them with a new one
 // If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
-// So we will only upgrade them at the start of each round
+// So we will only actually upgrade them at the start of each round
 void Environment::applyRobotUpgrades() {
 
 }

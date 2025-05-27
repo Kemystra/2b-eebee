@@ -50,7 +50,8 @@ public:
 
     string getName() const override;
     Vector2D getPosition() const override;
-    vector<RobotUpgrades> getUpgrades() const override;
+    const vector<Upgrade>& getPendingUpgrades() const;
+    const vector<Upgrade>& getUpgrades() const;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots

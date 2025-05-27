@@ -171,8 +171,13 @@ Vector2D GenericRobot::getPosition() const {
 }
 
 // No upgrades, so return empty vector
-vector<RobotUpgrades> GenericRobot::getUpgrades() const {
-    return vector<RobotUpgrades>();
+const vector<Upgrade>& GenericRobot::getUpgrades() const {
+    return upgrades;
+}
+
+
+const vector<Upgrade>& GenericRobot::getPendingUpgrades() const {
+    return pendingUpgrades;
 }
 
 void GenericRobot::setShellCount(int newShellCount){
