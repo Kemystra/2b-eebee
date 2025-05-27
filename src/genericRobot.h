@@ -54,6 +54,7 @@ protected:
     Vector2D position;
     int respawnCountLeft = 3;
     vector<int> movementRange={-1,1};
+    bool isVisible = true;
 
     Environment* environment;
     Logger* logger;

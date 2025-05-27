@@ -8,7 +8,6 @@ class HideBot:public GenericRobot{
         void hide();
     protected:
         int hideAmount = 3; // Number of times the bot can hide
-        bool isHidden = false; // Whether the bot is currently hidden
 };
 
 
