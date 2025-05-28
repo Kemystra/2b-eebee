@@ -10,6 +10,7 @@ class TrackBot:public GenericRobot{
         int trackCount = 3; // max number of robots to track
     public:
         void track(Vector2D positionOfRobot); // track a robot at a given position
+        void thinkAndExecute();
 };
 
 #endif
