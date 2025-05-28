@@ -183,7 +183,12 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
     // should never happen, will need error class for this
     return robotList.end();
 }
-// We cannot upgrade the robots right after they kill
+
+vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
+    return this->robotList;
+}
+
+// We cannot upgrade the right after kill
 // notifyKill() is called while the robot is running thinkAndExecute()
 // Upgrading the robot involves destroying the original object and replacing them with a new one
 // If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
