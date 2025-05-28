@@ -1,6 +1,7 @@
 #include "environment.h"
 #include "abstractRobot/robot.h"
 #include "genericRobot.h"
+#include "upgrades/upgrades.h"
 #include "vector2d.h"
 
 #include <memory>
@@ -177,13 +178,30 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
     return robotList.end();
 }
 
-// We cannot upgrade the right after kill
+// We cannot upgrade the robots right after they kill
 // notifyKill() is called while the robot is running thinkAndExecute()
 // Upgrading the robot involves destroying the original object and replacing them with a new one
 // If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
 // So we will only actually upgrade them at the start of each round
 void Environment::applyRobotUpgrades() {
+    for (const RobotPtrIterator& robotIterator : robotsToUpgrade) {
+        // Get the raw robot pointer
+        // For some reason you can't access it like normal pointer
+        // even though at other places can
+        GenericRobot* robotPtr = robotIterator->get();
 
+        // Get the pending upgrade
+        vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
+
+        for (const Upgrade& upgrade : pendingUpgrades) {
+            // Will apply upgrades later
+            GenericRobot* newRobot = new GenericRobot(*robotPtr);
+
+            // Destroy the old GenericRobot, and switch to the new robot
+            // Using iterator allow us to edit in-place, so we don't have to push it into robotList
+            robotIterator->reset(newRobot);
+        }
+    }
 }
 
 vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
