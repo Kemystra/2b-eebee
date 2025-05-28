@@ -59,7 +59,10 @@ void HideBot::thinkAndExecute(){
     }
 
     if (hideAmount>0){
-        hide();
+        bool useHide = randomBool(0.5);
+        if (useHide){
+            hide();
+        };
     }
     move(next_x, next_y);
 }
