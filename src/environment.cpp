@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <random>
+#include <algorithm>
 
 // Needed for sleep function
 #include <chrono>
@@ -21,6 +22,9 @@ Environment::Environment(
 ) {
     this->maxStep = maxStep;
     this->dimension = dimension;
+
+    // Initialize grid for marks ('.' means empty)
+    grid.resize(dimension.x, vector<char>(dimension.y, '.'));
 
     // Temporary RNG to seed the robots RNG
     // We are using another RNG instead of just passing the same seed
@@ -43,37 +47,48 @@ Environment::Environment(
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param, this, rng(), logger);
-
-        this->robotList.push_back(make_unique<GenericRobot>(robot));
+        robotList.push_back(make_unique<GenericRobot>(param, this, rng(), logger));
     }
 }
 
 void Environment::gameLoop() {
-    while (maxStep > step) {
-        for (unique_ptr<GenericRobot> &robot : this->robotList) {
-            printMap();
-            robot->thinkAndExecute();
-            this_thread::sleep_for(
-                chrono::milliseconds(robotActionInterval)
-            );
+    while (maxStep > step && robotList.size() > 1) {
+        // Make a copy of pointers to robots to avoid iterator invalidation
+        vector<GenericRobot*> robotsToAct;
+        for (auto& robotPtr : robotList) {
+            robotsToAct.push_back(robotPtr.get());
         }
 
-        if (robotList.size() == 0)
-            gameOver();
+        for (GenericRobot* robot : robotsToAct) {
+            printMap();
+            // Only act if the robot is still in the list (not killed this turn)
+            if (find_if(robotList.begin(), robotList.end(),
+                [robot](const unique_ptr<GenericRobot>& ptr) { return ptr.get() == robot; }) != robotList.end()) {
+                robot->thinkAndExecute();
+                this_thread::sleep_for(chrono::milliseconds(robotActionInterval));
+            }
+        }
+
+        if (robotList.size() <= 1) {
+            break;
+        }
 
         step++;
-
-        this_thread::sleep_for(
-            chrono::milliseconds(stepInterval)
-        );
+        this_thread::sleep_for(chrono::milliseconds(stepInterval));
     }
-
-    gameOver();
+    
 }
 
 void Environment::gameOver() {
     cout << "Game Over" << endl;
+    cout << "Remaining robots: " << robotList.size() << endl;
+    if (robotList.size() == 1) {
+        cout << "Winner: " << robotList[0]->getName() << endl;
+    } else if (robotList.size() == 0) {
+        cout << "No winner." << endl;
+    } else {
+        cout << "Multiple robots survived." << endl;
+    }
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
@@ -112,34 +127,103 @@ bool Environment::isWithinBounds(Vector2D positionToCheck) const {
     return true;
 }
 
+
 void Environment::printMap() const {
-    // Print column headers (X axis)
-    cout << "   ";
+    // Print top border
+    cout << "\033[34m"; // Set blue color
+    cout << "X ";
     for (int x = 0; x < dimension.x; ++x) {
-        cout << x << " ";
+        cout << "X ";
     }
-    cout << "\n";
+    cout << "X\033[0m\n"; // Reset color
+
     for (int y = 0; y < dimension.y; ++y) {
-        // Print row header (Y axis)
-        cout << y << " |";
+        cout << "\033[34mX\033[0m "; // Left border in blue with space
         for (int x = 0; x < dimension.x; ++x) {
-            Vector2D pos(x, y);
-            bool found = false;
-            for (const unique_ptr<GenericRobot> &robot : robotList) {
-                if (robot->getPosition() == pos) {
-                    cout << robot->getSymbol() << " ";
-                    found = true;
-                    break;
+            // Priority: fire mark > line mark > robot > empty
+            if (grid[x][y] == '!') {
+                cout << "\033[31m! \033[0m"; // Red fire mark
+            } else if (grid[x][y] == '*') {
+                cout << "\033[33m* \033[0m"; // Yellow line mark
+            } else {
+                Vector2D pos(x, y);
+                bool found = false;
+                for (const unique_ptr<GenericRobot> &robot : robotList) {
+                    if (robot->getPosition() == pos) {
+                        cout << robot->getSymbol() << " ";
+                        found = true;
+                        break;
+                    }
                 }
+                if (!found) cout << ". ";
             }
-            if (!found) cout << ". ";
         }
-        cout << "|\n";
+        cout << "\033[34mX\033[0m\n"; // Right border in blue
     }
-    // Print cardinal directions
-    cout << "\nN (up)\nS (down)\nE (right)\nW (left)\n";
+    // Print bottom border
+    cout << "\033[34m";
+    cout << "X ";
+    for (int x = 0; x < dimension.x; ++x) {
+        cout << "X ";
+    }
+    cout << "X\033[0m\n";
 }
 
+// Place a fire mark at (x, y)
+void Environment::placeFireMark(int x, int y) {
+    if (x >= 0 && x < dimension.x && y >= 0 && y < dimension.y) {
+        grid[x][y] = '!';
+    }
+}
+
+ // Draw a line using Bresenham's algorithm, marking '*' on empty cells
+// Starts 1 block away from (x1, y1) in the direction of (x2, y2)
+void Environment::drawLine(int x1, int y1, int x2, int y2) {
+    int dx = abs(x2 - x1);
+    int dy = abs(y2 - y1);
+    int sx = (x1 < x2) ? 1 : -1;
+    int sy = (y1 < y2) ? 1 : -1;
+    int err = dx - dy;
+
+    // Move one step from (x1, y1) towards (x2, y2)
+    if (x1 != x2 || y1 != y2) {
+        int e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x1 += sx; }
+        if (e2 < dx) { err += dx; y1 += sy; }
+    }
+
+    while (true) {
+        if (x1 >= 0 && x1 < dimension.x && y1 >= 0 && y1 < dimension.y) {
+            if (grid[x1][y1] == '.') grid[x1][y1] = '*';
+        }
+        if (x1 == x2 && y1 == y2) break;
+        int e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x1 += sx; }
+        if (e2 < dx) { err += dx; y1 += sy; }
+    }
+}
+
+// Remove all fire marks from the grid
+void Environment::clearFireMarks() {
+    for (int x = 0; x < dimension.x; ++x) {
+        for (int y = 0; y < dimension.y; ++y) {
+            if (grid[x][y] == '!') {
+                grid[x][y] = '.';
+            }
+        }
+    }
+}
+
+// Remove all line marks from the grid
+void Environment::clearLineMarks() {
+    for (int x = 0; x < dimension.x; ++x) {
+        for (int y = 0; y < dimension.y; ++y) {
+            if (grid[x][y] == '*') {
+                grid[x][y] = '.';
+            }
+        }
+    }
+}
 void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState) {
     // find() returns an iterator type with a long typename that I can't even find
     // just gonna use auto here lol
@@ -171,3 +255,71 @@ vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRob
     // should never happen, will need error class for this
     return robotList.end();
 }
+
+void Environment::printwelcomemessage() const {
+    cout << ".++######################################################################################################\n";                              
+    cout << "##                                                                                                        ##\n";                 
+    cout << "##                                                                                                        ##\n";                 
+    cout << "##                                                                                                        ##\n";                 
+    cout << "##   ###-   -## ########  ###      -#######  #######+ ###  #### +#######          #########- #######      ##\n";                 
+    cout << "##    #-     .# -#        ###      ##       ##     ## ## +..##   #                    ##    ##+    ##.    ##\n";                 
+    cout << "##    ##.+#- ## +#######  ###     -##       ##     ## ## ### #+  #######              ##    ##.    .#.    ##\n";               
+    cout << "##    #+## ##.# +#        ###     -##       ##     ## ##     #-  #                    ##    ##-    ##-    ##\n";               
+    cout << "##    -### #### ##-       ###      ###      .###  ### ##     ##  #+                   ##     ##   ##      ##\n";                  
+    cout << "##    .#+   ##  -#######  +#######   ######-  #####   #+     ##  #######              ##      +####       ##\n";                 
+    cout << "##                                                                                                        ##\n";                                
+    cout << "##                                                                                                        ##\n";               
+    cout << "##                                                                                                        ##\n";                 
+    cout << "##       #######                                                                                          ##\n";               
+    cout << "##      ++     ###                                                                                        ##\n";                 
+    cout << "##     #######   -#-  #######  #######    ######  #########                                               ##\n";               
+    cout << "##   ##-  #   #.  #++##    ### ##    #  ##+    ##    ##                                                   ##\n";                 
+    cout << "##     ########+  # ##.    .## ######   ##     ## .  ##-                                                  ##\n";                  
+    cout << "##     ##    #    # ###    -## ##    ##.##     ##    ##-                                                  ##\n";               
+    cout << "##     ##  .###   #. ##    ##  ##   +## -##   ###    ##-                                                  ##\n";               
+    cout << "##      ####+ ####.   ######   ######     #####+     ###                                                  ##\n";               
+    cout << "##                                                                                                        ##\n";   
+    cout << "##                                                                                                        ##\n";
+    cout << "##                                                                                                        ##\n";
+    cout << "##     #######.-######## +##- .######    ###  ##         ###   #########.+########  ####### .###   ###    ##\n";
+    cout << "##   .##           ##    +### ###+ ##    ##+  ##        #.###      +#        ##    ##    ##- ###-  ##-    ##\n";
+    cout << "##     ####        ##    ####+## # ##    ###  ##        #   #     .##        ##   +#-     ## ## #+ ##-    ##\n";                  
+    cout << "##        ####     ##    ##  #   # ##    ##+  ##      ########    .##        ##   -##     ## ## ###+#-    ##\n";
+    cout << "##          ##-    ##    ##     -# ##    ##   ##      ##     ##   -##        ##    ##-   ##  ##  ####-    ##\n";   
+    cout << "##   -#######  .######## ##+   .##  ######    ##########     ###  +##    +########  ######  .##   ####    ##\n";
+    cout << "##                                                                                                        ##\n";                 
+    cout << "##                                                                                                        ##\n";
+    cout << "##                                                                                                        ##\n";
+    cout << ".++#########################################################################################################\n";  
+    cout << endl
+            << endl;
+}
+
+
+// void Environment::printwelcomemessage() const {
+//     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";
+//     cout << "       |\"  |/  \\|  \"|/\"     |\"  |    /\" _  \"\\ /    \" \\|\"  \\    /\"  |/\"     \"|    (\"     _   \")    \" \\      \n";
+//     cout << "       |'  /    \\:  (: ______)|  |   (: ( \\___)/ ____  \\\\   \\  //   (: ______)     )__/  \\\\__// ____  \\     \n";
+//     cout << "       |: /'        |\\/    | |:  |    \\/ \\   /  /    ) :)\\\\  \\/.    |\\/    |          \\\\_ / /  /    ) :)    \n";
+//     cout << "        \\//  /'\\    |// ___)_ \\  |___ //  \\ (: (____/ //: \\.        |// ___)_         |.  |(: (____/ //     \n";
+//     cout << "        /   /  \\\\   (:      \"( \\_|:  (:   _) \\        /|.  \\    /:  (:      \"|        \\:  | \\        /      \n";
+//     cout << "       |___/    \\___|\\_______)\\_______)_______)\"_____/ |___|\\__/|___|\\_______)         \\__|  \\\"_____/       \n";
+//     cout << "                                                                                                            \n";
+//     cout << "                              _______    ______   _______    ______ ___________                             \n";
+//     cout << "                             /\"      \\  /    \" \\ |   _  \"\\  /    \" (\"     _   \")                            \n";
+//     cout << "                            |:        |// ____  \\(. |_)  :)// ____  )__/  \\\\__/                             \n";
+//     cout << "                            |_____/   )  /    ) :):     \\//  /    ) :) \\\\_ /                                \n";
+//     cout << "                             //      (: (____/ //(|  _  \\(: (____/ //  |.  |                                \n";
+//     cout << "                            |:  __   \\\\        / |: |_)  :)        /   \\:  |                                \n";
+//     cout << "                            |__|  \\___)\\\"_____/  (_______/ \\\"_____/     \\__|                                \n";
+//     cout << "                                                                                                            \n";
+//     cout << "      ________ __    ___      ___ ____  ____ ___           __ ___________ __     ______   _____  ___        \n";
+//     cout << "     /\"       )\" \\  |\"  \\    /\"  (\"  _||_ \" |\"  |         /\"\"(\"     _   \")\" \\   /    \" \\ (\"   \\|\"  \\       \n";
+//     cout << "    (:   \\___/||  |  \\   \\  //   |   (  ) : ||  |        /    )__/  \\\\__/||  | // ____  \\|.\\\\   \\    |      \n";
+//     cout << "     \\___  \\  |:  |  /\\\\  \\/.    (:  |  | . ):  |       /' /\\  \\ \\\\_ /   |:  |/  /    ) :): \\.   \\\\  |      \n";
+//     cout << "      __/  \\\\ |.  | |: \\.        |\\\\ \\__/ // \\  |___   //  __'  \\|.  |   |.  (: (____/ //|.  \\    \\. |      \n";
+//     cout << "     /\" \\   :)/\\  |\\|.  \\    /:  |/\\\\ __ //\\( \\_|:  \\ /   /  \\\\  \\:  |   /\\  |\\        / |    \\    \\ |      \n";
+//     cout << "    (_______/(__\\_|_)___|\\__/|___(__________)\\_______|___/    \\___)__|  (__\\_|_)\"_____/   \\___|\\____\\)      \n";
+//     cout << endl
+//             << endl;
+// }

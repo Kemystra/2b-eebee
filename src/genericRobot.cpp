@@ -98,8 +98,9 @@ vector<Vector2D> GenericRobot::look(int x, int y) {
     vector<Vector2D> lookResult = {};
     selfLog("Looking.");
     // Loop through a 3x3 square around center
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
+    for (int i = -3; i <= 3; i++) {
+        for (int j = -3; j <= 3; j++) {
+            if (i == 0 && j == 0) continue; // skip the center if needed
 
             // Center of look coordinate + offset
             Vector2D relativePositionToLook = Vector2D(x, y) + Vector2D(i, j);
@@ -128,6 +129,18 @@ void GenericRobot::fire(int x, int y) {
     Vector2D target(x, y);
     Vector2D targetAbsolutePosition = position + target;
 
+    // Draw the fire trajectory (track) from current position to target
+    environment->drawLine(position.x, position.y, targetAbsolutePosition.x, targetAbsolutePosition.y);
+    // Place a fire mark at the target
+    environment->placeFireMark(targetAbsolutePosition.x, targetAbsolutePosition.y);
+
+    // Print the map with marks
+    environment->printMap();
+
+    // Clear all fire and line marks after printing
+    environment->clearFireMarks();
+    environment->clearLineMarks();
+
     GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
     selfLog("Fired at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
     // call die() directly
@@ -148,7 +161,7 @@ int GenericRobot::getBulletsPerShot() const {
 }
 
 int GenericRobot::getMaxFiringDistance() const {
-    return 1;
+    return 3;
 }
 
 void GenericRobot::move(int x, int y) {

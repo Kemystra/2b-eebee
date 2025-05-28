@@ -2,35 +2,57 @@
 #include <fstream>
 
 #include "abstractRobot/robot.h"
+
 #include "environment.h"
+
 #include "logger.h"
+#include "ParameterFileReader.h"
 
 using namespace std;
 
 
 int main (int argc, char *argv[]) {
-    // 40x40 grid
-    Vector2D dimension(40, 40);
-    int maxStep = 100; // or any value you want
+
+    // Read parameters from parameter.txt
+    ParameterFileReader paramReader;
+    if (!paramReader.readFile("parameter.txt")) {
+        cerr << "Failed to read parameter.txt" << endl;
+        return 1;
+    }
+
+    int m = paramReader.getM();
+    int n = paramReader.getN();
+    int maxStep = paramReader.getSteps();
+    Vector2D dimension(m, n);
 
     // Init logger
     Logger logger;
 
-    RobotParameter r1 = {"ass", Vector2D(8,9), 'A'};
-    RobotParameter r2 = {"boobs", Vector2D(34,9), 'B'};
-    RobotParameter r3 = {"cunt", Vector2D(8,23), 'C'};
-    RobotParameter r4 = {"dick", Vector2D(2,23), 'D'};
-    RobotParameter r5 = {"erection", Vector2D(10,23), 'E'};
-    RobotParameter r6 = {"fucker", Vector2D(8,33), 'F'};
-    RobotParameter r7 = {"gaygyatt", Vector2D(15,23), 'G'};
-    RobotParameter r8 = {"horny", Vector2D(11,1), 'H'};
-    RobotParameter r9 = {"itty bitty tiddy", Vector2D(0,0), 'I'};
-    RobotParameter r10 = {"jesus", Vector2D(19,11), 'J'};
+    // Convert RobotInfo to RobotParameter
+    vector<RobotParameter> robotParams;
+    for (const auto& info : paramReader.getRobots()) {
+        Vector2D pos(info.x, info.y);
+        // Use first char of name as symbol, fallback to 'R' if name empty
+        char symbol = !info.name.empty() ? info.name[0] : 'R';
+        robotParams.push_back({info.name, pos, symbol});
+    }
 
-    vector<RobotParameter> robotParams = {
-        r1, r2, r3, r4, r5, r6, r7, r8, r9, r10
-    }; // Add robots as needed
     Environment env(maxStep, dimension, robotParams, &logger);
+    env.printwelcomemessage();
+
+    // Display field size and robot info
+    cout << "Robot's initial position (x, y):\n" << endl;
+    cout << "Robots:" << endl;
+    for (const auto& info : paramReader.getRobots()) {
+        cout << "  Type: " << info.type
+             << ", Name: " << info.name
+             << ", Position (x, y): ";
+        if (info.isRandomPosition)
+            cout << "(random)";
+        else
+            cout << "(" << info.x << ", " << info.y << ")";
+        cout << endl;
+    }
 
     env.gameLoop();
 
