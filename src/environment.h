@@ -36,6 +36,9 @@ private:
     // We use set to avoid adding the same robots multiple time
     set<RobotPtrIterator> robotsToUpgrade;
 
+    set<RobotPtrIterator> robotsToRespawn;
+    set<RobotPtrIterator> robotsToDie;
+
     Logger* logger;
 
     // Width and height of the battleground
@@ -72,6 +75,9 @@ public:
     RobotPtrIterator getRobotIterator(GenericRobot* robot);
 
     void applyRobotUpgrades();
+    void applyRobotRespawn();
+    void applyRobotDie();
+
     vector<unique_ptr<GenericRobot>>& getAllRobots();
 };
 

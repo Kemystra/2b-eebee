@@ -161,18 +161,15 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
         // the set data structure will ensure no duplication
         robotsToUpgrade.insert(killerIterator);
 
-    // Later need to add upgrade mechanism
-
     // If respawn move to respawn queue, else just delete urself lol
     switch (deadState) {
         case DeadState::Respawn:
             respawnQueue.push(move(*victimIterator));
-            robotList.erase(victimIterator);
-            logger->log("Put " + victim->getName() + " into the respawn queue");
+            logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
         break;
 
         case DeadState::Dead:
-            robotList.erase(victimIterator);
+            robotsToDie.insert(victimIterator);
         break;
     }
 }
@@ -213,6 +210,13 @@ void Environment::applyRobotUpgrades() {
             robotIterator->reset(newRobot);
         }
     }
+}
+
+void Environment::applyRobotRespawn() {
+}
+
+void Environment::applyRobotDie() {
+
 }
 
 vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
