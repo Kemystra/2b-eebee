@@ -52,10 +52,12 @@ Environment::Environment(
 
 void Environment::gameLoop() {
     while (maxStep > step) {
+        logger->log("Round " + to_string(step));
         logger->log("Applying robot upgrades");
         applyRobotUpgrades();
 
         for (unique_ptr<GenericRobot> &robot : this->robotList) {
+            logger->log(robot->getName() + "'s turn");
             printMap();
             robot->thinkAndExecute();
             this_thread::sleep_for(
@@ -63,8 +65,10 @@ void Environment::gameLoop() {
             );
         }
 
-        if (robotList.size() == 0)
+        if (robotList.size() == 1) {
+            logger->log("Only one bot remains: " + robotList[0]->getName());
             gameOver();
+        }
 
         step++;
 
@@ -73,11 +77,12 @@ void Environment::gameLoop() {
         );
     }
 
+    logger->log("Steps finished");
     gameOver();
 }
 
 void Environment::gameOver() {
-    cout << "Game Over" << endl;
+    logger->log("Game finished");
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
@@ -163,6 +168,7 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
         case DeadState::Respawn:
             respawnQueue.push(move(*victimIterator));
             robotList.erase(victimIterator);
+            logger->log("Put " + victim->getName() + " into the respawn queue");
         break;
 
         case DeadState::Dead:
@@ -198,6 +204,7 @@ void Environment::applyRobotUpgrades() {
         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
 
         for (const Upgrade& upgrade : pendingUpgrades) {
+            logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
             // Will apply upgrades later
             GenericRobot* newRobot = new GenericRobot(*robotPtr);
 
