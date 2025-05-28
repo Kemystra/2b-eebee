@@ -10,9 +10,7 @@
 #include "abstractRobot/robot.h"
 #include "logger.h"
 #include "vector2d.h"
-
-class GenericRobot;
-struct RobotParameter;
+#include "genericRobot.h"
 
 using namespace std;
 
