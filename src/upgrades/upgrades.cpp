@@ -17,6 +17,32 @@ vector<Upgrade> getUpgradesUnderTrack(UpgradeTrack track) {
             };
 
         case Seeing:
-            return vector<Upgrade>{TrackBot, HideBot};
+            return vector<Upgrade>{TrackBot, ScoutBot};
+    }
+}
+
+// Vim macro ftw!!!
+string stringifyUpgrade(Upgrade upgrade) {
+    switch (upgrade) {
+        case HideBot:
+			return "HideBot";
+        case JumpBot:
+			return "JumpBot";
+        case LongShotBot:
+			return "LongShotBot";
+        case SemiAutoBot:
+			return "SemiAutoBot";
+        case ThirtyShotBot:
+			return "ThirtyShotBot";
+        case LandmineBot:
+			return "LandmineBot";
+        case BombBot:
+			return "BombBot";
+        case LaserBot:
+			return "LaserBot";
+        case ScoutBot:
+			return "ScoutBot";
+        case TrackBot:
+			return "TrackBot";
     }
 }
