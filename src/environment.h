@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <set>
 #include <string>
 
 #include "abstractRobot/robot.h"
@@ -32,7 +33,8 @@ private:
     // Robots to upgrade
     // We want to maintain the order of the robot if they are upgraded
     // So we only store the iterator rather than the robot itself
-    vector<RobotPtrIterator> robotsToUpgrade;
+    // We use set to avoid adding the same robots multiple time
+    set<RobotPtrIterator> robotsToUpgrade;
 
     Logger* logger;
 

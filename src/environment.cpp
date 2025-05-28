@@ -52,6 +52,7 @@ Environment::Environment(
 
 void Environment::gameLoop() {
     while (maxStep > step) {
+        logger->log("Applying robot upgrades");
         applyRobotUpgrades();
 
         for (unique_ptr<GenericRobot> &robot : this->robotList) {
@@ -151,7 +152,9 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
     UpgradeState upgradeState = killer->chosenForUpgrade();
     if (upgradeState == AvailableForUpgrade)
         // Add to upgrade list
-        robotsToUpgrade.push_back(killerIterator);
+        // If already added before (e.g: multiple kills on 1 round),
+        // the set data structure will ensure no duplication
+        robotsToUpgrade.insert(killerIterator);
 
     // Later need to add upgrade mechanism
 
@@ -189,6 +192,7 @@ void Environment::applyRobotUpgrades() {
         // For some reason you can't access it like normal pointer
         // even though at other places can
         GenericRobot* robotPtr = robotIterator->get();
+        logger->log("Upgrading " + robotPtr->getName());
 
         // Get the pending upgrade
         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
