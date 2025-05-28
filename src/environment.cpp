@@ -44,9 +44,9 @@ Environment::Environment(
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param, this, rng(), logger);
+        GenericRobot* robot = new GenericRobot(param, this, rng(), logger);
 
-        this->robotList.push_back(make_unique<GenericRobot>(robot));
+        this->robotList.push_back(unique_ptr<GenericRobot>(robot));
     }
 }
 
