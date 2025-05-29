@@ -131,10 +131,14 @@ void GenericRobot::fire(int x, int y) {
     Vector2D targetAbsolutePosition = position + target;
 
     GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
+
+    // If it's hidden, set the probability to impossible
+    double dieProbability = targetRobot->isVisible ? 0 : 0.7;
+
     selfLog("Fired at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
     // call die() directly
     // Allow flexibility of 'killing' the oponent later since we can set the probability
-    if(randomBool(0.7)) {
+    if(randomBool(dieProbability)) {
         DeadState deadState = targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
         environment->notifyKill(this, targetRobot, deadState);
@@ -164,6 +168,14 @@ string GenericRobot::getName() const {
 
 char GenericRobot::getSymbol() const {
     return this->symbol;
+}
+
+bool GenericRobot::getIsDead() const {
+    return this->isDead;
+}
+
+bool GenericRobot::getIsVisible() const {
+    return this->isVisible;
 }
 
 Vector2D GenericRobot::getPosition() const {
