@@ -1,14 +1,28 @@
-#include "hideBot.h"
+#include "scoutBot.h"
 #include "../environment.h"
 
-void HideBot::hide() {
-    // Hide the bot by setting isHidden to true, this will be checked every single time the bot is attacked
-    isVisible = false;
-    hideAmount--; // Decrease the hide amount
-    selfLog("Hidden.");
+vector<Vector2D> ScoutBot::scout(){
+    vector<Vector2D> scoutedBots;
+    selfLog("Scouting the environment.");
+    // gets all the robots in env, and iterates through each of em
+    for (const auto& robot : environment->getAllRobots()) {
+        Vector2D pos = robot->getPosition();
+        Vector2D selfPos = this->getPosition();
+        Vector2D relativePosition = selfPos - pos;
+        if (pos.x != selfPos.x || pos.y != selfPos.y) { // Don't scout self
+            scoutedBots.push_back(relativePosition);
+            selfLog("Found robot at: (" + to_string(relativePosition.x) + ", " + to_string(relativePosition.y) + ")");
+        }
+    }
+    scoutCount--;
+    if (scoutCount == 0){
+        // if no more scouts left, set useScout to permanently be false
+        useScout = false;
+    }
+    return scoutedBots;
 }
 
-void HideBot::thinkAndExecute(){
+void ScoutBot::thinkAndExecute(){
     int maxFireDistance = getMaxFiringDistance();
     int bulletsPerShot = getBulletsPerShot();
 
@@ -31,7 +45,11 @@ void HideBot::thinkAndExecute(){
         validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
     }
 
-    vector<Vector2D> lookResult = look(next_x, next_y);
+    if (scoutCount>0){
+        useScout = randomBool(0.5);  
+    }
+    
+    vector<Vector2D> lookResult = useScout? scout() : look(next_x,next_y);
 
     for (const Vector2D &pos : lookResult) {
         selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
@@ -58,11 +76,5 @@ void HideBot::thinkAndExecute(){
         );
     }
 
-    if (hideAmount>0){
-        bool useHide = randomBool(0.5);
-        if (useHide){
-            hide();
-        };
-    }
     move(next_x, next_y);
-}
+};

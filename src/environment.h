@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <set>
 #include <string>
 
 #include "abstractRobot/robot.h"
@@ -14,6 +15,10 @@
 using namespace std;
 
 
+// Alternative name for this useful yet ugly ass type
+// This is an iterator, think of it like a fancy array index
+typedef vector<unique_ptr<GenericRobot>>::iterator RobotPtrIterator;
+
 // Class to store everything related to the overall environment stuff
 // Implement environment checking here
 class Environment {
@@ -22,11 +27,17 @@ private:
     // See the constructor implementation in environment.cpp
     vector<unique_ptr<GenericRobot>> robotList;
 
-    // First robot in, first robot out
+    // First robot in, first robot out (on each turn)
     queue<unique_ptr<GenericRobot>> respawnQueue;
 
     // Robots to upgrade
+    // We want to maintain the order of the robot if they are upgraded
+    // So we only store the iterator rather than the robot itself
+    // We use set to avoid adding the same robots multiple time
+    set<RobotPtrIterator> robotsToUpgrade;
 
+    set<RobotPtrIterator> robotsToRespawn;
+    set<RobotPtrIterator> robotsToDie;
 
     Logger* logger;
 
@@ -72,7 +83,13 @@ public:
     void gameOver();
 
     void notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState);
-    vector<unique_ptr<GenericRobot>>::iterator getRobotIndex(GenericRobot* robot);
+    RobotPtrIterator getRobotIterator(GenericRobot* robot);
+
+    void applyRobotUpgrades();
+    void applyRobotRespawn();
+    void applyRobotDie();
+
+    vector<unique_ptr<GenericRobot>>& getAllRobots();
 };
 
 #endif  // ENVIRONMENT_H

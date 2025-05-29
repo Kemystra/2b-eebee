@@ -3,12 +3,17 @@ robot go boom boom
 
 ## Compiling
 
-For basic compiling:
+For basic compiling, go to the `src/` folder and run:
 ```cmd
-g++ -I abstractRobot/ *.cpp -I upgrades/ *.h -o main.exe
+python compile.py
 ```
+No 3rd party library needed.
 
-As more folder is added, you have to specify multiple `-I <folder_name>` in the compiler command.
+If you have GNU Make installed, you might want to use that. Go into the `src/` folder and run:
+```bash
+make
+```
+The advantage is that compilation will be much faster since it has the ability to cache compiled parts.
 
 ## Robot Upgrades
 ### Base Upgrades :
@@ -106,3 +111,5 @@ Total: 28
 - [ ] JumpLaserTrackBot
 
 Total: 24
+
+"Jax stinky" - Mimi, 2025

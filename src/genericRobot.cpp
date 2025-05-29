@@ -7,6 +7,7 @@
 #include "genericRobot.h"
 #include "abstractRobot/robot.h"
 #include "logger.h"
+#include "upgrades/upgrades.h"
 #include "vector2d.h"
 #include "environment.h"
 
@@ -33,9 +34,10 @@ GenericRobot::GenericRobot(
 }
 
 DeadState GenericRobot::die() {
-    if (respawnCountLeft == 0)
+    if (respawnCountLeft == 0) {
         selfLog("Robot " + name + " has died and cannot respawn anymore.");
         return DeadState::Dead;
+    }
 
     respawnCountLeft--;
     return DeadState::Respawn;
@@ -182,8 +184,13 @@ Vector2D GenericRobot::getPosition() const {
 }
 
 // No upgrades, so return empty vector
-vector<RobotUpgrades> GenericRobot::getUpgrades() const {
-    return vector<RobotUpgrades>();
+const vector<Upgrade>& GenericRobot::getUpgrades() const {
+    return upgrades;
+}
+
+
+const vector<Upgrade>& GenericRobot::getPendingUpgrades() const {
+    return pendingUpgrades;
 }
 
 void GenericRobot::setShellCount(int newShellCount){
@@ -210,4 +217,29 @@ void GenericRobot::selfLog(const string& msg) {
 int GenericRobot::calcDistance(Vector2D a) const {
     // Return the bigger difference, either x or y
     return max(abs(a.x), abs(a.y));
+}
+
+UpgradeState GenericRobot::chosenForUpgrade() {
+    // Check for the current upgrade and pending upgrade count
+    // Stop if already enough
+    if (upgrades.size() + pendingUpgrades.size() == 3)
+        return UpgradeFull;
+
+    // Select track within the possible upgrade tracks
+    uniform_int_distribution<int> trackIndexGen(0, possibleUpgradeTrack.size() - 1);
+    int chosenTrackIndex = trackIndexGen(rng);
+    UpgradeTrack chosenTrack = possibleUpgradeTrack[chosenTrackIndex];
+
+    // List out all upgrades under a track
+    vector<Upgrade> upgradesToChoose = getUpgradesUnderTrack(chosenTrack);
+
+    // Select upgrades under the track
+    uniform_int_distribution<int> upgradeIndexGen(0, upgradesToChoose.size() - 1);
+    int chosenUpgradeIndex = upgradeIndexGen(rng);
+    Upgrade chosenUpgrade = upgradesToChoose[chosenUpgradeIndex];
+
+    // Store chosen upgrade for the next upgrade cycle
+    pendingUpgrades.push_back(chosenUpgrade);
+
+    return AvailableForUpgrade;
 }

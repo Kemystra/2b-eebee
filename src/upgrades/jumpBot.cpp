@@ -1,5 +1,5 @@
 #include "jumpBot.h"
-#include "environment.h"
+#include "../environment.h"
 
 void JumpBot::jump(Vector2D target) {
     // Check if the new position is within the bounds of the environment
