@@ -2,6 +2,7 @@
 #include "abstractRobot/robot.h"
 #include "genericRobot.h"
 #include "upgrades/upgrades.h"
+#include "upgrades/scoutBot.h"
 #include "vector2d.h"
 
 #include <memory>
@@ -119,6 +120,7 @@ void Environment::gameOver()
     logger->log("Game finished");
 }
 
+
 bool Environment::isRobotHere(Vector2D positionToCheck) const
 {
     for (const unique_ptr<GenericRobot> &robot : this->robotList)
@@ -135,7 +137,6 @@ GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck)
     for (unique_ptr<GenericRobot> &robot : this->robotList)
     {
         if (robot->getPosition() == positionToCheck)
-
             // To return the raw pointer to the object, use get()
             // DO NOT RETURN THE unique_ptr ITSELF
             return robot.get();
@@ -147,7 +148,7 @@ GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck)
 bool Environment::isPositionAvailable(Vector2D positionToCheck) const
 {
     // Position is available if no robots there and it's within bounds
-    return !isRobotHere(positionToCheck) || isWithinBounds(positionToCheck);
+    return !isRobotHere(positionToCheck) && isWithinBounds(positionToCheck);
 }
 
 bool Environment::isWithinBounds(Vector2D positionToCheck) const
@@ -309,6 +310,9 @@ void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim, DeadSta
     RobotPtrIterator victimIterator = getRobotIterator(victim);
     RobotPtrIterator killerIterator = getRobotIterator(killer);
 
+    // One robot died, so decrement
+    currentRobotLength--;
+
     // Notify the robot on upgrading and check its upgrade-related state
     UpgradeState upgradeState = killer->chosenForUpgrade();
     if (upgradeState == AvailableForUpgrade)
@@ -318,15 +322,15 @@ void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim, DeadSta
         robotsToUpgrade.insert(killerIterator);
 
     // If respawn move to respawn queue, else just delete urself lol
-    switch (deadState)
-    {
-    case DeadState::Respawn:
-        respawnQueue.push(move(*victimIterator));
-        logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
+
+    switch (deadState) {
+        case DeadState::Respawn:
+            logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
+            // respawnQueue.push(move(*victimIterator));
         break;
 
-    case DeadState::Dead:
-        robotsToDie.insert(victimIterator);
+        case DeadState::Dead:
+            logger->log(victimIterator->get()->getName() + " won't respawn anymore");
         break;
     }
 }
@@ -365,14 +369,22 @@ void Environment::applyRobotUpgrades()
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
             // Will apply upgrades later
-            GenericRobot *newRobot = new GenericRobot(*robotPtr);
+
+            GenericRobot* newRobot = new class ScoutBot(robotPtr);
+
 
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
             robotIterator->reset(newRobot);
+
+            // Each upgrade will destroy the old robot and update it with a new pointer
+            // If we keep using the old pointer it will cause havoc
+            // Update it to use the new one after each upgrade
+            robotPtr = newRobot;
         }
     }
 }
+
 
 void Environment::applyRobotRespawn()
 {
@@ -385,6 +397,17 @@ void Environment::applyRobotDie()
 vector<unique_ptr<GenericRobot>> &Environment::getAllRobots()
 {
     return this->robotList;
+}
+
+vector<GenericRobot*> Environment::getAllRobots() const {
+    vector<GenericRobot*> result;
+
+    for (const unique_ptr<GenericRobot>& robot : robotList) {
+        if (!robot->getIsDead())
+            result.push_back(robot.get());
+    }
+
+    return result;
 }
 
 
@@ -427,7 +450,6 @@ void Environment::printwelcomemessage() const
     ss << "##                                                                                                        ##\n";
     ss << ".++######################################################################################################++.\n";
     logger->log(ss.str());
-}
 
 // void Environment::printwelcomemessage() const {
 //     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";

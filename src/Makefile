@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := main.out
-
+.PHONY: main.out
 
 BUILD_FOLDER := build
 
@@ -9,15 +9,17 @@ OBJECTS := $(foreach x, $(basename $(notdir $(SOURCES))), $(BUILD_FOLDER)/$(x).o
 
 LIBS := abstractRobot/ upgrades/
 
+FLAGS := -std=c++11 -g
+
 
 $(BUILD_FOLDER)/%.o: %.cpp
-	g++ -std=c++11 $< -c -o $@
+	g++ $(FLAGS) $< -c -o $@
 
 $(BUILD_FOLDER)/%.o: upgrades/%.cpp
-	g++ -std=c++11 $< -c -o $@
+	g++ $(FLAGS) $< -c -o $@
 
 main.out: $(OBJECTS)
-	g++ $(foreach x, $(LIBS), -I $x) $(OBJECTS) -o main.out
+	g++ $(FLAGS) $(foreach x, $(LIBS), -I $x) $(OBJECTS) -o main.out
 
 # @ before a command to not print the command itself
 debug:
