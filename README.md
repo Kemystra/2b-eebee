@@ -5,7 +5,7 @@ robot go boom boom
 
 For basic compiling, go to the `src/` folder and run:
 ```cmd
-python compiler.py
+python compile.py
 ```
 No 3rd party library needed.
 
