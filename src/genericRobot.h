@@ -67,7 +67,7 @@ protected:
     int respawnCountLeft = 3;
     vector<int> movementRange={-1,1};
     bool isVisible = true;
-    bool isDead = true;
+    bool isDead = false;
 
     Environment* environment;
     Logger* logger;

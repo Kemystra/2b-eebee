@@ -34,6 +34,7 @@ GenericRobot::GenericRobot(
 }
 
 DeadState GenericRobot::die() {
+    isDead = true;
     if (respawnCountLeft == 0) {
         selfLog("Robot " + name + " has died and cannot respawn anymore.");
         return DeadState::Dead;
