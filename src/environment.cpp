@@ -7,6 +7,7 @@
 #include <memory>
 #include <random>
 #include <algorithm>
+#include <sstream>
 
 // Needed for sleep function
 #include <chrono>
@@ -64,7 +65,6 @@ void Environment::gameLoop()
     while (maxStep > step && robotList.size() > 1)
     {
         logger->log("Round " + to_string(step));
-        logger->log("Applying robot upgrades");
         applyRobotUpgrades();
         // Make a copy of pointers to robots to avoid iterator invalidation
         vector<GenericRobot *> robotsToAct;
@@ -100,19 +100,19 @@ void Environment::gameLoop()
 
 void Environment::gameOver()
 {
-    cout << "Game Over" << endl;
-    cout << "Remaining robots: " << robotList.size() << endl;
+    logger->log("Game Over");
+    logger->log("Remaining robots: " + to_string(robotList.size()));
     if (robotList.size() == 1)
     {
-        cout << "Winner: " << robotList[0]->getName() << endl;
+        logger->log("Winner: " + robotList[0]->getName());
     }
     else if (robotList.size() == 0)
     {
-        cout << "No winner." << endl;
+        logger->log("No winner.");
     }
     else
     {
-        cout << "Multiple robots survived." << endl;
+        logger->log("Multiple robots survived.");
     }
 
     logger->log("Steps finished");
@@ -163,28 +163,29 @@ bool Environment::isWithinBounds(Vector2D positionToCheck) const
 
 void Environment::printMap() const
 {
-    // Print top border
-    cout << BLUE_COLOR; // Set blue color
-    cout << "X ";
+    // Build the map as a string and log it
+    stringstream ss;
+    ss << BLUE_COLOR; // Set blue color
+    ss << "X ";
     for (int x = 0; x < dimension.x; ++x)
     {
-        cout << "X ";
+        ss << "X ";
     }
-    cout << "X" << RESET_COLOR << "\n"; // Reset color
+    ss << "X" << RESET_COLOR << "\n"; // Reset color
 
     for (int y = 0; y < dimension.y; ++y)
     {
-        cout << BLUE_COLOR << "X" << RESET_COLOR << " "; // Left border in blue with space
+        ss << BLUE_COLOR << "X" << RESET_COLOR << " "; // Left border in blue with space
         for (int x = 0; x < dimension.x; ++x)
         {
             // Priority: fire mark > line mark > robot > empty
             if (grid[x][y] == '!')
             { 
-                cout << RED_COLOR << '!' << RESET_COLOR << ' ' ; // Red fire mark
+                ss << RED_COLOR << '!' << RESET_COLOR << ' ' ; // Red fire mark
             }
             else if (grid[x][y] == '*')
             {
-                cout << ORANGE_COLOR <<'*' << RESET_COLOR << ' '; // Yellow line mark
+                ss << ORANGE_COLOR <<'*' << RESET_COLOR << ' '; // Yellow line mark
             }
             else
             {
@@ -194,31 +195,32 @@ void Environment::printMap() const
                 {
                     if (robot->getPosition() == pos)
                     {
-                        cout << robot->getSymbol() << " ";
+                        ss << robot->getSymbol() << " ";
                         found = true;
                         break;
                     }
                 }
                 if (!found)
-                    cout << ". ";
+                    ss << ". ";
             }
         }
-        cout << BLUE_COLOR << "X" << RESET_COLOR << "\n"; // Right border in blue
+        ss << BLUE_COLOR << "X" << RESET_COLOR << "\n"; // Right border in blue
     }
     // Print bottom border
-    cout << BLUE_COLOR;
-    cout << "X ";
+    ss << BLUE_COLOR;
+    ss << "X ";
     for (int x = 0; x < dimension.x; ++x)
     {
-        cout << "X ";
+        ss << "X ";
     }
-    cout << "X" << RESET_COLOR << "\n";
+    ss << "X" << RESET_COLOR << "\n";
+    logger->log(ss.str());
 }
 
 // Place a fire mark at (x, y)
 void Environment::placeFireMark(int x, int y)
 {
-    if (x >= 0 && x < dimension.x && y >= 0 && y < dimension.y)
+    if (isWithinBounds(Vector2D(x, y)))
     {
         grid[x][y] = '!';
     }
@@ -252,7 +254,7 @@ void Environment::drawLine(int x1, int y1, int x2, int y2)
 
     while (true)
     {
-        if (x1 >= 0 && x1 < dimension.x && y1 >= 0 && y1 < dimension.y)
+        if (isWithinBounds(Vector2D(x1, y1)))
         {
             if (grid[x1][y1] == '.')
                 grid[x1][y1] = '*';
@@ -385,48 +387,46 @@ vector<unique_ptr<GenericRobot>> &Environment::getAllRobots()
     return this->robotList;
 }
 
+
 void Environment::printwelcomemessage() const
 {
-    logger->log("Displaying welcome message");
-    
-    cout << ".++######################################################################################################\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##   ###-   -## ########  ###      -#######  #######+ ###  #### +#######          #########- #######      ##\n";
-    cout << "##    #-     .# -#        ###      ##       ##     ## ## +..##   #                    ##    ##+    ##.    ##\n";
-    cout << "##    ##.+#- ## +#######  ###     -##       ##     ## ## ### #+  #######              ##    ##.    .#.    ##\n";
-    cout << "##    #+## ##.# +#        ###     -##       ##     ## ##     #-  #                    ##    ##-    ##-    ##\n";
-    cout << "##    -### #### ##-       ###      ###      .###  ### ##     ##  #+                   ##     ##   ##      ##\n";
-    cout << "##    .#+   ##  -#######  +#######   ######-  #####   #+     ##  #######              ##      +####       ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##       #######                                                                                          ##\n";
-    cout << "##      ++     ###                                                                                        ##\n";
-    cout << "##     #######   -#-  #######  #######    ######  #########                                               ##\n";
-    cout << "##   ##-  #   #.  #++##    ### ##    #  ##+    ##    ##                                                   ##\n";
-    cout << "##     ########+  # ##.    .## ######   ##     ## .  ##-                                                  ##\n";
-    cout << "##     ##    #    # ###    -## ##    ##.##     ##    ##-                                                  ##\n";
-    cout << "##     ##  .###   #. ##    ##  ##   +## -##   ###    ##-                                                  ##\n";
-    cout << "##      ####+ ####.   ######   ######     #####+     ###                                                  ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##     #######.-######## +##- .######    ###  ##         ###   #########.+########  ####### .###   ###    ##\n";
-    cout << "##   .##           ##    +### ###+ ##    ##+  ##        #.###      +#        ##    ##    ##- ###-  ##-    ##\n";
-    cout << "##     ####        ##    ####+## # ##    ###  ##        #   #     .##        ##   +#-     ## ## #+ ##-    ##\n";
-    cout << "##        ####     ##    ##  #   # ##    ##+  ##      ########    .##        ##   -##     ## ## ###+#-    ##\n";
-    cout << "##          ##-    ##    ##     -# ##    ##   ##      ##     ##   -##        ##    ##-   ##  ##  ####-    ##\n";
-    cout << "##   -#######  .######## ##+   .##  ######    ##########     ###  +##    +########  ######  .##   ####    ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << "##                                                                                                        ##\n";
-    cout << ".++#########################################################################################################\n";
-    cout << endl
-         << endl;
-    
-    logger->log("Welcome message displayed");
+    stringstream ss;
+    ss << "\n";
+    ss << ".++######################################################################################################++.\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##   ###-   -## ########  ###      -#######  #######+ ###  #### +#######          #########- #######      ##\n";
+    ss << "##    #-     .# -#        ###      ##       ##     ## ## +..##   #                    ##    ##+    ##.    ##\n";
+    ss << "##    ##.+#- ## +#######  ###     -##       ##     ## ## ### #+  #######              ##    ##.    .#.    ##\n";
+    ss << "##    #+## ##.# +#        ###     -##       ##     ## ##     #-  #                    ##    ##-    ##-    ##\n";
+    ss << "##    -### #### ##-       ###      ###      .###  ### ##     ##  #+                   ##     ##   ##      ##\n";
+    ss << "##    .#+   ##  -#######  +#######   ######-  #####   #+     ##  #######              ##      +####       ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##       #######                                                                                          ##\n";
+    ss << "##      ++     ###                                                                                        ##\n";
+    ss << "##     #######   -#-  #######  #######    ######  #########                                               ##\n";
+    ss << "##   ##-  #   #.  #++##    ### ##    #  ##+    ##    ##                                                   ##\n";
+    ss << "##     ########+  # ##.    .## ######   ##     ## .  ##-                                                  ##\n";
+    ss << "##     ##    #    # ###    -## ##    ##.##     ##    ##-                                                  ##\n";
+    ss << "##     ##  .###   #. ##    ##  ##   +## -##   ###    ##-                                                  ##\n";
+    ss << "##      ####+ ####.   ######   ######     #####+     ###                                                  ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##     #######.-######## +##- .######    ###  ##         ###   #########.+########  ####### .###   ###    ##\n";
+    ss << "##   .##           ##    +### ###+ ##    ##+  ##        #.###      +#        ##    ##    ##- ###-  ##-    ##\n";
+    ss << "##     ####        ##    ####+## # ##    ###  ##        #   #     .##        ##   +#-     ## ## #+ ##-    ##\n";
+    ss << "##        ####     ##    ##  #   # ##    ##+  ##      ########    .##        ##   -##     ## ## ###+#-    ##\n";
+    ss << "##          ##-    ##    ##     -# ##    ##   ##      ##     ##   -##        ##    ##-   ##  ##  ####-    ##\n";
+    ss << "##   -#######  .######## ##+   .##  ######    ##########     ###  +##    +########  ######  .##   ####    ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << ".++######################################################################################################++.\n";
+    logger->log(ss.str());
 }
 
 // void Environment::printwelcomemessage() const {

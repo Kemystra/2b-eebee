@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "abstractRobot/robot.h"
 #include "environment.h"
@@ -40,18 +41,17 @@ int main (int argc, char *argv[]) {
     env.printwelcomemessage();
 
     // Display field size and robot info
-    cout << "Robot's initial position (x, y):\n" << endl;
-    cout << "Robots:" << endl;
+    logger.log("Robot's initial position:\n");
+    logger.log("Robots:");
     for (const auto& info : paramReader.getRobots()) {
-        cout << "  Type: " << info.type
-             << ", Name: " << info.name
-             << ", Position (x, y): ";
-        if (info.isRandomPosition)
-            cout << "(random)";
-        else
-            cout << "(" << info.x << ", " << info.y << ")";
-        cout << endl;
+        std::ostringstream oss;
+        oss << "  Type: " << info.type
+            << ", Name: " << info.name
+            << ", Position (x, y): ";
+        oss << "(" << info.x << ", " << info.y << ")";
+        logger.log(oss.str());
     }
+    logger.log("");
 
     env.gameLoop();
 
