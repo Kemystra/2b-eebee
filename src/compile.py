@@ -29,7 +29,7 @@ for i, f in enumerate(cpp_files):
     subprocess.run(cmd)
 
 # Final compile
-compile_command = ["g++"]
+compile_command = ["g++", "-std=c++11"]
 compile_command.extend(obj_files)
 compile_command.extend(["-o", "main.exe"])
 print(' '.join(compile_command))
