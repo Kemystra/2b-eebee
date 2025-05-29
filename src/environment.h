@@ -47,6 +47,9 @@ private:
     int maxStep;
     int step = 0;
 
+    // See gameLoop() for explanation
+    int currentRobotLength;
+
     // Values in milliseconds
     int robotActionInterval = 100;
     int stepInterval = 200;

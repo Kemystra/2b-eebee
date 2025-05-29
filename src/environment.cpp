@@ -2,6 +2,7 @@
 #include "abstractRobot/robot.h"
 #include "genericRobot.h"
 #include "upgrades/upgrades.h"
+#include "upgrades/scoutBot.h"
 #include "vector2d.h"
 
 #include <memory>
@@ -56,13 +57,26 @@ void Environment::gameLoop() {
         logger->log("Applying robot upgrades");
         applyRobotUpgrades();
 
-        for (unique_ptr<GenericRobot> &robot : this->robotList) {
+        // RobotList length tracking
+        // We don't loop directly, since robotList might get edited while looping
+        // e.g: when robot dies
+        currentRobotLength = robotList.size();
+
+        // Actual counter
+        int i = 0;
+        while (currentRobotLength > 0) {
+            unique_ptr<GenericRobot>& robot = robotList[i];
+
             logger->log(robot->getName() + "'s turn");
             printMap();
             robot->thinkAndExecute();
+
             this_thread::sleep_for(
                 chrono::milliseconds(robotActionInterval)
             );
+
+            currentRobotLength--;
+            i++;
         }
 
         if (robotList.size() == 1) {
@@ -153,6 +167,9 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
     RobotPtrIterator victimIterator = getRobotIterator(victim);
     RobotPtrIterator killerIterator = getRobotIterator(killer);
 
+    // One robot died, so decrement
+    currentRobotLength--;
+
     // Notify the robot on upgrading and check its upgrade-related state
     UpgradeState upgradeState = killer->chosenForUpgrade();
     if (upgradeState == AvailableForUpgrade)
@@ -203,7 +220,7 @@ void Environment::applyRobotUpgrades() {
         for (const Upgrade& upgrade : pendingUpgrades) {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
             // Will apply upgrades later
-            GenericRobot* newRobot = new GenericRobot(*robotPtr);
+            GenericRobot* newRobot = new class ScoutBot(robotPtr);
 
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
