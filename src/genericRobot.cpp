@@ -134,7 +134,7 @@ void GenericRobot::fire(int x, int y) {
     GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
 
     // If it's hidden, set the probability to impossible
-    double dieProbability = targetRobot->isVisible ? 0 : 0.7;
+    double dieProbability = targetRobot->isVisible ? 0.7 : 0;
 
     selfLog("Fired at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
     // call die() directly
