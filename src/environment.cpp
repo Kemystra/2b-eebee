@@ -122,7 +122,7 @@ GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
 
 bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
     // Position is available if no robots there and it's within bounds
-    return !isRobotHere(positionToCheck) || isWithinBounds(positionToCheck);
+    return !isRobotHere(positionToCheck) && isWithinBounds(positionToCheck);
 }
 
 bool Environment::isWithinBounds(Vector2D positionToCheck) const {
