@@ -181,12 +181,14 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
     // If respawn move to respawn queue, else just delete urself lol
     switch (deadState) {
         case DeadState::Respawn:
-            respawnQueue.push(move(*victimIterator));
             logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
+            respawnQueue.push(move(*victimIterator));
+            robotList.erase(victimIterator);
         break;
 
         case DeadState::Dead:
-            robotsToDie.insert(victimIterator);
+            logger->log(victimIterator->get()->getName() + " won't respawn anymore");
+            robotList.erase(victimIterator);
         break;
     }
 }
@@ -227,12 +229,6 @@ void Environment::applyRobotUpgrades() {
             robotIterator->reset(newRobot);
         }
     }
-}
-
-void Environment::applyRobotRespawn() {
-}
-
-void Environment::applyRobotDie() {
 }
 
 vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
