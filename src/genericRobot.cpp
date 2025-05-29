@@ -218,7 +218,7 @@ UpgradeState GenericRobot::chosenForUpgrade() {
     UpgradeTrack chosenTrack = possibleUpgradeTrack[chosenTrackIndex];
 
     // List out all upgrades under a track
-    vector<Upgrade> upgradesToChoose = getUpgradesUnderTrack(chosenTrack);
+    vector<Upgrade> upgradesToChoose = chosenTrack.getUpgradesUnderTrack();
 
     // Select upgrades under the track
     uniform_int_distribution<int> upgradeIndexGen(0, upgradesToChoose.size() - 1);

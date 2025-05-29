@@ -33,18 +33,6 @@ enum UpgradeState {
     UpgradeFull
 };
 
-enum Upgrade {
-    HideBot,
-    JumpBot,
-    LongShotBot,
-    SemiAutoBot,
-    ThirtyShotBot,
-    LandmineBot,
-    BombBot,
-    LaserBot,
-    ScoutBot,
-    TrackBot
-};
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
@@ -57,7 +45,6 @@ public:
 
     DeadState die() override;
     void thinkAndExecute() override;
-
     UpgradeState chosenForUpgrade();
 
     string getName() const override;
@@ -85,8 +72,11 @@ protected:
     // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
     // I chose a random one lol
     mt19937_64 rng;
-
-    vector<UpgradeTrack> possibleUpgradeTrack = { Moving, Shooting, Seeing };
+    vector<UpgradeTrack> possibleUpgradeTrack= {
+        UpgradeTrack("Moving", {HideBot, JumpBot}),
+        UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, LandmineBot, BombBot, LaserBot}),
+        UpgradeTrack("Seeing", {ScoutBot, TrackBot})
+    };
     // Current upgrades
     vector<Upgrade> upgrades = {};
     // What to add on the next upgrade cycle (see Environment::applyRobotUpgrades)
