@@ -100,18 +100,16 @@ void Environment::gameOver() {
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
-    for (const unique_ptr<GenericRobot> &robot : this->robotList) {
-        if (robot->getPosition() == positionToCheck)
-            return true;
-    }
-
-    return false;
+    return getRobotAtPosition(positionToCheck) != nullptr;
 }
 
-GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
-    for (unique_ptr<GenericRobot> &robot : this->robotList) {
-        if (robot->getPosition() == positionToCheck)
+GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) const {
+    for (const unique_ptr<GenericRobot> &robot : this->robotList) {
+        // Skip dead robots
+        if (robot->getIsDead())
+            continue;
 
+        if (robot->getPosition() == positionToCheck)
             // To return the raw pointer to the object, use get()
             // DO NOT RETURN THE unique_ptr ITSELF
             return robot.get();
@@ -231,6 +229,13 @@ void Environment::applyRobotUpgrades() {
     }
 }
 
-vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
-    return this->robotList;
+vector<GenericRobot*> Environment::getAllRobots() const {
+    vector<GenericRobot*> result;
+
+    for (const unique_ptr<GenericRobot>& robot : robotList) {
+        if (!robot->getIsDead())
+            result.push_back(robot.get());
+    }
+
+    return result;
 }
