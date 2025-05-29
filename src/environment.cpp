@@ -132,9 +132,9 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const
     return false;
 }
 
-GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck)
+GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck) const
 {
-    for (unique_ptr<GenericRobot> &robot : this->robotList)
+    for (const unique_ptr<GenericRobot> &robot : this->robotList)
     {
         if (robot->getPosition() == positionToCheck)
             // To return the raw pointer to the object, use get()
@@ -392,11 +392,6 @@ void Environment::applyRobotRespawn()
 
 void Environment::applyRobotDie()
 {
-}
-
-vector<unique_ptr<GenericRobot>> &Environment::getAllRobots()
-{
-    return this->robotList;
 }
 
 vector<GenericRobot*> Environment::getAllRobots() const {
