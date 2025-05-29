@@ -58,6 +58,10 @@ void Environment::gameLoop() {
         applyRobotUpgrades();
 
         for (unique_ptr<GenericRobot>& robot : robotList) {
+            // Skip dead robot
+            if (robot->getIsDead())
+                continue;
+
             logger->log(robot->getName() + "'s turn");
             printMap();
             robot->thinkAndExecute();
@@ -168,13 +172,11 @@ void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadSta
     switch (deadState) {
         case DeadState::Respawn:
             logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
-            respawnQueue.push(move(*victimIterator));
-            robotList.erase(victimIterator);
+            // respawnQueue.push(move(*victimIterator));
         break;
 
         case DeadState::Dead:
             logger->log(victimIterator->get()->getName() + " won't respawn anymore");
-            robotList.erase(victimIterator);
         break;
     }
 }
