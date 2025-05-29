@@ -1,7 +1,3 @@
-#include <iostream>
-#include <fstream>
-
-#include "abstractRobot/robot.h"
 #include "environment.h"
 #include "logger.h"
 

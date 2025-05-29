@@ -1,6 +1,7 @@
 #include "environment.h"
 #include "abstractRobot/robot.h"
 #include "genericRobot.h"
+#include "upgrades/upgrades.h"
 #include "vector2d.h"
 
 #include <memory>
@@ -43,15 +44,20 @@ Environment::Environment(
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
     for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param, this, rng(), logger);
+        GenericRobot* robot = new GenericRobot(param, this, rng(), logger);
 
-        this->robotList.push_back(make_unique<GenericRobot>(robot));
+        this->robotList.push_back(unique_ptr<GenericRobot>(robot));
     }
 }
 
 void Environment::gameLoop() {
     while (maxStep > step) {
+        logger->log("Round " + to_string(step));
+        logger->log("Applying robot upgrades");
+        applyRobotUpgrades();
+
         for (unique_ptr<GenericRobot> &robot : this->robotList) {
+            logger->log(robot->getName() + "'s turn");
             printMap();
             robot->thinkAndExecute();
             this_thread::sleep_for(
@@ -59,8 +65,10 @@ void Environment::gameLoop() {
             );
         }
 
-        if (robotList.size() == 0)
+        if (robotList.size() == 1) {
+            logger->log("Only one bot remains: " + robotList[0]->getName());
             gameOver();
+        }
 
         step++;
 
@@ -69,11 +77,12 @@ void Environment::gameLoop() {
         );
     }
 
+    logger->log("Steps finished");
     gameOver();
 }
 
 void Environment::gameOver() {
-    cout << "Game Over" << endl;
+    logger->log("Game finished");
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
@@ -141,28 +150,31 @@ void Environment::printMap() const {
 }
 
 void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState) {
-    // find() returns an iterator type with a long typename that I can't even find
-    // just gonna use auto here lol
-    auto victimIterator = getRobotIndex(victim);
-    auto killerIterator = getRobotIndex(killer);
+    RobotPtrIterator victimIterator = getRobotIterator(victim);
+    RobotPtrIterator killerIterator = getRobotIterator(killer);
 
-    // Later need to add upgrade mechanism
+    // Notify the robot on upgrading and check its upgrade-related state
+    UpgradeState upgradeState = killer->chosenForUpgrade();
+    if (upgradeState == AvailableForUpgrade)
+        // Add to upgrade list
+        // If already added before (e.g: multiple kills on 1 round),
+        // the set data structure will ensure no duplication
+        robotsToUpgrade.insert(killerIterator);
 
     // If respawn move to respawn queue, else just delete urself lol
     switch (deadState) {
         case DeadState::Respawn:
             respawnQueue.push(move(*victimIterator));
-            robotList.erase(victimIterator);
+            logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
         break;
 
         case DeadState::Dead:
-            robotList.erase(victimIterator);
+            robotsToDie.insert(victimIterator);
         break;
     }
 }
 
-// This ugly type is unfortunately needed for quite a few vector operations
-vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRobot* robot) {
+RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
     for (int i = 0; i < robotList.size(); i++) {
         if(robotList[i].get() == robot)
             return robotList.begin() + i;
@@ -170,6 +182,48 @@ vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRob
 
     // should never happen, will need error class for this
     return robotList.end();
+}
+
+vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
+    return this->robotList;
+}
+
+// We cannot upgrade the right after kill
+// notifyKill() is called while the robot is running thinkAndExecute()
+// Upgrading the robot involves destroying the original object and replacing them with a new one
+// If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
+// So we will only actually upgrade them at the start of each round
+void Environment::applyRobotUpgrades() {
+    for (const RobotPtrIterator& robotIterator : robotsToUpgrade) {
+        // Get the raw robot pointer
+        // For some reason you can't access it like normal pointer
+        // even though at other places can
+        GenericRobot* robotPtr = robotIterator->get();
+        logger->log("Upgrading " + robotPtr->getName());
+
+        // Get the pending upgrade
+        vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
+
+        for (const Upgrade& upgrade : pendingUpgrades) {
+            logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
+            // Will apply upgrades later
+            GenericRobot* newRobot = new GenericRobot(*robotPtr);
+
+            // Destroy the old GenericRobot, and switch to the new robot
+            // Using iterator allow us to edit in-place, so we don't have to push it into robotList
+            robotIterator->reset(newRobot);
+        }
+    }
+}
+
+void Environment::applyRobotRespawn() {
+}
+
+void Environment::applyRobotDie() {
+}
+
+vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
+    return this->robotList;
 }
 
 vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
