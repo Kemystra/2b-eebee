@@ -163,7 +163,7 @@ int GenericRobot::getBulletsPerShot() const {
 }
 
 int GenericRobot::getMaxFiringDistance() const {
-    return 3;
+    return 1;
 }
 
 void GenericRobot::move(int x, int y) {
