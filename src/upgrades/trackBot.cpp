@@ -39,6 +39,7 @@ void TrackBot::thinkAndExecute(){
         // get the relative coordinates of the current iterated bot
         Vector2D currentRobotRelativeCoordinate = this->getPosition() - robot->getPosition();
         // if closest robot is further than current robot, then update closest robot
+        // compare the closest robot's coords, and the current iterated robot's coords
         if(calcDistance(closestRobotCoordinates)>calcDistance(currentRobotRelativeCoordinate)){
             closestRobotCoordinates = currentRobotRelativeCoordinate;
         }
