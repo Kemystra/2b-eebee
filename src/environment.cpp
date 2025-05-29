@@ -57,16 +57,7 @@ void Environment::gameLoop() {
         logger->log("Applying robot upgrades");
         applyRobotUpgrades();
 
-        // RobotList length tracking
-        // We don't loop directly, since robotList might get edited while looping
-        // e.g: when robot dies
-        currentRobotLength = robotList.size();
-
-        // Actual counter
-        int i = 0;
-        while (currentRobotLength > 0) {
-            unique_ptr<GenericRobot>& robot = robotList[i];
-
+        for (unique_ptr<GenericRobot>& robot : robotList) {
             logger->log(robot->getName() + "'s turn");
             printMap();
             robot->thinkAndExecute();
@@ -74,9 +65,6 @@ void Environment::gameLoop() {
             this_thread::sleep_for(
                 chrono::milliseconds(robotActionInterval)
             );
-
-            currentRobotLength--;
-            i++;
         }
 
         if (robotList.size() == 1) {
