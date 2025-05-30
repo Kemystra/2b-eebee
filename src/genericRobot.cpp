@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cmath>
 #include <random>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -42,6 +43,10 @@ void GenericRobot::die() {
 
     respawnCountLeft--;
     livingState = PendingRespawn;
+
+    ostringstream ss;
+    ss << "Robot " << name << " will respawn later (Respawn count left: " << respawnCountLeft << ")";
+    selfLog(ss.str());
 }
 
 void GenericRobot::thinkAndExecute() {
