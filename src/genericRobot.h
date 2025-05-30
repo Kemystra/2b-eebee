@@ -55,6 +55,7 @@ public:
 
     UpgradeState chosenForUpgrade();
     void notifyRespawn();
+    void notifyUpgradesCompleted();
 
     string getName() const override;
     Vector2D getPosition() const override;

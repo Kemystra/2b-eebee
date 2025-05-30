@@ -384,13 +384,18 @@ void Environment::applyRobotUpgrades() {
             newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
         }
+
+        // Tell robots the upgrades are complete
+        robotPtr->notifyUpgradesCompleted();
     }
-        robotsToUpgrade.clear();
+
+    // Clear out robotToUpgrades set
+    robotsToUpgrade.clear();
 }
 
 void Environment::applyRobotDie() {
-    auto it = robotList.begin();
-    for (; it != robotList.end(); it++) {
+    // Notice there's no increment here
+    for (auto it = robotList.begin(); it != robotList.end(); ) {
         LivingState state = it->get()->getLivingState();
 
         switch (state) {
@@ -405,12 +410,11 @@ void Environment::applyRobotDie() {
                 respawnQueue.push(move(*it));
                 it = robotList.erase(it);
 
-                if (it == robotList.end())
-                    return;
-                break;
-
             // Skip alive robots
+            // Increment is done here
+            // since the operations above will automatically set the next iterator
             case Alive:
+                it++;
                 continue;
         }
     }
