@@ -88,7 +88,7 @@ public:
     void gameLoop();
     void gameOver();
 
-    void notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState);
+    void notifyKill(GenericRobot* killer, GenericRobot* victim);
     RobotPtrIterator getRobotIterator(GenericRobot* robot);
 
     void applyRobotUpgrades();

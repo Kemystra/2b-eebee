@@ -68,20 +68,12 @@ void Environment::gameLoop() {
 
         for (unique_ptr<GenericRobot>& robot : robotList) {
             // Skip dead robot
-            if (robot->getIsDead())
+            if (robot->isDead())
                 continue;
 
             logger->log(robot->getName() + "'s turn");
             printMap();
-            // Only act if the robot is still in the list (not killed this turn)
-            if (find_if(robotList.begin(), robotList.end(),
-                        [robot](const unique_ptr<GenericRobot> &ptr)
-                        { return ptr.get() == robot; }) != robotList.end())
-            {
-                robot->thinkAndExecute();
-            robot->logUpgrades();
-                this_thread::sleep_for(chrono::milliseconds(robotActionInterval));
-            }
+            robot->thinkAndExecute();
 
             if (robotList.size() == 1)
             {
@@ -92,6 +84,7 @@ void Environment::gameLoop() {
             step++;
             this_thread::sleep_for(chrono::milliseconds(stepInterval));
         }
+    logger->log("Steps finished");
     }
     gameOver();
 }
@@ -124,16 +117,9 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
 GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) const {
     for (const unique_ptr<GenericRobot> &robot : this->robotList) {
         // Skip dead robots
-        if (robot->getIsDead())
+        if (robot->isDead())
             continue;
 
-    return false;
-}
-
-GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck) const
-{
-    for (const unique_ptr<GenericRobot> &robot : this->robotList)
-    {
         if (robot->getPosition() == positionToCheck)
             // To return the raw pointer to the object, use get()
             // DO NOT RETURN THE unique_ptr ITSELF
@@ -148,12 +134,11 @@ bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
     return !isRobotHere(positionToCheck) && isWithinBounds(positionToCheck);
 }
 
-bool Environment::isWithinBounds(Vector2D positionToCheck) const
-{
-    if (positionToCheck.x > dimension.x || positionToCheck.x < 0)
+bool Environment::isWithinBounds(Vector2D positionToCheck) const {
+    if(positionToCheck.x > dimension.x || positionToCheck.x < 0)
         return false;
 
-    if (positionToCheck.y > dimension.y || positionToCheck.y < 0)
+    if(positionToCheck.y > dimension.y || positionToCheck.y < 0)
         return false;
 
     return true;
@@ -317,26 +302,11 @@ void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim, DeadSta
         // If already added before (e.g: multiple kills on 1 round),
         // the set data structure will ensure no duplication
         robotsToUpgrade.insert(killerIterator);
-
-    // If respawn move to respawn queue, else just delete urself lol
-
-    switch (deadState) {
-        case DeadState::Respawn:
-            logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
-            // respawnQueue.push(move(*victimIterator));
-        break;
-
-        case DeadState::Dead:
-            logger->log(victimIterator->get()->getName() + " won't respawn anymore");
-        break;
-    }
 }
 
-RobotPtrIterator Environment::getRobotIterator(GenericRobot *robot)
-{
-    for (int i = 0; i < robotList.size(); i++)
-    {
-        if (robotList[i].get() == robot)
+RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
+    for (int i = 0; i < robotList.size(); i++) {
+        if(robotList[i].get() == robot)
             return robotList.begin() + i;
     }
 
@@ -430,7 +400,7 @@ vector<GenericRobot*> Environment::getAllRobots() const {
     vector<GenericRobot*> result;
 
     for (const unique_ptr<GenericRobot>& robot : robotList) {
-        if (!robot->getIsDead())
+        if (!robot->isDead())
             result.push_back(robot.get());
     }
 
