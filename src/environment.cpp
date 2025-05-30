@@ -135,10 +135,10 @@ bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
 }
 
 bool Environment::isWithinBounds(Vector2D positionToCheck) const {
-    if(positionToCheck.x > dimension.x || positionToCheck.x < 0)
+    if(positionToCheck.x >= dimension.x || positionToCheck.x < 0)
         return false;
 
-    if(positionToCheck.y > dimension.y || positionToCheck.y < 0)
+    if(positionToCheck.y >= dimension.y || positionToCheck.y < 0)
         return false;
 
     return true;
