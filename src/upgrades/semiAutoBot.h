@@ -5,7 +5,15 @@
 
 class SemiAutoBot:public GenericRobot{
     public:
-        void fire(int x, int y) override;
+    int getBulletsPerShot() const override{
+        return 3;
+    }
+
+     
 };
+
+//     public:
+//         void fire(int x, int y) override;
+// };
 
 #endif
