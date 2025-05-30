@@ -7,6 +7,7 @@
 #include "genericRobot.h"
 #include "abstractRobot/robot.h"
 #include "logger.h"
+#include "upgrades/upgrades.h"
 #include "vector2d.h"
 #include "environment.h"
 
@@ -33,9 +34,11 @@ GenericRobot::GenericRobot(
 }
 
 DeadState GenericRobot::die() {
-    if (respawnCountLeft == 0)
+    isDead = true;
+    if (respawnCountLeft == 0) {
         selfLog("Robot " + name + " has died and cannot respawn anymore.");
         return DeadState::Dead;
+    }
 
     respawnCountLeft--;
     return DeadState::Respawn;
@@ -98,8 +101,9 @@ vector<Vector2D> GenericRobot::look(int x, int y) {
     vector<Vector2D> lookResult = {};
     selfLog("Looking.");
     // Loop through a 3x3 square around center
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
+    for (int i = -3; i <= 3; i++) {
+        for (int j = -3; j <= 3; j++) {
+            if (i == 0 && j == 0) continue; // skip the center if needed
 
             // Center of look coordinate + offset
             Vector2D relativePositionToLook = Vector2D(x, y) + Vector2D(i, j);
@@ -128,11 +132,27 @@ void GenericRobot::fire(int x, int y) {
     Vector2D target(x, y);
     Vector2D targetAbsolutePosition = position + target;
 
+    // Draw the fire trajectory (track) from current position to target
+    environment->drawLine(position.x, position.y, targetAbsolutePosition.x, targetAbsolutePosition.y);
+    // Place a fire mark at the target
+    environment->placeFireMark(targetAbsolutePosition.x, targetAbsolutePosition.y);
+
+    // Print the map with marks
+    environment->printMap();
+
+    // Clear all fire and line marks after printing
+    environment->clearFireMarks();
+    environment->clearLineMarks();
+
     GenericRobot* targetRobot = environment->getRobotAtPosition(targetAbsolutePosition);
+
+    // If it's hidden, set the probability to impossible
+    double dieProbability = targetRobot->isVisible ? 0.7 : 0;
+
     selfLog("Fired at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
     // call die() directly
     // Allow flexibility of 'killing' the oponent later since we can set the probability
-    if(randomBool(0.7)) {
+    if(randomBool(dieProbability)) {
         DeadState deadState = targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
         environment->notifyKill(this, targetRobot, deadState);
@@ -164,13 +184,26 @@ char GenericRobot::getSymbol() const {
     return this->symbol;
 }
 
+bool GenericRobot::getIsDead() const {
+    return this->isDead;
+}
+
+bool GenericRobot::getIsVisible() const {
+    return this->isVisible;
+}
+
 Vector2D GenericRobot::getPosition() const {
     return position;
 }
 
 // No upgrades, so return empty vector
-vector<RobotUpgrades> GenericRobot::getUpgrades() const {
-    return vector<RobotUpgrades>();
+const vector<Upgrade>& GenericRobot::getUpgrades() const {
+    return upgrades;
+}
+
+
+const vector<Upgrade>& GenericRobot::getPendingUpgrades() const {
+    return pendingUpgrades;
 }
 
 void GenericRobot::setShellCount(int newShellCount){
@@ -197,4 +230,29 @@ void GenericRobot::selfLog(const string& msg) {
 int GenericRobot::calcDistance(Vector2D a) const {
     // Return the bigger difference, either x or y
     return max(abs(a.x), abs(a.y));
+}
+
+UpgradeState GenericRobot::chosenForUpgrade() {
+    // Check for the current upgrade and pending upgrade count
+    // Stop if already enough
+    if (upgrades.size() + pendingUpgrades.size() == 3)
+        return UpgradeFull;
+
+    // Select track within the possible upgrade tracks
+    uniform_int_distribution<int> trackIndexGen(0, possibleUpgradeTrack.size() - 1);
+    int chosenTrackIndex = trackIndexGen(rng);
+    UpgradeTrack chosenTrack = possibleUpgradeTrack[chosenTrackIndex];
+
+    // List out all upgrades under a track
+    vector<Upgrade> upgradesToChoose = getUpgradesUnderTrack(chosenTrack);
+
+    // Select upgrades under the track
+    uniform_int_distribution<int> upgradeIndexGen(0, upgradesToChoose.size() - 1);
+    int chosenUpgradeIndex = upgradeIndexGen(rng);
+    Upgrade chosenUpgrade = upgradesToChoose[chosenUpgradeIndex];
+
+    // Store chosen upgrade for the next upgrade cycle
+    pendingUpgrades.push_back(chosenUpgrade);
+
+    return AvailableForUpgrade;
 }

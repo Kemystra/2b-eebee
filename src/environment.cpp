@@ -1,10 +1,14 @@
 #include "environment.h"
 #include "abstractRobot/robot.h"
 #include "genericRobot.h"
+#include "upgrades/upgrades.h"
+#include "upgrades/scoutBot.h"
 #include "vector2d.h"
 
 #include <memory>
 #include <random>
+#include <algorithm>
+#include <sstream>
 
 // Needed for sleep function
 #include <chrono>
@@ -13,14 +17,22 @@
 
 using namespace std;
 
+const char* BLUE_COLOR = "\033[34m";
+const char* RESET_COLOR = "\033[0m";
+const char* ORANGE_COLOR = "\033[33m";
+const char* RED_COLOR = "\033[31m";
+
 Environment::Environment(
     int maxStep,
     Vector2D dimension,
     vector<RobotParameter> robotParams,
-    Logger* logger
-) {
+    Logger *logger)
+{
     this->maxStep = maxStep;
     this->dimension = dimension;
+
+    // Initialize grid for marks ('.' means empty)
+    grid.resize(dimension.x, vector<char>(dimension.y, '.'));
 
     // Temporary RNG to seed the robots RNG
     // We are using another RNG instead of just passing the same seed
@@ -42,42 +54,77 @@ Environment::Environment(
     //
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
-    for (const RobotParameter &param : robotParams) {
-        GenericRobot robot(param, this, rng(), logger);
-
-        this->robotList.push_back(make_unique<GenericRobot>(robot));
+    for (const RobotParameter &param : robotParams)
+    {
+        GenericRobot *robot = new GenericRobot(param, this, rng(), logger);
+        this->robotList.push_back(unique_ptr<GenericRobot>(robot));
     }
 }
 
-void Environment::gameLoop() {
-    while (maxStep > step) {
-        for (unique_ptr<GenericRobot> &robot : this->robotList) {
-            printMap();
-            robot->thinkAndExecute();
-            this_thread::sleep_for(
-                chrono::milliseconds(robotActionInterval)
-            );
+void Environment::gameLoop()
+{
+    while (maxStep > step && robotList.size() > 1)
+    {
+        logger->log("Round " + to_string(step));
+        applyRobotUpgrades();
+        // Make a copy of pointers to robots to avoid iterator invalidation
+        vector<GenericRobot *> robotsToAct;
+        for (auto &robotPtr : robotList)
+        {
+            robotsToAct.push_back(robotPtr.get());
         }
 
-        if (robotList.size() == 0)
-            gameOver();
+        for (GenericRobot *robot : robotsToAct)
+        {
+            logger->log(robot->getName() + "'s turn");
+            printMap();
+            // Only act if the robot is still in the list (not killed this turn)
+            if (find_if(robotList.begin(), robotList.end(),
+                        [robot](const unique_ptr<GenericRobot> &ptr)
+                        { return ptr.get() == robot; }) != robotList.end())
+            {
+                robot->thinkAndExecute();
+                this_thread::sleep_for(chrono::milliseconds(robotActionInterval));
+            }
 
-        step++;
+            if (robotList.size() == 1)
+            {
+                logger->log("Only one bot remains: " + robotList[0]->getName());
+                gameOver();
+            }
 
-        this_thread::sleep_for(
-            chrono::milliseconds(stepInterval)
-        );
+            step++;
+            this_thread::sleep_for(chrono::milliseconds(stepInterval));
+        }
+    }
+}
+
+void Environment::gameOver()
+{
+    logger->log("Game Over");
+    logger->log("Remaining robots: " + to_string(robotList.size()));
+    if (robotList.size() == 1)
+    {
+        logger->log("Winner: " + robotList[0]->getName());
+    }
+    else if (robotList.size() == 0)
+    {
+        logger->log("No winner.");
+    }
+    else
+    {
+        logger->log("Multiple robots survived.");
     }
 
-    gameOver();
+    logger->log("Steps finished");
+    logger->log("Game finished");
 }
 
-void Environment::gameOver() {
-    cout << "Game Over" << endl;
-}
 
-bool Environment::isRobotHere(Vector2D positionToCheck) const {
-    for (const unique_ptr<GenericRobot> &robot : this->robotList) {
+bool Environment::isRobotHere(Vector2D positionToCheck) const
+{
+    for (const unique_ptr<GenericRobot> &robot : this->robotList)
+    {
         if (robot->getPosition() == positionToCheck)
             return true;
     }
@@ -85,10 +132,11 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
     return false;
 }
 
-GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
-    for (unique_ptr<GenericRobot> &robot : this->robotList) {
+GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck) const
+{
+    for (const unique_ptr<GenericRobot> &robot : this->robotList)
+    {
         if (robot->getPosition() == positionToCheck)
-
             // To return the raw pointer to the object, use get()
             // DO NOT RETURN THE unique_ptr ITSELF
             return robot.get();
@@ -97,74 +145,201 @@ GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) {
     return nullptr;
 }
 
-bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
+bool Environment::isPositionAvailable(Vector2D positionToCheck) const
+{
     // Position is available if no robots there and it's within bounds
-    return !isRobotHere(positionToCheck) || isWithinBounds(positionToCheck);
+    return !isRobotHere(positionToCheck) && isWithinBounds(positionToCheck);
 }
 
-bool Environment::isWithinBounds(Vector2D positionToCheck) const {
-    if(positionToCheck.x > dimension.x || positionToCheck.x < 0)
+bool Environment::isWithinBounds(Vector2D positionToCheck) const
+{
+    if (positionToCheck.x > dimension.x || positionToCheck.x < 0)
         return false;
 
-    if(positionToCheck.y > dimension.y || positionToCheck.y < 0)
+    if (positionToCheck.y > dimension.y || positionToCheck.y < 0)
         return false;
 
     return true;
 }
 
-void Environment::printMap() const {
-    // Print column headers (X axis)
-    cout << "   ";
-    for (int x = 0; x < dimension.x; ++x) {
-        cout << x << " ";
+void Environment::printMap() const
+{
+    // Build the map as a string and log it
+    stringstream ss;
+    ss << BLUE_COLOR; // Set blue color
+    ss << "X ";
+    for (int x = 0; x < dimension.x; ++x)
+    {
+        ss << "X ";
     }
-    cout << "\n";
-    for (int y = 0; y < dimension.y; ++y) {
-        // Print row header (Y axis)
-        cout << y << " |";
-        for (int x = 0; x < dimension.x; ++x) {
-            Vector2D pos(x, y);
-            bool found = false;
-            for (const unique_ptr<GenericRobot> &robot : robotList) {
-                if (robot->getPosition() == pos) {
-                    cout << robot->getSymbol() << " ";
-                    found = true;
-                    break;
-                }
+    ss << "X" << RESET_COLOR << "\n"; // Reset color
+
+    for (int y = 0; y < dimension.y; ++y)
+    {
+        ss << BLUE_COLOR << "X" << RESET_COLOR << " "; // Left border in blue with space
+        for (int x = 0; x < dimension.x; ++x)
+        {
+            // Priority: fire mark > line mark > robot > empty
+            if (grid[x][y] == '!')
+            { 
+                ss << RED_COLOR << '!' << RESET_COLOR << ' ' ; // Red fire mark
             }
-            if (!found) cout << ". ";
+            else if (grid[x][y] == '*')
+            {
+                ss << ORANGE_COLOR <<'*' << RESET_COLOR << ' '; // Yellow line mark
+            }
+            else
+            {
+                Vector2D pos(x, y);
+                bool found = false;
+                for (const unique_ptr<GenericRobot> &robot : robotList)
+                {
+                    if (robot->getPosition() == pos)
+                    {
+                        ss << robot->getSymbol() << " ";
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    ss << ". ";
+            }
         }
-        cout << "|\n";
+        ss << BLUE_COLOR << "X" << RESET_COLOR << "\n"; // Right border in blue
     }
-    // Print cardinal directions
-    cout << "\nN (up)\nS (down)\nE (right)\nW (left)\n";
+    // Print bottom border
+    ss << BLUE_COLOR;
+    ss << "X ";
+    for (int x = 0; x < dimension.x; ++x)
+    {
+        ss << "X ";
+    }
+    ss << "X" << RESET_COLOR << "\n";
+    logger->log(ss.str());
 }
 
-void Environment::notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState) {
-    // find() returns an iterator type with a long typename that I can't even find
-    // just gonna use auto here lol
-    auto victimIterator = getRobotIndex(victim);
-    auto killerIterator = getRobotIndex(killer);
+// Place a fire mark at (x, y)
+void Environment::placeFireMark(int x, int y)
+{
+    if (isWithinBounds(Vector2D(x, y)))
+    {
+        grid[x][y] = '!';
+    }
+}
 
-    // Later need to add upgrade mechanism
+// Draw a line using Bresenham's algorithm, marking '*' on empty cells
+// Starts 1 block away from (x1, y1) in the direction of (x2, y2)
+void Environment::drawLine(int x1, int y1, int x2, int y2)
+{
+    int dx = abs(x2 - x1);
+    int dy = abs(y2 - y1);
+    int sx = (x1 < x2) ? 1 : -1;
+    int sy = (y1 < y2) ? 1 : -1;
+    int err = dx - dy;
+
+    // Move one step from (x1, y1) towards (x2, y2)
+    if (x1 != x2 || y1 != y2)
+    {
+        int e2 = 2 * err;
+        if (e2 > -dy)
+        {
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx)
+        {
+            err += dx;
+            y1 += sy;
+        }
+    }
+
+    while (true)
+    {
+        if (isWithinBounds(Vector2D(x1, y1)))
+        {
+            if (grid[x1][y1] == '.')
+                grid[x1][y1] = '*';
+        }
+        if (x1 == x2 && y1 == y2)
+            break;
+        int e2 = 2 * err;
+        if (e2 > -dy)
+        {
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx)
+        {
+            err += dx;
+            y1 += sy;
+        }
+    }
+}
+
+// Remove all fire marks from the grid
+void Environment::clearFireMarks()
+{
+    for (int x = 0; x < dimension.x; ++x)
+    {
+        for (int y = 0; y < dimension.y; ++y)
+        {
+            if (grid[x][y] == '!')
+            {
+                grid[x][y] = '.';
+            }
+        }
+    }
+}
+
+// Remove all line marks from the grid
+void Environment::clearLineMarks()
+{
+    for (int x = 0; x < dimension.x; ++x)
+    {
+        for (int y = 0; y < dimension.y; ++y)
+        {
+            if (grid[x][y] == '*')
+            {
+                grid[x][y] = '.';
+            }
+        }
+    }
+}
+void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim, DeadState deadState)
+{
+    RobotPtrIterator victimIterator = getRobotIterator(victim);
+    RobotPtrIterator killerIterator = getRobotIterator(killer);
+
+    // One robot died, so decrement
+    currentRobotLength--;
+
+    // Notify the robot on upgrading and check its upgrade-related state
+    UpgradeState upgradeState = killer->chosenForUpgrade();
+    if (upgradeState == AvailableForUpgrade)
+        // Add to upgrade list
+        // If already added before (e.g: multiple kills on 1 round),
+        // the set data structure will ensure no duplication
+        robotsToUpgrade.insert(killerIterator);
 
     // If respawn move to respawn queue, else just delete urself lol
+
     switch (deadState) {
         case DeadState::Respawn:
-            respawnQueue.push(move(*victimIterator));
-            robotList.erase(victimIterator);
+            logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
+            // respawnQueue.push(move(*victimIterator));
         break;
 
         case DeadState::Dead:
-            robotList.erase(victimIterator);
+            logger->log(victimIterator->get()->getName() + " won't respawn anymore");
         break;
     }
 }
 
-// This ugly type is unfortunately needed for quite a few vector operations
-vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRobot* robot) {
-    for (int i = 0; i < robotList.size(); i++) {
-        if(robotList[i].get() == robot)
+RobotPtrIterator Environment::getRobotIterator(GenericRobot *robot)
+{
+    for (int i = 0; i < robotList.size(); i++)
+    {
+        if (robotList[i].get() == robot)
             return robotList.begin() + i;
     }
 
@@ -172,6 +347,129 @@ vector<unique_ptr<GenericRobot>>::iterator Environment::getRobotIndex(GenericRob
     return robotList.end();
 }
 
-vector<unique_ptr<GenericRobot>>& Environment::getAllRobots() {
-    return this->robotList;
+// We cannot upgrade the right after kill
+// notifyKill() is called while the robot is running thinkAndExecute()
+// Upgrading the robot involves destroying the original object and replacing them with a new one
+// If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
+// So we will only actually upgrade them at the start of each round
+void Environment::applyRobotUpgrades()
+{
+    for (const RobotPtrIterator &robotIterator : robotsToUpgrade)
+    {
+        // Get the raw robot pointer
+        // For some reason you can't access it like normal pointer
+        // even though at other places can
+        GenericRobot *robotPtr = robotIterator->get();
+        logger->log("Upgrading " + robotPtr->getName());
+
+        // Get the pending upgrade
+        vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
+
+        for (const Upgrade &upgrade : pendingUpgrades)
+        {
+            logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
+            // Will apply upgrades later
+
+            GenericRobot* newRobot = new class ScoutBot(robotPtr);
+
+
+            // Destroy the old GenericRobot, and switch to the new robot
+            // Using iterator allow us to edit in-place, so we don't have to push it into robotList
+            robotIterator->reset(newRobot);
+
+            // Each upgrade will destroy the old robot and update it with a new pointer
+            // If we keep using the old pointer it will cause havoc
+            // Update it to use the new one after each upgrade
+            robotPtr = newRobot;
+        }
+    }
 }
+
+
+void Environment::applyRobotRespawn()
+{
+}
+
+void Environment::applyRobotDie()
+{
+}
+
+vector<GenericRobot*> Environment::getAllRobots() const {
+    vector<GenericRobot*> result;
+
+    for (const unique_ptr<GenericRobot>& robot : robotList) {
+        if (!robot->getIsDead())
+            result.push_back(robot.get());
+    }
+
+    return result;
+}
+
+
+void Environment::printwelcomemessage() const
+{
+    stringstream ss;
+    ss << "\n";
+    ss << ".++######################################################################################################++.\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##   ###-   -## ########  ###      -#######  #######+ ###  #### +#######          #########- #######      ##\n";
+    ss << "##    #-     .# -#        ###      ##       ##     ## ## +..##   #                    ##    ##+    ##.    ##\n";
+    ss << "##    ##.+#- ## +#######  ###     -##       ##     ## ## ### #+  #######              ##    ##.    .#.    ##\n";
+    ss << "##    #+## ##.# +#        ###     -##       ##     ## ##     #-  #                    ##    ##-    ##-    ##\n";
+    ss << "##    -### #### ##-       ###      ###      .###  ### ##     ##  #+                   ##     ##   ##      ##\n";
+    ss << "##    .#+   ##  -#######  +#######   ######-  #####   #+     ##  #######              ##      +####       ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##       #######                                                                                          ##\n";
+    ss << "##      ++     ###                                                                                        ##\n";
+    ss << "##     #######   -#-  #######  #######    ######  #########                                               ##\n";
+    ss << "##   ##-  #   #.  #++##    ### ##    #  ##+    ##    ##                                                   ##\n";
+    ss << "##     ########+  # ##.    .## ######   ##     ## .  ##-                                                  ##\n";
+    ss << "##     ##    #    # ###    -## ##    ##.##     ##    ##-                                                  ##\n";
+    ss << "##     ##  .###   #. ##    ##  ##   +## -##   ###    ##-                                                  ##\n";
+    ss << "##      ####+ ####.   ######   ######     #####+     ###                                                  ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##     #######.-######## +##- .######    ###  ##         ###   #########.+########  ####### .###   ###    ##\n";
+    ss << "##   .##           ##    +### ###+ ##    ##+  ##        #.###      +#        ##    ##    ##- ###-  ##-    ##\n";
+    ss << "##     ####        ##    ####+## # ##    ###  ##        #   #     .##        ##   +#-     ## ## #+ ##-    ##\n";
+    ss << "##        ####     ##    ##  #   # ##    ##+  ##      ########    .##        ##   -##     ## ## ###+#-    ##\n";
+    ss << "##          ##-    ##    ##     -# ##    ##   ##      ##     ##   -##        ##    ##-   ##  ##  ####-    ##\n";
+    ss << "##   -#######  .######## ##+   .##  ######    ##########     ###  +##    +########  ######  .##   ####    ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << "##                                                                                                        ##\n";
+    ss << ".++######################################################################################################++.\n";
+    logger->log(ss.str());
+
+// void Environment::printwelcomemessage() const {
+//     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";
+//     cout << "       |\"  |/  \\|  \"|/\"     |\"  |    /\" _  \"\\ /    \" \\|\"  \\    /\"  |/\"     \"|    (\"     _   \")    \" \\      \n";
+//     cout << "       |'  /    \\:  (: ______)|  |   (: ( \\___)/ ____  \\\\   \\  //   (: ______)     )__/  \\\\__// ____  \\     \n";
+//     cout << "       |: /'        |\\/    | |:  |    \\/ \\   /  /    ) :)\\\\  \\/.    |\\/    |          \\\\_ / /  /    ) :)    \n";
+//     cout << "        \\//  /'\\    |// ___)_ \\  |___ //  \\ (: (____/ //: \\.        |// ___)_         |.  |(: (____/ //     \n";
+//     cout << "        /   /  \\\\   (:      \"( \\_|:  (:   _) \\        /|.  \\    /:  (:      \"|        \\:  | \\        /      \n";
+//     cout << "       |___/    \\___|\\_______)\\_______)_______)\"_____/ |___|\\__/|___|\\_______)         \\__|  \\\"_____/       \n";
+//     cout << "                                                                                                            \n";
+//     cout << "                              _______    ______   _______    ______ ___________                             \n";
+//     cout << "                             /\"      \\  /    \" \\ |   _  \"\\  /    \" (\"     _   \")                            \n";
+//     cout << "                            |:        |// ____  \\(. |_)  :)// ____  )__/  \\\\__/                             \n";
+//     cout << "                            |_____/   )  /    ) :):     \\//  /    ) :) \\\\_ /                                \n";
+//     cout << "                             //      (: (____/ //(|  _  \\(: (____/ //  |.  |                                \n";
+//     cout << "                            |:  __   \\\\        / |: |_)  :)        /   \\:  |                                \n";
+//     cout << "                            |__|  \\___)\\\"_____/  (_______/ \\\"_____/     \\__|                                \n";
+//     cout << "                                                                                                            \n";
+//     cout << "      ________ __    ___      ___ ____  ____ ___           __ ___________ __     ______   _____  ___        \n";
+//     cout << "     /\"       )\" \\  |\"  \\    /\"  (\"  _||_ \" |\"  |         /\"\"(\"     _   \")\" \\   /    \" \\ (\"   \\|\"  \\       \n";
+//     cout << "    (:   \\___/||  |  \\   \\  //   |   (  ) : ||  |        /    )__/  \\\\__/||  | // ____  \\|.\\\\   \\    |      \n";
+//     cout << "     \\___  \\  |:  |  /\\\\  \\/.    (:  |  | . ):  |       /' /\\  \\ \\\\_ /   |:  |/  /    ) :): \\.   \\\\  |      \n";
+//     cout << "      __/  \\\\ |.  | |: \\.        |\\\\ \\__/ // \\  |___   //  __'  \\|.  |   |.  (: (____/ //|.  \\    \\. |      \n";
+//     cout << "     /\" \\   :)/\\  |\\|.  \\    /:  |/\\\\ __ //\\( \\_|:  \\ /   /  \\\\  \\:  |   /\\  |\\        / |    \\    \\ |      \n";
+//     cout << "    (_______/(__\\_|_)___|\\__/|___(__________)\\_______|___/    \\___)__|  (__\\_|_)\"_____/   \\___|\\____\\)      \n";
+//     cout << endl
+//             << endl;
+// }

@@ -1,3 +1,4 @@
+
 #ifndef GENERIC_ROBOT_H
 #define GENERIC_ROBOT_H
 
@@ -9,6 +10,7 @@
 
 #include "vector2d.h"
 #include "logger.h"
+#include "upgrades/upgrades.h"
 
 #include <vector>
 #include <cstdint>
@@ -26,6 +28,12 @@ struct RobotParameter {
     char symbol;
 };
 
+// Robot status on the upgrading
+enum UpgradeState {
+    AvailableForUpgrade,
+    UpgradeFull
+};
+
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
     GenericRobot(
@@ -38,9 +46,14 @@ public:
     DeadState die() override;
     void thinkAndExecute() override;
 
+    UpgradeState chosenForUpgrade();
+
     string getName() const override;
     Vector2D getPosition() const override;
-    vector<RobotUpgrades> getUpgrades() const override;
+    const vector<Upgrade>& getPendingUpgrades() const;
+    const vector<Upgrade>& getUpgrades() const;
+    bool getIsDead() const;
+    bool getIsVisible() const;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
@@ -55,6 +68,7 @@ protected:
     int respawnCountLeft = 3;
     vector<int> movementRange={-1,1};
     bool isVisible = true;
+    bool isDead = false;
 
     Environment* environment;
     Logger* logger;
@@ -62,6 +76,12 @@ protected:
     // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
     // I chose a random one lol
     mt19937_64 rng;
+
+    vector<UpgradeTrack> possibleUpgradeTrack = { Moving, Shooting, Seeing };
+    // Current upgrades
+    vector<Upgrade> upgrades = {};
+    // What to add on the next upgrade cycle (see Environment::applyRobotUpgrades)
+    vector<Upgrade> pendingUpgrades = {};
 
     // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
     bool randomBool(double probability);
@@ -79,7 +99,7 @@ protected:
     int getBulletsPerShot() const override;
     int getMaxFiringDistance() const override;
     void setShellCount(int newShellCount);
-
+    
     void selfLog(const string& msg);
 
     // GenericRobot uses a 'square' area to see if a robot is in shooting range
