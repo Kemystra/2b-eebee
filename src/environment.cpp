@@ -5,7 +5,6 @@
 
 #include <memory>
 #include <random>
-#include <algorithm>
 #include <sstream>
 
 // Needed for sleep function
@@ -288,7 +287,7 @@ void Environment::clearLineMarks()
         }
     }
 }
-void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim, DeadState deadState)
+void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim)
 {
     RobotPtrIterator victimIterator = getRobotIterator(victim);
     RobotPtrIterator killerIterator = getRobotIterator(killer);
@@ -499,7 +498,7 @@ void Environment::printwelcomemessage() const
     ss << "##                                                                                                        ##\n";
     ss << ".++######################################################################################################++.\n";
     logger->log(ss.str());
-
+}
 // void Environment::printwelcomemessage() const {
 //     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";
 //     cout << "       |\"  |/  \\|  \"|/\"     |\"  |    /\" _  \"\\ /    \" \\|\"  \\    /\"  |/\"     \"|    (\"     _   \")    \" \\      \n";
