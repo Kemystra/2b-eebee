@@ -33,18 +33,6 @@ enum UpgradeState {
     UpgradeFull
 };
 
-enum Upgrade {
-    HideBot,
-    JumpBot,
-    LongShotBot,
-    SemiAutoBot,
-    ThirtyShotBot,
-    LandmineBot,
-    BombBot,
-    LaserBot,
-    ScoutBot,
-    TrackBot
-};
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
