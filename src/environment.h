@@ -95,7 +95,7 @@ public:
     void applyRobotRespawn();
     void applyRobotDie();
 
-    vector<GenericRobot*> getAllRobots() const;
+    const vector<GenericRobot*> getAllAvailableRobots() const;
 };
 
 #endif  // ENVIRONMENT_H

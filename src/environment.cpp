@@ -25,8 +25,8 @@ Environment::Environment(
     int maxStep,
     Vector2D dimension,
     vector<RobotParameter> robotParams,
-    Logger *logger)
-{
+    Logger* logger
+) {
     this->maxStep = maxStep;
     this->dimension = dimension;
 
@@ -53,28 +53,24 @@ Environment::Environment(
     //
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
-    for (const RobotParameter &param : robotParams)
-    {
-        GenericRobot *robot = new GenericRobot(param, this, rng(), logger);
+    for (const RobotParameter &param : robotParams) {
+        GenericRobot* robot = new GenericRobot(param, this, rng(), logger);
+
         this->robotList.push_back(unique_ptr<GenericRobot>(robot));
     }
 }
 
-void Environment::gameLoop()
-{
-    while (maxStep > step && robotList.size() > 1)
-    {
+void Environment::gameLoop() {
+    while (maxStep > step) {
         logger->log("Round " + to_string(step));
+        logger->log("Applying robot upgrades");
         applyRobotUpgrades();
-        // Make a copy of pointers to robots to avoid iterator invalidation
-        vector<GenericRobot *> robotsToAct;
-        for (auto &robotPtr : robotList)
-        {
-            robotsToAct.push_back(robotPtr.get());
-        }
 
-        for (GenericRobot *robot : robotsToAct)
-        {
+        for (unique_ptr<GenericRobot>& robot : robotList) {
+            // Skip dead robot
+            if (robot->getIsDead())
+                continue;
+
             logger->log(robot->getName() + "'s turn");
             printMap();
             // Only act if the robot is still in the list (not killed this turn)
@@ -97,6 +93,7 @@ void Environment::gameLoop()
             this_thread::sleep_for(chrono::milliseconds(stepInterval));
         }
     }
+    gameOver();
 }
 
 void Environment::gameOver()
@@ -120,14 +117,15 @@ void Environment::gameOver()
     logger->log("Game finished");
 }
 
+bool Environment::isRobotHere(Vector2D positionToCheck) const {
+    return getRobotAtPosition(positionToCheck) != nullptr;
+}
 
-bool Environment::isRobotHere(Vector2D positionToCheck) const
-{
-    for (const unique_ptr<GenericRobot> &robot : this->robotList)
-    {
-        if (robot->getPosition() == positionToCheck)
-            return true;
-    }
+GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) const {
+    for (const unique_ptr<GenericRobot> &robot : this->robotList) {
+        // Skip dead robots
+        if (robot->getIsDead())
+            continue;
 
     return false;
 }
@@ -145,8 +143,7 @@ GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck) const
     return nullptr;
 }
 
-bool Environment::isPositionAvailable(Vector2D positionToCheck) const
-{
+bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
     // Position is available if no robots there and it's within bounds
     return !isRobotHere(positionToCheck) && isWithinBounds(positionToCheck);
 }
@@ -352,14 +349,12 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot *robot)
 // Upgrading the robot involves destroying the original object and replacing them with a new one
 // If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
 // So we will only actually upgrade them at the start of each round
-void Environment::applyRobotUpgrades()
-{
-    for (const RobotPtrIterator &robotIterator : robotsToUpgrade)
-    {
+void Environment::applyRobotUpgrades() {
+    for (const RobotPtrIterator& robotIterator : robotsToUpgrade) {
         // Get the raw robot pointer
         // For some reason you can't access it like normal pointer
         // even though at other places can
-        GenericRobot *robotPtr = robotIterator->get();
+        GenericRobot* robotPtr = robotIterator->get();
         logger->log("Upgrading " + robotPtr->getName());
 
         // Get the pending upgrade
@@ -368,7 +363,6 @@ void Environment::applyRobotUpgrades()
         for (const Upgrade &upgrade : pendingUpgrades)
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
-            // Will apply upgrades later
 
             if (upgrade == ScoutBot) {
                 logger->log("ScoutBot upgrade detected, creating ScoutBot instance");
@@ -421,15 +415,6 @@ void Environment::applyRobotUpgrades()
         }
     }
         robotsToUpgrade.clear();
-}
-
-
-void Environment::applyRobotRespawn()
-{
-}
-
-void Environment::applyRobotDie()
-{
 }
 
 
