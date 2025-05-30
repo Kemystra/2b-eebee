@@ -1,3 +1,4 @@
+
 #ifndef GENERIC_ROBOT_H
 #define GENERIC_ROBOT_H
 
@@ -98,7 +99,7 @@ protected:
     int getBulletsPerShot() const override;
     int getMaxFiringDistance() const override;
     void setShellCount(int newShellCount);
-
+    
     void selfLog(const string& msg);
 
     // GenericRobot uses a 'square' area to see if a robot is in shooting range
