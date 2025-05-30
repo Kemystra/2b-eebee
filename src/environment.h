@@ -88,14 +88,14 @@ public:
     void gameLoop();
     void gameOver();
 
-    void notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState);
+    void notifyKill(GenericRobot* killer, GenericRobot* victim);
     RobotPtrIterator getRobotIterator(GenericRobot* robot);
 
     void applyRobotUpgrades();
     void applyRobotRespawn();
     void applyRobotDie();
 
-    vector<GenericRobot*> getAllRobots() const;
+    const vector<GenericRobot*> getAllAvailableRobots() const;
 };
 
 #endif  // ENVIRONMENT_H
