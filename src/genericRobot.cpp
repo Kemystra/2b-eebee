@@ -301,3 +301,7 @@ UpgradeState GenericRobot::chosenForUpgrade() {
 
     return AvailableForUpgrade;
 }
+
+void GenericRobot::notifyRespawn() {
+    livingState = Alive;
+}

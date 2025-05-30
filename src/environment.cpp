@@ -422,6 +422,9 @@ void Environment::applyRobotRespawn() {
     GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
     robotUniquePtr.reset(resettedRobotPtr);
 
+    // Make the robot alive again
+    robotUniquePtr->notifyRespawn();
+
     robotList.push_back(robotUniquePtr);
 
     // remove the first element
