@@ -3,6 +3,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "genericRobot.h"
 #include "abstractRobot/robot.h"
@@ -232,6 +233,42 @@ int GenericRobot::calcDistance(Vector2D a) const {
     return max(abs(a.x), abs(a.y));
 }
 
+void GenericRobot::insertNewUpgrade(const Upgrade& upgrade) {
+    // Check if the upgrade is already in the list
+    for (const Upgrade &existingUpgrade : this->upgrades) {
+        if (existingUpgrade == upgrade) {
+            selfLog("Upgrade " + stringifyUpgrade(upgrade) + " already exists.");
+            return;
+        }
+    }
+
+    // Add the upgrade to the current upgrades
+    this->upgrades.push_back(upgrade);
+    selfLog("Added upgrade: " + stringifyUpgrade(upgrade));
+    // remove the current upgrade from pending upgrades
+    auto it = find(pendingUpgrades.begin(), pendingUpgrades.end(), upgrade);
+    if (it != pendingUpgrades.end()) {
+        pendingUpgrades.erase(it);
+        selfLog("Removed upgrade from pending upgrades: " + stringifyUpgrade(upgrade));
+    } else {
+        selfLog("Upgrade " + stringifyUpgrade(upgrade) + " not found in pending upgrades.");
+    }
+}
+
+void GenericRobot::logUpgrades(){
+    if (upgrades.empty()) {
+        selfLog("No upgrades yet.");
+        return;
+    }
+
+    string upgradeList = "Current upgrades: ";
+    for (const Upgrade &upgrade : upgrades) {
+        upgradeList += stringifyUpgrade(upgrade) + ", ";
+    }
+    // Remove the last comma and space
+    upgradeList = upgradeList.substr(0, upgradeList.size() - 2);
+    selfLog(upgradeList);
+};
 UpgradeState GenericRobot::chosenForUpgrade() {
     // Check for the current upgrade and pending upgrade count
     // Stop if already enough
@@ -244,7 +281,7 @@ UpgradeState GenericRobot::chosenForUpgrade() {
     UpgradeTrack chosenTrack = possibleUpgradeTrack[chosenTrackIndex];
 
     // List out all upgrades under a track
-    vector<Upgrade> upgradesToChoose = getUpgradesUnderTrack(chosenTrack);
+    vector<Upgrade> upgradesToChoose = chosenTrack.getUpgradesUnderTrack();
 
     // Select upgrades under the track
     uniform_int_distribution<int> upgradeIndexGen(0, upgradesToChoose.size() - 1);

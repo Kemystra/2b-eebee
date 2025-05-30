@@ -5,6 +5,7 @@
 
 class HideBot:public GenericRobot{
     public:
+        HideBot(GenericRobot* g) : GenericRobot(*g) {};
         void hide();
         void thinkAndExecute() override;
     protected:

@@ -11,6 +11,8 @@
 #include "logger.h"
 #include "vector2d.h"
 #include "genericRobot.h"
+#include "upgrades/upgrades.h"
+#include "upgradeBots.h"
 
 using namespace std;
 

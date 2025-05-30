@@ -5,7 +5,10 @@
 
 class LandmineBot:public GenericRobot{
     public:
-        void fire(int x, int y) override;
+        LandmineBot(GenericRobot* g) : GenericRobot(*g) {
+            selfLog("LandmineBot created");
+        };
+        // void fire(int x, int y) override;
 };
 
 #endif

@@ -1,8 +1,7 @@
 #include "environment.h"
 #include "abstractRobot/robot.h"
 #include "genericRobot.h"
-#include "upgrades/upgrades.h"
-#include "upgrades/scoutBot.h"
+#include "upgradeBots.h"
 #include "vector2d.h"
 
 #include <memory>
@@ -84,6 +83,7 @@ void Environment::gameLoop()
                         { return ptr.get() == robot; }) != robotList.end())
             {
                 robot->thinkAndExecute();
+            robot->logUpgrades();
                 this_thread::sleep_for(chrono::milliseconds(robotActionInterval));
             }
 
@@ -364,13 +364,49 @@ void Environment::applyRobotUpgrades()
 
         // Get the pending upgrade
         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
-
+        GenericRobot* newRobot = nullptr;
         for (const Upgrade &upgrade : pendingUpgrades)
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
             // Will apply upgrades later
 
-            GenericRobot* newRobot = new class ScoutBot(robotPtr);
+            if (upgrade == ScoutBot) {
+                logger->log("ScoutBot upgrade detected, creating ScoutBot instance");
+                newRobot = new class ScoutBot(robotPtr);
+            }
+            else if (upgrade == HideBot) {
+                logger->log("HideBot upgrade detected, creating HideBot instance");
+                newRobot = new class HideBot(robotPtr);
+            }
+            else if (upgrade == JumpBot) {
+                logger->log("JumpBot upgrade detected, creating JumpBot instance");
+                newRobot = new class JumpBot(robotPtr);
+            }
+            else if (upgrade == LongShotBot) {
+                logger->log("LongShotBot upgrade detected, creating LongShotBot instance");
+                newRobot = new class LongShotBot(robotPtr);
+            }
+            else if (upgrade == SemiAutoBot) {
+                logger->log("SemiAutoBot upgrade detected, creating SemiAutoBot instance");
+                newRobot = new class SemiAutoBot(robotPtr);
+            }
+            else if (upgrade == ThirtyShotBot) {
+                logger->log("ThirtyShotBot upgrade detected, creating ThirtyShotBot instance");
+                newRobot = new class ThirtyShotBot(robotPtr);
+            }
+            else if (upgrade == LandmineBot) {
+                logger->log("LandmineBot upgrade detected, creating LandmineBot instance");
+                newRobot = new class LandmineBot(robotPtr);
+            }
+            else if (upgrade == BombBot) {
+                logger->log("BombBot upgrade detected, creating BombBot instance");
+                newRobot = new class BombBot(robotPtr);
+            }
+            else if (upgrade == TrackBot) {
+                logger->log("TrackBot upgrade detected, creating TrackBot instance");
+                newRobot = new class TrackBot(robotPtr);
+            }
+
 
 
             // Destroy the old GenericRobot, and switch to the new robot
@@ -380,9 +416,20 @@ void Environment::applyRobotUpgrades()
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
             // Update it to use the new one after each upgrade
+            newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
         }
     }
+        robotsToUpgrade.clear();
+}
+
+
+void Environment::applyRobotRespawn()
+{
+}
+
+void Environment::applyRobotDie()
+{
 }
 
 

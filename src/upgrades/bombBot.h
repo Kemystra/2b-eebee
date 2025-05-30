@@ -7,7 +7,8 @@ class BombBot:public GenericRobot{
     private:
         vector<int> areaOfEffect = {3,3};
     public:
-        void fire(int x, int y) override;
+        BombBot(GenericRobot* g) : GenericRobot(*g) {};
+        // void fire(int x, int y) override;
 };
 
 #endif

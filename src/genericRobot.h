@@ -34,6 +34,7 @@ enum UpgradeState {
     UpgradeFull
 };
 
+
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
     GenericRobot(
@@ -45,19 +46,20 @@ public:
 
     DeadState die() override;
     void thinkAndExecute() override;
-
     UpgradeState chosenForUpgrade();
 
     string getName() const override;
     Vector2D getPosition() const override;
     const vector<Upgrade>& getPendingUpgrades() const;
     const vector<Upgrade>& getUpgrades() const;
+    void insertNewUpgrade(const Upgrade& upgrade);
     bool getIsDead() const;
     bool getIsVisible() const;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
     char getSymbol() const override;
+    void logUpgrades();
 
 
 protected:
@@ -76,8 +78,11 @@ protected:
     // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
     // I chose a random one lol
     mt19937_64 rng;
-
-    vector<UpgradeTrack> possibleUpgradeTrack = { Moving, Shooting, Seeing };
+    vector<UpgradeTrack> possibleUpgradeTrack= {
+        UpgradeTrack("Moving", {HideBot, JumpBot}),
+        UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, LandmineBot, BombBot, LaserBot}),
+        UpgradeTrack("Seeing", {ScoutBot, TrackBot})
+    };
     // Current upgrades
     vector<Upgrade> upgrades = {};
     // What to add on the next upgrade cycle (see Environment::applyRobotUpgrades)
