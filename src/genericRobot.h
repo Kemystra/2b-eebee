@@ -34,6 +34,12 @@ enum UpgradeState {
     UpgradeFull
 };
 
+// Robot life state
+enum LivingState {
+    Alive,
+    Dead,
+    PendingRespawn
+};
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
@@ -44,8 +50,9 @@ public:
         Logger* logger
     );
 
-    DeadState die() override;
+    void die() override;
     void thinkAndExecute() override;
+
     UpgradeState chosenForUpgrade();
 
     string getName() const override;
@@ -53,7 +60,7 @@ public:
     const vector<Upgrade>& getPendingUpgrades() const;
     const vector<Upgrade>& getUpgrades() const;
     void insertNewUpgrade(const Upgrade& upgrade);
-    bool getIsDead() const;
+    bool isDead() const;
     bool getIsVisible() const;
 
     // Print the map grid with robot positions and cardinal directions
@@ -70,7 +77,7 @@ protected:
     int respawnCountLeft = 3;
     vector<int> movementRange={-1,1};
     bool isVisible = true;
-    bool isDead = false;
+    LivingState livingState = Alive;
 
     Environment* environment;
     Logger* logger;

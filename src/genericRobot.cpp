@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include "genericRobot.h"
-#include "abstractRobot/robot.h"
 #include "logger.h"
 #include "upgrades/upgrades.h"
 #include "vector2d.h"
@@ -34,15 +33,15 @@ GenericRobot::GenericRobot(
     this->rng = mt19937_64(rngSeed);
 }
 
-DeadState GenericRobot::die() {
-    isDead = true;
+void GenericRobot::die() {
     if (respawnCountLeft == 0) {
         selfLog("Robot " + name + " has died and cannot respawn anymore.");
-        return DeadState::Dead;
+        livingState = Dead;
+        return;
     }
 
     respawnCountLeft--;
-    return DeadState::Respawn;
+    livingState = PendingRespawn;
 }
 
 void GenericRobot::thinkAndExecute() {
@@ -154,9 +153,9 @@ void GenericRobot::fire(int x, int y) {
     // call die() directly
     // Allow flexibility of 'killing' the oponent later since we can set the probability
     if(randomBool(dieProbability)) {
-        DeadState deadState = targetRobot->die();
+        targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
-        environment->notifyKill(this, targetRobot, deadState);
+        environment->notifyKill(this, targetRobot);
     }
     else {
         selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
@@ -185,8 +184,8 @@ char GenericRobot::getSymbol() const {
     return this->symbol;
 }
 
-bool GenericRobot::getIsDead() const {
-    return this->isDead;
+bool GenericRobot::isDead() const {
+    return livingState != Alive;
 }
 
 bool GenericRobot::getIsVisible() const {
