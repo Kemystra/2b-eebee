@@ -205,6 +205,10 @@ Vector2D GenericRobot::getPosition() const {
     return position;
 }
 
+void GenericRobot::setPosition(Vector2D pos) {
+    this->position = pos;
+}
+
 // No upgrades, so return empty vector
 const vector<Upgrade>& GenericRobot::getUpgrades() const {
     return upgrades;
@@ -304,8 +308,4 @@ UpgradeState GenericRobot::chosenForUpgrade() {
 
 void GenericRobot::notifyRespawn() {
     livingState = Alive;
-}
-
-void GenericRobot::notifyUpgradesCompleted() {
-    pendingUpgrades.clear();
 }

@@ -55,7 +55,6 @@ public:
 
     UpgradeState chosenForUpgrade();
     void notifyRespawn();
-    void notifyUpgradesCompleted();
 
     string getName() const override;
     Vector2D getPosition() const override;
@@ -71,6 +70,7 @@ public:
     char getSymbol() const override;
     void logUpgrades();
 
+    void setPosition(Vector2D pos);
 
 protected:
     // These will have to be initialized

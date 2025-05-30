@@ -87,6 +87,7 @@ void Environment::gameLoop() {
             gameOver();
         }
     logger->log("Steps finished");
+    step++;
     }
     gameOver();
 }
@@ -373,8 +374,6 @@ void Environment::applyRobotUpgrades() {
                 newRobot = new class TrackBot(robotPtr);
             }
 
-
-
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
             robotIterator->reset(newRobot);
@@ -386,8 +385,7 @@ void Environment::applyRobotUpgrades() {
             robotPtr = newRobot;
         }
 
-        // Tell robots the upgrades are complete
-        robotPtr->notifyUpgradesCompleted();
+        robotPtr->setPosition(Vector2D(0,0));
     }
 
     // Clear out robotToUpgrades set
