@@ -407,8 +407,11 @@ void Environment::applyRobotDie() {
                 break;
 
             case PendingRespawn:
+                // We use move() here, since we want to mark a transfer of ownership
+                // from robotList to respawnQueue;
                 respawnQueue.push(move(*it));
                 it = robotList.erase(it);
+                break;
 
             // Skip alive robots
             // Increment is done here
@@ -438,6 +441,7 @@ void Environment::applyRobotRespawn() {
     // Make the robot alive again
     robotUniquePtr->notifyRespawn();
 
+    // Re-transfer ownership back to robotList
     robotList.push_back(move(robotUniquePtr));
 
     // remove the first element
