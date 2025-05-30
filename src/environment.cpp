@@ -176,6 +176,8 @@ void Environment::printMap() const
                 bool found = false;
                 for (const unique_ptr<GenericRobot> &robot : robotList)
                 {
+                    if (robot->isDead())
+                        continue;
                     if (robot->getPosition() == pos)
                     {
                         ss << robot->getSymbol() << " ";
