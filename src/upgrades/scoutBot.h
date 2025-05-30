@@ -7,6 +7,7 @@ class ScoutBot:public GenericRobot{
     public:
         ScoutBot(GenericRobot* g) : GenericRobot(*g) {
             selfLog("ScoutBot created with scout count: " + to_string(scoutCount));
+            logUpgrades();
         };
         vector<Vector2D> scout();
         void thinkAndExecute() override;
