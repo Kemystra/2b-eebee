@@ -230,7 +230,7 @@ void GenericRobot::insertNewUpgrade(const Upgrade& upgrade) {
     }
 
     // Add the upgrade to the current upgrades
-    upgrades.push_back(upgrade);
+    this->upgrades.push_back(upgrade);
     selfLog("Added upgrade: " + stringifyUpgrade(upgrade));
     // remove the current upgrade from pending upgrades
     auto it = find(pendingUpgrades.begin(), pendingUpgrades.end(), upgrade);

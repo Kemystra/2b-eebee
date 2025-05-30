@@ -5,7 +5,10 @@
 
 class LongShotBot:public GenericRobot{
     public:
-        void fire(int x, int y) override;
-        int getMaxFiringDistance() const override;
+        LongShotBot(GenericRobot* g) : GenericRobot(*g) {
+            selfLog("LongShotBot created");
+        };
+        // void fire(int x, int y) override;
+        // int getMaxFiringDistance() const override;
 };
 #endif
