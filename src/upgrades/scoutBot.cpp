@@ -8,7 +8,7 @@ vector<Vector2D> ScoutBot::scout(){
     for (const auto& robot : environment->getAllRobots()) {
         Vector2D pos = robot->getPosition();
         Vector2D selfPos = this->getPosition();
-        Vector2D relativePosition = selfPos - pos;
+        Vector2D relativePosition = pos - selfPos;
         if (pos.x != selfPos.x || pos.y != selfPos.y) { // Don't scout self
             scoutedBots.push_back(relativePosition);
             selfLog("Found robot at: (" + to_string(relativePosition.x) + ", " + to_string(relativePosition.y) + ")");

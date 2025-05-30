@@ -47,6 +47,9 @@ private:
     int maxStep;
     int step = 0;
 
+    // See gameLoop() for explanation
+    int currentRobotLength;
+
     // Values in milliseconds
     int robotActionInterval = 100;
     int stepInterval = 200;
@@ -63,7 +66,7 @@ public:
     bool isPositionAvailable(Vector2D positionToCheck) const;
     bool isWithinBounds(Vector2D positionToCheck) const;
 
-    GenericRobot* getRobotAtPosition(Vector2D positionToCheck);
+    GenericRobot* getRobotAtPosition(Vector2D positionToCheck) const;
 
     // Print the map grid with robot positions and cardinal directions
     void printMap() const;
@@ -78,7 +81,7 @@ public:
     void applyRobotRespawn();
     void applyRobotDie();
 
-    vector<unique_ptr<GenericRobot>>& getAllRobots();
+    vector<GenericRobot*> getAllRobots() const;
 };
 
 #endif  // ENVIRONMENT_H

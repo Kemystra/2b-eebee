@@ -33,6 +33,18 @@ enum UpgradeState {
     UpgradeFull
 };
 
+enum Upgrade {
+    HideBot,
+    JumpBot,
+    LongShotBot,
+    SemiAutoBot,
+    ThirtyShotBot,
+    LandmineBot,
+    BombBot,
+    LaserBot,
+    ScoutBot,
+    TrackBot
+};
 
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
@@ -51,6 +63,8 @@ public:
     Vector2D getPosition() const override;
     const vector<Upgrade>& getPendingUpgrades() const;
     const vector<Upgrade>& getUpgrades() const;
+    bool getIsDead() const;
+    bool getIsVisible() const;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
@@ -65,6 +79,7 @@ protected:
     int respawnCountLeft = 3;
     vector<int> movementRange={-1,1};
     bool isVisible = true;
+    bool isDead = false;
 
     Environment* environment;
     Logger* logger;

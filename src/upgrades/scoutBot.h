@@ -5,6 +5,7 @@
 
 class ScoutBot:public GenericRobot{
     public:
+        ScoutBot(GenericRobot* g) : GenericRobot(*g) {};
         vector<Vector2D> scout();
         void thinkAndExecute() override;
     protected:

@@ -32,4 +32,3 @@ void Logger::error(const string& message){
     outputToFile(errorMessage,"log.txt");
 }
 
-
