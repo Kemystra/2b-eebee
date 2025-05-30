@@ -389,7 +389,8 @@ void Environment::applyRobotUpgrades() {
 }
 
 void Environment::applyRobotDie() {
-    for (auto it = robotList.begin(); it != robotList.end(); it++) {
+    auto it = robotList.begin();
+    for (; it != robotList.end(); it++) {
         LivingState state = it->get()->getLivingState();
 
         switch (state) {
@@ -403,12 +404,14 @@ void Environment::applyRobotDie() {
             case PendingRespawn:
                 respawnQueue.push(move(*it));
                 it = robotList.erase(it);
+
+                if (it == robotList.end())
+                    return;
                 break;
 
+            // Skip alive robots
             case Alive:
-                logger->error("Somehow robot is still alive");
-                exit(1);
-            break;
+                continue;
         }
     }
 }
@@ -416,8 +419,14 @@ void Environment::applyRobotDie() {
 // Each turn, there must be only one robot to respawn
 // And it will be resetted back to GenericRobot
 void Environment::applyRobotRespawn() {
+    if (respawnQueue.empty()) {
+        logger->log("No robots to respawn");
+        return;
+    }
+
     // Get the first element
     unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
+    logger->log("Respawning " + robotUniquePtr->getName());
 
     GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
     robotUniquePtr.reset(resettedRobotPtr);
