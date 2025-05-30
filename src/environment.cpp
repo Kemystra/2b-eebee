@@ -62,7 +62,6 @@ void Environment::gameLoop() {
     while (maxStep > step) {
         logger->log("Round " + to_string(step));
         logger->log("Applying robot upgrades");
-        applyRobotUpgrades();
 
         applyRobotRespawn();
 
@@ -80,6 +79,7 @@ void Environment::gameLoop() {
             );
         }
 
+        applyRobotUpgrades();
         applyRobotDie();
 
         if (robotList.size() == 1) {
