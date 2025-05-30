@@ -65,6 +65,7 @@ void Environment::gameLoop() {
             logger->log(robot->getName() + "'s turn");
             printMap();
             robot->thinkAndExecute();
+            robot->logUpgrades();
 
             this_thread::sleep_for(
                 chrono::milliseconds(robotActionInterval)
@@ -219,9 +220,11 @@ void Environment::applyRobotUpgrades() {
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
             // Update it to use the new one after each upgrade
+            newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
         }
     }
+    robotsToUpgrade.clear();
 }
 
 vector<GenericRobot*> Environment::getAllRobots() const {
