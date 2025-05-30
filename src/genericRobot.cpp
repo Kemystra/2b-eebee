@@ -189,6 +189,10 @@ char GenericRobot::getSymbol() const {
     return this->symbol;
 }
 
+LivingState GenericRobot::getLivingState() const {
+    return this->livingState;
+}
+
 bool GenericRobot::isDead() const {
     return livingState != Alive;
 }

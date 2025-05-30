@@ -62,6 +62,7 @@ public:
     void insertNewUpgrade(const Upgrade& upgrade);
     bool isDead() const;
     bool getIsVisible() const;
+    LivingState getLivingState() const;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
