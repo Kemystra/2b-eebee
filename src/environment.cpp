@@ -425,7 +425,7 @@ void Environment::applyRobotRespawn() {
     // Make the robot alive again
     robotUniquePtr->notifyRespawn();
 
-    robotList.push_back(robotUniquePtr);
+    robotList.push_back(move(robotUniquePtr));
 
     // remove the first element
     respawnQueue.pop();
