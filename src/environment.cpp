@@ -1,5 +1,4 @@
 #include "environment.h"
-#include "abstractRobot/robot.h"
 #include "genericRobot.h"
 #include "upgradeBots.h"
 #include "vector2d.h"
@@ -387,16 +386,32 @@ void Environment::applyRobotUpgrades() {
         robotsToUpgrade.clear();
 }
 
+void Environment::applyRobotDie() {
+    for (auto it = robotList.begin(); it != robotList.end(); it++) {
+        LivingState state = it->get()->getLivingState();
 
-void Environment::applyRobotRespawn()
-{
+        switch (state) {
+            case Dead:
+                // Erasing a vector's element will mess with the ordering of the element
+                // erase() will return the new iterator for the next element
+                // set the current iterator to the return value to avoid skipping / corruption
+                it = robotList.erase(it);
+                break;
+
+            case PendingRespawn:
+                respawnQueue.push(move(*it));
+                it = robotList.erase(it);
+                break;
+
+            case Alive:
+                logger->error("Somehow robot is still alive");
+                exit(1);
+            break;
+        }
+    }
 }
 
-void Environment::applyRobotDie()
-{
-}
-
-vector<GenericRobot*> Environment::getAllRobots() const {
+const vector<GenericRobot*> Environment::getAllAvailableRobots() const {
     vector<GenericRobot*> result;
 
     for (const unique_ptr<GenericRobot>& robot : robotList) {
