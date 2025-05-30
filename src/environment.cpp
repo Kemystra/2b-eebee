@@ -65,6 +65,8 @@ void Environment::gameLoop() {
         logger->log("Applying robot upgrades");
         applyRobotUpgrades();
 
+        applyRobotRespawn();
+
         for (unique_ptr<GenericRobot>& robot : robotList) {
             // Skip dead robot
             if (robot->isDead())
@@ -74,14 +76,16 @@ void Environment::gameLoop() {
             printMap();
             robot->thinkAndExecute();
 
-            if (robotList.size() == 1)
-            {
-                logger->log("Only one bot remains: " + robotList[0]->getName());
-                gameOver();
-            }
+            this_thread::sleep_for(
+                chrono::milliseconds(robotActionInterval)
+            );
+        }
 
-            step++;
-            this_thread::sleep_for(chrono::milliseconds(stepInterval));
+        applyRobotDie();
+
+        if (robotList.size() == 1) {
+            logger->log("Only one bot remains: " + robotList[0]->getName());
+            gameOver();
         }
     logger->log("Steps finished");
     }
@@ -104,8 +108,6 @@ void Environment::gameOver()
     {
         logger->log("Multiple robots survived.");
     }
-
-    logger->log("Steps finished");
     logger->log("Game finished");
 }
 
@@ -409,6 +411,21 @@ void Environment::applyRobotDie() {
             break;
         }
     }
+}
+
+// Each turn, there must be only one robot to respawn
+// And it will be resetted back to GenericRobot
+void Environment::applyRobotRespawn() {
+    // Get the first element
+    unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
+
+    GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
+    robotUniquePtr.reset(resettedRobotPtr);
+
+    robotList.push_back(robotUniquePtr);
+
+    // remove the first element
+    respawnQueue.pop();
 }
 
 const vector<GenericRobot*> Environment::getAllAvailableRobots() const {
