@@ -184,6 +184,8 @@ void ParameterFileReader::finalizeParameters(bool requireAllParams) { // Validat
 
         // Use first char of name as symbol, fallback to 'R' if name empty
         finalInfo.symbol = !rawInfo.name.empty() ? rawInfo.name[0] : 'R';
+
+        finalRobotInfo.push_back(finalInfo);
     }
 }
 
