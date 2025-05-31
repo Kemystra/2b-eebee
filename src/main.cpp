@@ -1,15 +1,11 @@
 #include <iostream>
-#include <fstream>
 #include <sstream>
 
-#include "abstractRobot/robot.h"
 #include "environment.h"
 #include "genericRobot.h"
-#include "upgradeBots.h"
 
 #include "logger.h"
 #include "ParameterFileReader.h"
-#include "upgrades/scoutBot.h"
 
 using namespace std;
 
