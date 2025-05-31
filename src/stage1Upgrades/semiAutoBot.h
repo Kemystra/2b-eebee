@@ -5,7 +5,10 @@
 
 class SemiAutoBot:public GenericRobot{
     public:
-        void fire(int x, int y) override;
+        SemiAutoBot(GenericRobot* g) : GenericRobot(*g) {
+            selfLog("SemiAutoBot created");
+        };
+        // void fire(int x, int y) override;
 };
 
 #endif

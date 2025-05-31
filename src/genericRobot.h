@@ -34,6 +34,13 @@ enum UpgradeState {
     UpgradeFull
 };
 
+// Robot life state
+enum LivingState {
+    Alive,
+    Dead,
+    PendingRespawn
+};
+
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
     GenericRobot(
@@ -43,22 +50,27 @@ public:
         Logger* logger
     );
 
-    DeadState die() override;
+    void die() override;
     void thinkAndExecute() override;
 
     UpgradeState chosenForUpgrade();
+    void notifyRespawn();
 
     string getName() const override;
     Vector2D getPosition() const override;
     const vector<Upgrade>& getPendingUpgrades() const;
     const vector<Upgrade>& getUpgrades() const;
-    bool getIsDead() const;
+    void insertNewUpgrade(const Upgrade& upgrade);
+    bool isDead() const;
     bool getIsVisible() const;
+    LivingState getLivingState() const;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
     char getSymbol() const override;
+    void logUpgrades();
 
+    void setPosition(Vector2D pos);
 
 protected:
     // These will have to be initialized
@@ -68,7 +80,7 @@ protected:
     int respawnCountLeft = 3;
     vector<int> movementRange={-1,1};
     bool isVisible = true;
-    bool isDead = false;
+    LivingState livingState = Alive;
 
     Environment* environment;
     Logger* logger;
@@ -76,8 +88,11 @@ protected:
     // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
     // I chose a random one lol
     mt19937_64 rng;
-
-    vector<UpgradeTrack> possibleUpgradeTrack = { Moving, Shooting, Seeing };
+    vector<UpgradeTrack> possibleUpgradeTrack= {
+        UpgradeTrack("Moving", {HideBot, JumpBot}),
+        UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, LandmineBot, BombBot, LaserBot}),
+        UpgradeTrack("Seeing", {ScoutBot, TrackBot})
+    };
     // Current upgrades
     vector<Upgrade> upgrades = {};
     // What to add on the next upgrade cycle (see Environment::applyRobotUpgrades)

@@ -5,7 +5,7 @@ vector<Vector2D> ScoutBot::scout(){
     vector<Vector2D> scoutedBots;
     selfLog("Scouting the environment.");
     // gets all the robots in env, and iterates through each of em
-    for (const auto& robot : environment->getAllRobots()) {
+    for (const auto& robot : environment->getAllAvailableRobots()) {
         Vector2D pos = robot->getPosition();
         Vector2D selfPos = this->getPosition();
         Vector2D relativePosition = pos - selfPos;

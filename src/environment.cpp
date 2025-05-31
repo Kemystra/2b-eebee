@@ -1,5 +1,4 @@
 #include "environment.h"
-#include "abstractRobot/robot.h"
 #include "genericRobot.h"
 #include "stage1Upgrades/upgrades.h"
 #include "stage1Upgrades/scoutBot.h"
@@ -7,7 +6,6 @@
 
 #include <memory>
 #include <random>
-#include <algorithm>
 #include <sstream>
 
 // Needed for sleep function
@@ -26,8 +24,8 @@ Environment::Environment(
     int maxStep,
     Vector2D dimension,
     vector<RobotParameter> robotParams,
-    Logger *logger)
-{
+    Logger* logger
+) {
     this->maxStep = maxStep;
     this->dimension = dimension;
 
@@ -54,49 +52,45 @@ Environment::Environment(
     //
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
-    for (const RobotParameter &param : robotParams)
-    {
-        GenericRobot *robot = new GenericRobot(param, this, rng(), logger);
+    for (const RobotParameter &param : robotParams) {
+        GenericRobot* robot = new GenericRobot(param, this, rng(), logger);
+
         this->robotList.push_back(unique_ptr<GenericRobot>(robot));
     }
 }
 
-void Environment::gameLoop()
-{
-    while (maxStep > step && robotList.size() > 1)
-    {
+void Environment::gameLoop() {
+    while (maxStep > step) {
         logger->log("Round " + to_string(step));
-        applyRobotUpgrades();
-        // Make a copy of pointers to robots to avoid iterator invalidation
-        vector<GenericRobot *> robotsToAct;
-        for (auto &robotPtr : robotList)
-        {
-            robotsToAct.push_back(robotPtr.get());
-        }
+        logger->log("Applying robot upgrades");
 
-        for (GenericRobot *robot : robotsToAct)
-        {
+        applyRobotRespawn();
+
+        for (unique_ptr<GenericRobot>& robot : robotList) {
+            // Skip dead robot
+            if (robot->isDead())
+                continue;
+
             logger->log(robot->getName() + "'s turn");
             printMap();
-            // Only act if the robot is still in the list (not killed this turn)
-            if (find_if(robotList.begin(), robotList.end(),
-                        [robot](const unique_ptr<GenericRobot> &ptr)
-                        { return ptr.get() == robot; }) != robotList.end())
-            {
-                robot->thinkAndExecute();
-                this_thread::sleep_for(chrono::milliseconds(robotActionInterval));
-            }
+            robot->thinkAndExecute();
 
-            if (robotList.size() == 1)
-            {
-                logger->log("Only one bot remains: " + robotList[0]->getName());
-                gameOver();
-            }
-
-            step++;
-            this_thread::sleep_for(chrono::milliseconds(stepInterval));
+            this_thread::sleep_for(
+                chrono::milliseconds(robotActionInterval)
+            );
         }
+
+        applyRobotUpgrades();
+        applyRobotDie();
+
+        if (robotList.size() == 1) {
+            logger->log("Only one bot remains: " + robotList[0]->getName());
+            gameOver();
+        }
+    logger->log("Steps finished");
+    step++;
     }
+    gameOver();
 }
 
 void Environment::gameOver()
@@ -115,27 +109,19 @@ void Environment::gameOver()
     {
         logger->log("Multiple robots survived.");
     }
-
-    logger->log("Steps finished");
     logger->log("Game finished");
 }
 
-
-bool Environment::isRobotHere(Vector2D positionToCheck) const
-{
-    for (const unique_ptr<GenericRobot> &robot : this->robotList)
-    {
-        if (robot->getPosition() == positionToCheck)
-            return true;
-    }
-
-    return false;
+bool Environment::isRobotHere(Vector2D positionToCheck) const {
+    return getRobotAtPosition(positionToCheck) != nullptr;
 }
 
-GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck) const
-{
-    for (const unique_ptr<GenericRobot> &robot : this->robotList)
-    {
+GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) const {
+    for (const unique_ptr<GenericRobot> &robot : this->robotList) {
+        // Skip dead robots
+        if (robot->isDead())
+            continue;
+
         if (robot->getPosition() == positionToCheck)
             // To return the raw pointer to the object, use get()
             // DO NOT RETURN THE unique_ptr ITSELF
@@ -145,18 +131,16 @@ GenericRobot *Environment::getRobotAtPosition(Vector2D positionToCheck) const
     return nullptr;
 }
 
-bool Environment::isPositionAvailable(Vector2D positionToCheck) const
-{
+bool Environment::isPositionAvailable(Vector2D positionToCheck) const {
     // Position is available if no robots there and it's within bounds
     return !isRobotHere(positionToCheck) && isWithinBounds(positionToCheck);
 }
 
-bool Environment::isWithinBounds(Vector2D positionToCheck) const
-{
-    if (positionToCheck.x > dimension.x || positionToCheck.x < 0)
+bool Environment::isWithinBounds(Vector2D positionToCheck) const {
+    if(positionToCheck.x >= dimension.x || positionToCheck.x < 0)
         return false;
 
-    if (positionToCheck.y > dimension.y || positionToCheck.y < 0)
+    if(positionToCheck.y >= dimension.y || positionToCheck.y < 0)
         return false;
 
     return true;
@@ -194,6 +178,8 @@ void Environment::printMap() const
                 bool found = false;
                 for (const unique_ptr<GenericRobot> &robot : robotList)
                 {
+                    if (robot->isDead())
+                        continue;
                     if (robot->getPosition() == pos)
                     {
                         ss << robot->getSymbol() << " ";
@@ -305,7 +291,7 @@ void Environment::clearLineMarks()
         }
     }
 }
-void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim, DeadState deadState)
+void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim)
 {
     RobotPtrIterator victimIterator = getRobotIterator(victim);
     RobotPtrIterator killerIterator = getRobotIterator(killer);
@@ -320,26 +306,11 @@ void Environment::notifyKill(GenericRobot *killer, GenericRobot *victim, DeadSta
         // If already added before (e.g: multiple kills on 1 round),
         // the set data structure will ensure no duplication
         robotsToUpgrade.insert(killerIterator);
-
-    // If respawn move to respawn queue, else just delete urself lol
-
-    switch (deadState) {
-        case DeadState::Respawn:
-            logger->log("Put " + victimIterator->get()->getName() + " into the respawn queue");
-            // respawnQueue.push(move(*victimIterator));
-        break;
-
-        case DeadState::Dead:
-            logger->log(victimIterator->get()->getName() + " won't respawn anymore");
-        break;
-    }
 }
 
-RobotPtrIterator Environment::getRobotIterator(GenericRobot *robot)
-{
-    for (int i = 0; i < robotList.size(); i++)
-    {
-        if (robotList[i].get() == robot)
+RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
+    for (int i = 0; i < robotList.size(); i++) {
+        if(robotList[i].get() == robot)
             return robotList.begin() + i;
     }
 
@@ -352,26 +323,57 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot *robot)
 // Upgrading the robot involves destroying the original object and replacing them with a new one
 // If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
 // So we will only actually upgrade them at the start of each round
-void Environment::applyRobotUpgrades()
-{
-    for (const RobotPtrIterator &robotIterator : robotsToUpgrade)
-    {
+void Environment::applyRobotUpgrades() {
+    for (const RobotPtrIterator& robotIterator : robotsToUpgrade) {
         // Get the raw robot pointer
         // For some reason you can't access it like normal pointer
         // even though at other places can
-        GenericRobot *robotPtr = robotIterator->get();
+        GenericRobot* robotPtr = robotIterator->get();
         logger->log("Upgrading " + robotPtr->getName());
 
         // Get the pending upgrade
         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
-
+        GenericRobot* newRobot = nullptr;
         for (const Upgrade &upgrade : pendingUpgrades)
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
-            // Will apply upgrades later
 
-            GenericRobot* newRobot = new class ScoutBot(robotPtr);
-
+            if (upgrade == ScoutBot) {
+                logger->log("ScoutBot upgrade detected, creating ScoutBot instance");
+                newRobot = new class ScoutBot(robotPtr);
+            }
+            else if (upgrade == HideBot) {
+                logger->log("HideBot upgrade detected, creating HideBot instance");
+                newRobot = new class HideBot(robotPtr);
+            }
+            else if (upgrade == JumpBot) {
+                logger->log("JumpBot upgrade detected, creating JumpBot instance");
+                newRobot = new class JumpBot(robotPtr);
+            }
+            else if (upgrade == LongShotBot) {
+                logger->log("LongShotBot upgrade detected, creating LongShotBot instance");
+                newRobot = new class LongShotBot(robotPtr);
+            }
+            else if (upgrade == SemiAutoBot) {
+                logger->log("SemiAutoBot upgrade detected, creating SemiAutoBot instance");
+                newRobot = new class SemiAutoBot(robotPtr);
+            }
+            else if (upgrade == ThirtyShotBot) {
+                logger->log("ThirtyShotBot upgrade detected, creating ThirtyShotBot instance");
+                newRobot = new class ThirtyShotBot(robotPtr);
+            }
+            else if (upgrade == LandmineBot) {
+                logger->log("LandmineBot upgrade detected, creating LandmineBot instance");
+                newRobot = new class LandmineBot(robotPtr);
+            }
+            else if (upgrade == BombBot) {
+                logger->log("BombBot upgrade detected, creating BombBot instance");
+                newRobot = new class BombBot(robotPtr);
+            }
+            else if (upgrade == TrackBot) {
+                logger->log("TrackBot upgrade detected, creating TrackBot instance");
+                newRobot = new class TrackBot(robotPtr);
+            }
 
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
@@ -380,25 +382,77 @@ void Environment::applyRobotUpgrades()
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
             // Update it to use the new one after each upgrade
+            newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
+        }
+
+        robotPtr->setPosition(Vector2D(0,0));
+    }
+
+    // Clear out robotToUpgrades set
+    robotsToUpgrade.clear();
+}
+
+void Environment::applyRobotDie() {
+    // Notice there's no increment here
+    for (auto it = robotList.begin(); it != robotList.end(); ) {
+        LivingState state = it->get()->getLivingState();
+
+        switch (state) {
+            case Dead:
+                // Erasing a vector's element will mess with the ordering of the element
+                // erase() will return the new iterator for the next element
+                // set the current iterator to the return value to avoid skipping / corruption
+                it = robotList.erase(it);
+                break;
+
+            case PendingRespawn:
+                // We use move() here, since we want to mark a transfer of ownership
+                // from robotList to respawnQueue;
+                respawnQueue.push(move(*it));
+                it = robotList.erase(it);
+                break;
+
+            // Skip alive robots
+            // Increment is done here
+            // since the operations above will automatically set the next iterator
+            case Alive:
+                it++;
+                continue;
         }
     }
 }
 
+// Each turn, there must be only one robot to respawn
+// And it will be resetted back to GenericRobot
+void Environment::applyRobotRespawn() {
+    if (respawnQueue.empty()) {
+        logger->log("No robots to respawn");
+        return;
+    }
 
-void Environment::applyRobotRespawn()
-{
+    // Get the first element
+    unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
+    logger->log("Respawning " + robotUniquePtr->getName());
+
+    GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
+    robotUniquePtr.reset(resettedRobotPtr);
+
+    // Make the robot alive again
+    robotUniquePtr->notifyRespawn();
+
+    // Re-transfer ownership back to robotList
+    robotList.push_back(move(robotUniquePtr));
+
+    // remove the first element
+    respawnQueue.pop();
 }
 
-void Environment::applyRobotDie()
-{
-}
-
-vector<GenericRobot*> Environment::getAllRobots() const {
+const vector<GenericRobot*> Environment::getAllAvailableRobots() const {
     vector<GenericRobot*> result;
 
     for (const unique_ptr<GenericRobot>& robot : robotList) {
-        if (!robot->getIsDead())
+        if (!robot->isDead())
             result.push_back(robot.get());
     }
 
@@ -445,7 +499,7 @@ void Environment::printwelcomemessage() const
     ss << "##                                                                                                        ##\n";
     ss << ".++######################################################################################################++.\n";
     logger->log(ss.str());
-};
+};}
 // void Environment::printwelcomemessage() const {
 //     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";
 //     cout << "       |\"  |/  \\|  \"|/\"     |\"  |    /\" _  \"\\ /    \" \\|\"  \\    /\"  |/\"     \"|    (\"     _   \")    \" \\      \n";

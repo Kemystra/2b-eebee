@@ -1,11 +1,12 @@
 #include <cstdint>
 #include <cmath>
 #include <random>
+#include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "genericRobot.h"
-#include "abstractRobot/robot.h"
 #include "logger.h"
 #include "stage1Upgrades/upgrades.h"
 #include "vector2d.h"
@@ -33,15 +34,19 @@ GenericRobot::GenericRobot(
     this->rng = mt19937_64(rngSeed);
 }
 
-DeadState GenericRobot::die() {
-    isDead = true;
+void GenericRobot::die() {
     if (respawnCountLeft == 0) {
         selfLog("Robot " + name + " has died and cannot respawn anymore.");
-        return DeadState::Dead;
+        livingState = Dead;
+        return;
     }
 
     respawnCountLeft--;
-    return DeadState::Respawn;
+    livingState = PendingRespawn;
+
+    ostringstream ss;
+    ss << "Robot " << name << " will respawn later (Respawn count left: " << respawnCountLeft << ")";
+    selfLog(ss.str());
 }
 
 void GenericRobot::thinkAndExecute() {
@@ -153,9 +158,9 @@ void GenericRobot::fire(int x, int y) {
     // call die() directly
     // Allow flexibility of 'killing' the oponent later since we can set the probability
     if(randomBool(dieProbability)) {
-        DeadState deadState = targetRobot->die();
+        targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
-        environment->notifyKill(this, targetRobot, deadState);
+        environment->notifyKill(this, targetRobot);
     }
     else {
         selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
@@ -184,8 +189,12 @@ char GenericRobot::getSymbol() const {
     return this->symbol;
 }
 
-bool GenericRobot::getIsDead() const {
-    return this->isDead;
+LivingState GenericRobot::getLivingState() const {
+    return this->livingState;
+}
+
+bool GenericRobot::isDead() const {
+    return livingState != Alive;
 }
 
 bool GenericRobot::getIsVisible() const {
@@ -194,6 +203,10 @@ bool GenericRobot::getIsVisible() const {
 
 Vector2D GenericRobot::getPosition() const {
     return position;
+}
+
+void GenericRobot::setPosition(Vector2D pos) {
+    this->position = pos;
 }
 
 // No upgrades, so return empty vector
@@ -232,6 +245,42 @@ int GenericRobot::calcDistance(Vector2D a) const {
     return max(abs(a.x), abs(a.y));
 }
 
+void GenericRobot::insertNewUpgrade(const Upgrade& upgrade) {
+    // Check if the upgrade is already in the list
+    for (const Upgrade &existingUpgrade : this->upgrades) {
+        if (existingUpgrade == upgrade) {
+            selfLog("Upgrade " + stringifyUpgrade(upgrade) + " already exists.");
+            return;
+        }
+    }
+
+    // Add the upgrade to the current upgrades
+    this->upgrades.push_back(upgrade);
+    selfLog("Added upgrade: " + stringifyUpgrade(upgrade));
+    // remove the current upgrade from pending upgrades
+    auto it = find(pendingUpgrades.begin(), pendingUpgrades.end(), upgrade);
+    if (it != pendingUpgrades.end()) {
+        pendingUpgrades.erase(it);
+        selfLog("Removed upgrade from pending upgrades: " + stringifyUpgrade(upgrade));
+    } else {
+        selfLog("Upgrade " + stringifyUpgrade(upgrade) + " not found in pending upgrades.");
+    }
+}
+
+void GenericRobot::logUpgrades(){
+    if (upgrades.empty()) {
+        selfLog("No upgrades yet.");
+        return;
+    }
+
+    string upgradeList = "Current upgrades: ";
+    for (const Upgrade &upgrade : upgrades) {
+        upgradeList += stringifyUpgrade(upgrade) + ", ";
+    }
+    // Remove the last comma and space
+    upgradeList = upgradeList.substr(0, upgradeList.size() - 2);
+    selfLog(upgradeList);
+};
 UpgradeState GenericRobot::chosenForUpgrade() {
     // Check for the current upgrade and pending upgrade count
     // Stop if already enough
@@ -244,7 +293,7 @@ UpgradeState GenericRobot::chosenForUpgrade() {
     UpgradeTrack chosenTrack = possibleUpgradeTrack[chosenTrackIndex];
 
     // List out all upgrades under a track
-    vector<Upgrade> upgradesToChoose = getUpgradesUnderTrack(chosenTrack);
+    vector<Upgrade> upgradesToChoose = chosenTrack.getUpgradesUnderTrack();
 
     // Select upgrades under the track
     uniform_int_distribution<int> upgradeIndexGen(0, upgradesToChoose.size() - 1);
@@ -255,4 +304,8 @@ UpgradeState GenericRobot::chosenForUpgrade() {
     pendingUpgrades.push_back(chosenUpgrade);
 
     return AvailableForUpgrade;
+}
+
+void GenericRobot::notifyRespawn() {
+    livingState = Alive;
 }

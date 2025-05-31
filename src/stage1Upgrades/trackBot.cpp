@@ -59,11 +59,13 @@ void TrackBot::thinkAndExecute(){
             closestRobotCoordinates = pos;
         };
     }
-
-    if(calcDistance(closestRobotCoordinates) < maxFireDistance){
-        selfLog("Attemting to fire at: (" + to_string(closestRobotCoordinates.x)+ ", " + to_string(closestRobotCoordinates.y) + ")");
-        fire(closestRobotCoordinates.x, closestRobotCoordinates.y);
+    if (closestRobotCoordinates.x != 0 && closestRobotCoordinates.y != 0){
+        if(calcDistance(closestRobotCoordinates) < maxFireDistance){
+            selfLog("Attemting to fire at: (" + to_string(closestRobotCoordinates.x)+ ", " + to_string(closestRobotCoordinates.y) + ")");
+            fire(closestRobotCoordinates.x, closestRobotCoordinates.y);
+        }
     }
+
     bool validMovement = false;
 
     // Keep generating next movement

@@ -3,16 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 using namespace std;
-
-
-enum UpgradeTrack {
-    Moving,
-    Shooting,
-    Seeing
-};
-
 enum Upgrade {
     // Moving upgrades
     HideBot,
@@ -31,8 +24,30 @@ enum Upgrade {
     TrackBot
 };
 
-// List out all upgrades under a track
-vector<Upgrade> getUpgradesUnderTrack(UpgradeTrack track);
+class UpgradeTrack{
+    public:
+        UpgradeTrack(string name, vector<Upgrade> upgrades)
+            : name(name), Upgrades(upgrades) {};
+
+        // List out all upgrades under a track
+        vector<Upgrade> getUpgradesUnderTrack()const;
+        string getName() const {
+            return name;
+        }
+    protected:
+        string name;  // Name of the upgrade track
+        vector<Upgrade> Upgrades;
+};
+
+
+// enum UpgradeTrack {
+//     Moving,
+//     Shooting,
+//     Seeing
+// };
+
+
+
 
 // Get string from the enum
 // Should be possible with hacky C++ macros but dear lord I aint using that
