@@ -39,6 +39,8 @@ enum class LineType { // Enum to categorize line types
     UNKNOWN
 };
 
+const int MISSING_INT = -1;
+
 LineType getLineType(const string& lowerLine) { // Determine the type of line based on its content
     if (lowerLine.rfind("m by n", 0) == 0) return LineType::M_BY_N;
     if (lowerLine.rfind("steps:", 0) == 0) return LineType::STEPS;
@@ -63,24 +65,21 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
             if (!(iss >> m >> n)) {
                 throw runtime_error("Expected two integers after 'M by N:'");
             }
-            if (m <= 0 || n <= 0) {
-                throw runtime_error("Field dimensions must be positive integers");
-            }
             break;
         }
 
         case LineType::STEPS: {
             istringstream iss(trimmedLine.substr(6)); // Skip "steps:"
-            if (!(iss >> steps) || steps <= 0) {
-                throw runtime_error("Steps must be a positive integer");
+            if (!(iss >> steps)) {
+                throw runtime_error("Expected an integer after 'steps:'");
             }
             break;
         }
 
         case LineType::ROBOTS: {
             istringstream iss(trimmedLine.substr(7)); // Skip "robots:"
-            if (!(iss >> robotCount) || robotCount <= 0) {
-                throw runtime_error("Robot count must be a positive integer");
+            if (!(iss >> robotCount)) {
+                throw runtime_error("Expected an integer after 'robots:'");
             }
             break;
         }
@@ -98,8 +97,8 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
             }
 
             if (isRandomPos(posX) || isRandomPos(posY)) {
-                robot.x = -1;
-                robot.y = -1;
+                robot.x = MISSING_INT;
+                robot.y = MISSING_INT;
                 robot.isRandomPosition = true;
             } else {
                 try {
@@ -125,13 +124,22 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
 
 
 void ParameterFileReader::validateParameters(bool requireAllParams) { // Validate the parameters read from the file
-    if (requireAllParams) {
-        if (m == -1 || n == -1) {
-            throw ParseError("Missing field dimensions (M by N)");
-        }
-        if (steps == -1) {
-            throw ParseError("Missing number of steps");
-        }
+    // Stop if validation is not needed
+    if (!requireAllParams)
+        return;
+
+    if (m <= 0 || n <= 0) {
+        throw runtime_error("Field dimensions must be positive integers");
+    }
+
+    if (steps <= 0)
+        throw runtime_error("Step must be a positive integer");
+
+    if (robotCount <= 0)
+        throw runtime_error("Robot count must be a positive integer");
+
+    if (steps == MISSING_INT) {
+        throw ParseError("Missing number of steps");
     }
 
     if (robotCount != static_cast<int>(robots.size())) {
