@@ -4,6 +4,7 @@
 #include "stage1Upgrades/upgrades.h"
 #include "upgradeBots.h"
 #include "vector2d.h"
+#include "utils/types.h"
 
 #include <memory>
 #include <random>
@@ -36,7 +37,7 @@ Environment::Environment(
     // Temporary RNG to seed the robots RNG
     // We are using another RNG instead of just passing the same seed
     // so that all the robots won't do the same thing at the same time
-    mt19937_64 rng(69420);
+    Rng rng(69420);
 
     this->logger = logger;
 

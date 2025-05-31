@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>
 
+#include "utils/types.h"
+
 using namespace std;
 
 struct RobotInfo{ // Structure to hold robot information
@@ -42,7 +44,7 @@ class ParameterFileReader{ // Class to read and parse a parameter file for a rob
 
     // Seed to be passed into the RNG
     // If they use the same seed, the same sequence of random numbers will be used
-    uint_fast64_t seed;
+    RngSeed seed;
 
     // Number of robots
     int robotCount = 0;

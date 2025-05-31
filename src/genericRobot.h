@@ -8,6 +8,7 @@
 #include "abstractRobot/seeingRobot.h"
 #include "abstractRobot/shootingRobot.h"
 
+#include "utils/types.h"
 #include "vector2d.h"
 #include "logger.h"
 #include "stage1Upgrades/upgrades.h"
@@ -46,7 +47,7 @@ public:
     GenericRobot(
         RobotParameter robotParam,
         Environment* env,
-        uint_fast64_t rngSeed,
+        RngSeed rngSeed,
         Logger* logger
     );
 
@@ -85,9 +86,8 @@ protected:
     Environment* environment;
     Logger* logger;
 
-    // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
-    // I chose a random one lol
-    mt19937_64 rng;
+    Rng rng;
+
     vector<UpgradeTrack> possibleUpgradeTrack= {
         UpgradeTrack("Moving", {HideBot, JumpBot}),
         UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, LandmineBot, BombBot, LaserBot}),

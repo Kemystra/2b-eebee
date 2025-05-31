@@ -9,6 +9,7 @@
 #include "genericRobot.h"
 #include "logger.h"
 #include "stage1Upgrades/upgrades.h"
+#include "utils/types.h"
 #include "vector2d.h"
 #include "environment.h"
 
@@ -18,7 +19,7 @@ using namespace std;
 GenericRobot::GenericRobot(
     RobotParameter robotParam,
     Environment* env,
-    uint_fast64_t rngSeed,
+    RngSeed rngSeed,
     Logger* logger
 ) {
     this->position = robotParam.position;
@@ -31,7 +32,7 @@ GenericRobot::GenericRobot(
     // A seed initialize the random number generator (RNG)
     // The advantage is that if we gave it the same seed
     // it will always generate the same sequence of random numbers
-    this->rng = mt19937_64(rngSeed);
+    this->rng = Rng(rngSeed);
 }
 
 void GenericRobot::die() {
