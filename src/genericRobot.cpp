@@ -50,10 +50,13 @@ void GenericRobot::die() {
 }
 
 void GenericRobot::thinkAndExecute() {
-    int maxFireDistance = getMaxFiringDistance();
-    int bulletsPerShot = getBulletsPerShot();
+    Vector2D nextLookCenter;
+    if (closestRobotPosition == Vector2D::ZERO)
+        nextLookCenter = randomizeMove();
+    else {
+        nextLookCenter = closestRobotPosition.normalized() * seeingRange;
+    }
 
-    Vector2D nextLookCenter = randomizeLookCenter();
     vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
 
     // Reset the closestRobotPosition after look()
@@ -77,6 +80,9 @@ void GenericRobot::thinkAndExecute() {
     ostringstream oss;
     oss << "Closest robot: " << closestRobotPosition;
     selfLog(oss.str());
+
+    int maxFireDistance = getMaxFiringDistance();
+    int bulletsPerShot = getBulletsPerShot();
 
     int distance = calcDistance(closestRobotPosition);
     if (distance <= maxFireDistance && closestRobotPosition != Vector2D::ZERO) {

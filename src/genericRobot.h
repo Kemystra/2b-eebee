@@ -81,6 +81,7 @@ protected:
     Vector2D position;
     int respawnCountLeft = 3;
     int movementRange = 1;
+    int seeingRange = 1;
     bool isVisible = true;
     LivingState livingState = Alive;
 
