@@ -39,6 +39,11 @@ bool operator==(const Vector2D& a, const Vector2D& b) {
     return (a.x == b.x) && (a.y == b.y);
 }
 
+ostream& operator<<(ostream& stream, const Vector2D& vec) {
+    stream << "( x: " << vec.x << ", y: " << vec.y << " )";
+    return stream;
+}
+
 int Vector2D::distance(const Vector2D& other) const {
     // In the assignment, it seems to imply taxicab distance function
     // But the initial GenericRobot kinda not follow that ????
