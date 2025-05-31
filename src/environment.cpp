@@ -391,9 +391,10 @@ void Environment::applyRobotUpgrades() {
                 break;
             case TrackBot:
                 newRobot = new class TrackBot(robotPtr);
+                break;
             }
 
-            logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + robotPtr->getName());
+            logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + newRobot->getName());
 
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
@@ -402,11 +403,11 @@ void Environment::applyRobotUpgrades() {
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
             // Update it to use the new one after each upgrade
-            newRobot->insertNewUpgrade(upgrade);
+            // newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
         }
 
-        robotPtr->setPosition(Vector2D(0,0));
+        robotPtr->clearPendingUpgrades();
     }
 
     // Clear out robotToUpgrades set
@@ -454,6 +455,8 @@ void Environment::applyRobotRespawn() {
     // Get the first element
     unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
     logger->log("Respawning " + robotUniquePtr->getName());
+
+    robotUniquePtr->setPosition(Vector2D::ZERO);
 
     GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
     robotUniquePtr.reset(resettedRobotPtr);

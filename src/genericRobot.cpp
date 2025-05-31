@@ -352,3 +352,7 @@ UpgradeState GenericRobot::chosenForUpgrade() {
 void GenericRobot::notifyRespawn() {
     livingState = Alive;
 }
+
+void GenericRobot::clearPendingUpgrades() {
+    pendingUpgrades.clear();
+}
