@@ -1,5 +1,6 @@
 #include "scoutBot.h"
 #include "../environment.h"
+#include <sstream>
 
 vector<Vector2D> ScoutBot::scout(){
     vector<Vector2D> scoutedBots;
@@ -23,58 +24,63 @@ vector<Vector2D> ScoutBot::scout(){
 }
 
 void ScoutBot::thinkAndExecute(){
-    int maxFireDistance = getMaxFiringDistance();
-    int bulletsPerShot = getBulletsPerShot();
-
-    // Generate x and y between -1, 0, or 1
-    // Note that we only generate integers here
-    uniform_int_distribution<int> next_x_generator(this->movementRange[0], this->movementRange[1]);
-    uniform_int_distribution<int> next_y_generator(this->movementRange[0],this->movementRange[1]);
-
-    // Will be used for look() and move()
-    int next_x = 0;
-    int next_y = 0;
-
-    bool validLookCenter = false;
-    while (!validLookCenter) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
-
-        // Center of vision must be within bounds
-        // simply for efficiency
-        validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
-    }
-
     if (scoutCount>0){
         useScout = randomBool(0.5);  
     }
-    
-    vector<Vector2D> lookResult = useScout? scout() : look(next_x,next_y);
 
-    for (const Vector2D &pos : lookResult) {
-        selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
-        int distance = calcDistance(pos);
-        if (distance > maxFireDistance)
-            continue;
-
-        for (int i = 0; i < bulletsPerShot; i++) {
-            selfLog("Attemting to fire at: (" + to_string(pos.x)+ ", " + to_string(pos.y) + ")");
-            fire(pos.x, pos.y);
+    // Decide between scout() or normal look()
+    vector<Vector2D> lookResult;
+    if (useScout)
+        lookResult = scout();
+    else {
+        Vector2D nextLookCenter;
+        if (closestRobotPosition == Vector2D::ZERO)
+            nextLookCenter = randomizeMove();
+        else {
+            nextLookCenter = closestRobotPosition.normalized() * seeingRange;
         }
+
+        lookResult = look(nextLookCenter.x, nextLookCenter.y);
+    }
+    
+
+    // Reset the closestRobotPosition after look()
+    // If no lookResult(), then it won't be set
+    // But if there's lookResult, closestRobotPosition will be updated with the closest one
+    closestRobotPosition = Vector2D::ZERO;
+
+    for (const Vector2D& pos : lookResult) {
+        // If haven't set yet, set it to current look result
+        // And skip to compare to the next look result
+        if (closestRobotPosition == Vector2D::ZERO) {
+            closestRobotPosition = pos;
+            continue;
+        }
+
+        // Since the positions are relative, we can use its vector magnitude
+        if (closestRobotPosition.magnitude() > pos.magnitude())
+            closestRobotPosition = pos;
     }
 
-    bool validMovement = false;
+    ostringstream oss;
+    oss << "Closest robot: " << closestRobotPosition;
+    selfLog(oss.str());
 
-    // Keep generating next movement
-    // until a valid one is found
-    while (!validMovement) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
+    int maxFireDistance = getMaxFiringDistance();
+    int bulletsPerShot = getBulletsPerShot();
 
-        validMovement = environment->isPositionAvailable(
-            this->position + Vector2D(next_x, next_y)
-        );
+    int distance = calcDistance(closestRobotPosition);
+    if (distance <= maxFireDistance && closestRobotPosition != Vector2D::ZERO) {
+        for (int i = 0; i < bulletsPerShot; i++)
+            fire(closestRobotPosition.x, closestRobotPosition.y);
     }
 
-    move(next_x, next_y);
+    Vector2D nextMove;
+    if (closestRobotPosition == Vector2D::ZERO)
+        nextMove = randomizeMove();
+    else {
+        nextMove = closestRobotPosition.normalized() * movementRange;
+    }
+
+    move(nextMove.x, nextMove.y);
 };

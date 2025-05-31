@@ -81,10 +81,13 @@ void Environment::gameLoop() {
         if (robotList.size() == 1) {
             logger->log("Only one bot remains: " + robotList[0]->getName());
             gameOver();
+            return;
         }
-    logger->log("Steps finished");
+
     step++;
     }
+
+    logger->log("Steps finished");
     gameOver();
 }
 
