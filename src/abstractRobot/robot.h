@@ -9,14 +9,9 @@
 using namespace std;
 
 
-enum DeadState {
-    Respawn, Dead
-};
-
-
 class Robot {
 public:
-    virtual DeadState die() = 0;
+    virtual void die() = 0;
 
     virtual string getName() const = 0;
     virtual char getSymbol() const = 0;

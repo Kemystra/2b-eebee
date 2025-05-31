@@ -86,16 +86,20 @@ public:
     void gameLoop();
     void gameOver();
 
-    void notifyKill(GenericRobot* killer, GenericRobot* victim, DeadState deadState);
+    void notifyKill(GenericRobot* killer, GenericRobot* victim);
     RobotPtrIterator getRobotIterator(GenericRobot* robot);
 
     void applyRobotUpgrades();
     void applyRobotRespawn();
     void applyRobotDie();
 
+<<<<<<< HEAD
     Vector2D getGridSize() const {return dimension; }
 
     vector<GenericRobot*> getAllRobots() const;
+=======
+    const vector<GenericRobot*> getAllAvailableRobots() const;
+>>>>>>> df60028676fe46b8199637aeddbbe593e35a8372
 };
 
 #endif  // ENVIRONMENT_H

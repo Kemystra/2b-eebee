@@ -1,0 +1,9 @@
+#ifndef JUMPLONGSHOTBOT_H
+#define JUMPLONGSHOTBOT_H
+
+#include "../stage1Upgrades/stage1Upgrades.h"
+class JumpLongShotBot: public JumpBot, public LongShotBot{
+    public:
+        void thinkAndExecute() override;
+};
+#endif

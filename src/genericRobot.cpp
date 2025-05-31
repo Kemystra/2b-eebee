@@ -1,13 +1,14 @@
-#include <cstdint>
 #include <cmath>
 #include <random>
+#include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "genericRobot.h"
-#include "abstractRobot/robot.h"
 #include "logger.h"
-#include "upgrades/upgrades.h"
+#include "stage1Upgrades/upgrades.h"
+#include "utils/types.h"
 #include "vector2d.h"
 #include "environment.h"
 
@@ -17,84 +18,85 @@ using namespace std;
 GenericRobot::GenericRobot(
     RobotParameter robotParam,
     Environment* env,
-    uint_fast64_t rngSeed,
     Logger* logger
 ) {
     this->position = robotParam.position;
     this->name = robotParam.name;
     this->symbol = robotParam.symbol;
 
-    this->environment = env;
-    this->logger = logger;
-
     // A seed initialize the random number generator (RNG)
     // The advantage is that if we gave it the same seed
     // it will always generate the same sequence of random numbers
-    this->rng = mt19937_64(rngSeed);
+    this->rng = Rng(robotParam.seed);
+
+    this->environment = env;
+    this->logger = logger;
 }
 
-DeadState GenericRobot::die() {
-    isDead = true;
+void GenericRobot::die() {
     if (respawnCountLeft == 0) {
         selfLog("Robot " + name + " has died and cannot respawn anymore.");
-        return DeadState::Dead;
+        livingState = Dead;
+        return;
     }
 
     respawnCountLeft--;
-    return DeadState::Respawn;
+    livingState = PendingRespawn;
+
+    ostringstream ss;
+    ss << "Robot " << name << " will respawn later (Respawn count left: " << respawnCountLeft << ")";
+    selfLog(ss.str());
 }
 
 void GenericRobot::thinkAndExecute() {
+    Vector2D nextLookCenter;
+    if (closestRobotPosition == Vector2D::ZERO)
+        nextLookCenter = randomizeMove();
+    else {
+        nextLookCenter = closestRobotPosition.normalized() * seeingRange;
+    }
+
+    vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
+
+    // Reset the closestRobotPosition after look()
+    // If no lookResult(), then it won't be set
+    // But if there's lookResult, closestRobotPosition will be updated with the closest one
+    closestRobotPosition = Vector2D::ZERO;
+
+    for (const Vector2D& pos : lookResult) {
+        // If haven't set yet, set it to current look result
+        // And skip to compare to the next look result
+        if (closestRobotPosition == Vector2D::ZERO) {
+            closestRobotPosition = pos;
+            continue;
+        }
+
+        // Since the positions are relative, we can use its vector magnitude
+        if (closestRobotPosition.magnitude() > pos.magnitude())
+            closestRobotPosition = pos;
+    }
+
+    ostringstream oss;
+    oss << "Closest robot: " << closestRobotPosition;
+    selfLog(oss.str());
+
     int maxFireDistance = getMaxFiringDistance();
     int bulletsPerShot = getBulletsPerShot();
 
-    // Generate x and y between -1, 0, or 1
-    // Note that we only generate integers here
-    uniform_int_distribution<int> next_x_generator(this->movementRange[0], this->movementRange[1]);
-    uniform_int_distribution<int> next_y_generator(this->movementRange[0],this->movementRange[1]);
-
-    // Will be used for look() and move()
-    int next_x = 0;
-    int next_y = 0;
-
-    bool validLookCenter = false;
-    while (!validLookCenter) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
-
-        // Center of vision must be within bounds
-        // simply for efficiency
-        validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
+    int distance = calcDistance(closestRobotPosition);
+    if (distance <= maxFireDistance && closestRobotPosition != Vector2D::ZERO) {
+        for (int i = 0; i < bulletsPerShot; i++)
+            fire(closestRobotPosition.x, closestRobotPosition.y);
     }
 
-    vector<Vector2D> lookResult = look(next_x, next_y);
-
-    for (const Vector2D &pos : lookResult) {
-        selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
-        int distance = calcDistance(pos);
-        if (distance > maxFireDistance)
-            continue;
-
-        for (int i = 0; i < bulletsPerShot; i++) {
-            selfLog("Attemting to fire at: (" + to_string(pos.x)+ ", " + to_string(pos.y) + ")");
-            fire(pos.x, pos.y);
-        }
+    Vector2D nextMove;
+    if (closestRobotPosition == Vector2D::ZERO)
+        nextMove = randomizeMove();
+    else {
+        nextMove = closestRobotPosition.normalized() * movementRange;
     }
 
-    bool validMovement = false;
-
-    // Keep generating next movement
-    // until a valid one is found
-    while (!validMovement) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
-
-        validMovement = environment->isPositionAvailable(
-            this->position + Vector2D(next_x, next_y)
-        );
-    }
-
-    move(next_x, next_y);
+    move(nextMove.x, nextMove.y);
 }
 
 vector<Vector2D> GenericRobot::look(int x, int y) {
@@ -153,14 +155,60 @@ void GenericRobot::fire(int x, int y) {
     // call die() directly
     // Allow flexibility of 'killing' the oponent later since we can set the probability
     if(randomBool(dieProbability)) {
-        DeadState deadState = targetRobot->die();
+        targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
-        environment->notifyKill(this, targetRobot, deadState);
+        environment->notifyKill(this, targetRobot);
     }
     else {
         selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
     }
     shellCount--;
+}
+
+Vector2D GenericRobot::randomizeLookCenter() {
+    // Generate x and y between -1 and 1
+    // Note that we only generate integers here
+    uniform_int_distribution<int> next_x_generator(-1, 1);
+    uniform_int_distribution<int> next_y_generator(-1, 1);
+
+    int next_x = 0;
+    int next_y = 0;
+
+    bool validLookCenter = false;
+    while (!validLookCenter) {
+        next_x = next_x_generator(rng);
+        next_y = next_y_generator(rng);
+
+        // Center of vision must be within bounds
+        // simply for efficiency
+        validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
+    }
+
+    return Vector2D(next_x, next_y);
+}
+
+Vector2D GenericRobot::randomizeMove() {
+    // Generate x and y between the movement range
+    // Note that we only generate integers here
+    uniform_int_distribution<int> next_x_generator(-movementRange, movementRange);
+    uniform_int_distribution<int> next_y_generator(-movementRange, movementRange);
+
+    bool validMovement = false;
+    int next_x;
+    int next_y;
+
+    // Keep generating next movement
+    // until a valid one is found
+    while (!validMovement) {
+        next_x = next_x_generator(rng);
+        next_y = next_y_generator(rng);
+
+        validMovement = environment->isPositionAvailable(
+            this->position + Vector2D(next_x, next_y)
+        );
+    }
+
+    return Vector2D(next_x, next_y);
 }
 
 int GenericRobot::getBulletsPerShot() const {
@@ -184,8 +232,12 @@ char GenericRobot::getSymbol() const {
     return this->symbol;
 }
 
-bool GenericRobot::getIsDead() const {
-    return this->isDead;
+LivingState GenericRobot::getLivingState() const {
+    return this->livingState;
+}
+
+bool GenericRobot::isDead() const {
+    return livingState != Alive;
 }
 
 bool GenericRobot::getIsVisible() const {
@@ -194,6 +246,10 @@ bool GenericRobot::getIsVisible() const {
 
 Vector2D GenericRobot::getPosition() const {
     return position;
+}
+
+void GenericRobot::setPosition(Vector2D pos) {
+    this->position = pos;
 }
 
 // No upgrades, so return empty vector
@@ -232,6 +288,42 @@ int GenericRobot::calcDistance(Vector2D a) const {
     return max(abs(a.x), abs(a.y));
 }
 
+void GenericRobot::insertNewUpgrade(const Upgrade& upgrade) {
+    // Check if the upgrade is already in the list
+    for (const Upgrade &existingUpgrade : this->upgrades) {
+        if (existingUpgrade == upgrade) {
+            selfLog("Upgrade " + stringifyUpgrade(upgrade) + " already exists.");
+            return;
+        }
+    }
+
+    // Add the upgrade to the current upgrades
+    this->upgrades.push_back(upgrade);
+    selfLog("Added upgrade: " + stringifyUpgrade(upgrade));
+    // remove the current upgrade from pending upgrades
+    auto it = find(pendingUpgrades.begin(), pendingUpgrades.end(), upgrade);
+    if (it != pendingUpgrades.end()) {
+        pendingUpgrades.erase(it);
+        selfLog("Removed upgrade from pending upgrades: " + stringifyUpgrade(upgrade));
+    } else {
+        selfLog("Upgrade " + stringifyUpgrade(upgrade) + " not found in pending upgrades.");
+    }
+}
+
+void GenericRobot::logUpgrades(){
+    if (upgrades.empty()) {
+        selfLog("No upgrades yet.");
+        return;
+    }
+
+    string upgradeList = "Current upgrades: ";
+    for (const Upgrade &upgrade : upgrades) {
+        upgradeList += stringifyUpgrade(upgrade) + ", ";
+    }
+    // Remove the last comma and space
+    upgradeList = upgradeList.substr(0, upgradeList.size() - 2);
+    selfLog(upgradeList);
+};
 UpgradeState GenericRobot::chosenForUpgrade() {
     // Check for the current upgrade and pending upgrade count
     // Stop if already enough
@@ -244,7 +336,7 @@ UpgradeState GenericRobot::chosenForUpgrade() {
     UpgradeTrack chosenTrack = possibleUpgradeTrack[chosenTrackIndex];
 
     // List out all upgrades under a track
-    vector<Upgrade> upgradesToChoose = getUpgradesUnderTrack(chosenTrack);
+    vector<Upgrade> upgradesToChoose = chosenTrack.getUpgradesUnderTrack();
 
     // Select upgrades under the track
     uniform_int_distribution<int> upgradeIndexGen(0, upgradesToChoose.size() - 1);
@@ -255,4 +347,8 @@ UpgradeState GenericRobot::chosenForUpgrade() {
     pendingUpgrades.push_back(chosenUpgrade);
 
     return AvailableForUpgrade;
+}
+
+void GenericRobot::notifyRespawn() {
+    livingState = Alive;
 }

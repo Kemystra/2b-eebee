@@ -8,9 +8,10 @@
 #include "abstractRobot/seeingRobot.h"
 #include "abstractRobot/shootingRobot.h"
 
+#include "utils/types.h"
 #include "vector2d.h"
 #include "logger.h"
-#include "upgrades/upgrades.h"
+#include "stage1Upgrades/upgrades.h"
 
 #include <vector>
 #include <cstdint>
@@ -23,7 +24,9 @@
 class Environment;
 
 struct RobotParameter {
+    string type;
     string name;
+    RngSeed seed;
     Vector2D position;
     char symbol;
 };
@@ -34,31 +37,42 @@ enum UpgradeState {
     UpgradeFull
 };
 
+// Robot life state
+enum LivingState {
+    Alive,
+    Dead,
+    PendingRespawn
+};
+
 class GenericRobot : public MovingRobot, public ThinkingRobot, public SeeingRobot, public ShootingRobot {
 public:
     GenericRobot(
         RobotParameter robotParam,
         Environment* env,
-        uint_fast64_t rngSeed,
         Logger* logger
     );
 
-    DeadState die() override;
+    void die() override;
     void thinkAndExecute() override;
 
     UpgradeState chosenForUpgrade();
+    void notifyRespawn();
 
     string getName() const override;
     Vector2D getPosition() const override;
     const vector<Upgrade>& getPendingUpgrades() const;
     const vector<Upgrade>& getUpgrades() const;
-    bool getIsDead() const;
+    void insertNewUpgrade(const Upgrade& upgrade);
+    bool isDead() const;
     bool getIsVisible() const;
+    LivingState getLivingState() const;
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
     char getSymbol() const override;
+    void logUpgrades();
 
+    void setPosition(Vector2D pos);
 
 protected:
     // These will have to be initialized
@@ -66,25 +80,33 @@ protected:
     char symbol;
     Vector2D position;
     int respawnCountLeft = 3;
-    vector<int> movementRange={-1,1};
+    int movementRange = 1;
+    int seeingRange = 1;
     bool isVisible = true;
-    bool isDead = false;
+    LivingState livingState = Alive;
 
     Environment* environment;
     Logger* logger;
 
-    // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
-    // I chose a random one lol
-    mt19937_64 rng;
+    Rng rng;
 
-    vector<UpgradeTrack> possibleUpgradeTrack = { Moving, Shooting, Seeing };
+    vector<UpgradeTrack> possibleUpgradeTrack= {
+        UpgradeTrack("Moving", {HideBot, JumpBot}),
+        UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, LandmineBot, BombBot, LaserBot}),
+        UpgradeTrack("Seeing", {ScoutBot, TrackBot})
+    };
     // Current upgrades
     vector<Upgrade> upgrades = {};
     // What to add on the next upgrade cycle (see Environment::applyRobotUpgrades)
     vector<Upgrade> pendingUpgrades = {};
 
+    Vector2D closestRobotPosition = Vector2D::ZERO;
+
     // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
     bool randomBool(double probability);
+
+    Vector2D randomizeLookCenter();
+    Vector2D randomizeMove();
 
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;

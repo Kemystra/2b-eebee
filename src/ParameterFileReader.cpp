@@ -1,11 +1,22 @@
 #include "ParameterFileReader.h"
+#include "genericRobot.h"
+#include "utils/types.h"
+#include "vector2d.h"
 #include <fstream>
+#include <ctime>
+#include <random>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
+
+ParameterFileReader::ParameterFileReader() {
+    // Generate a seed, in case the input file don't have this parameter
+    seed = time(0);
+}
 
 bool ParameterFileReader::readFile(const string& filename, bool requireAllParams) { // Open the file
     ifstream file(filename);
@@ -26,7 +37,7 @@ bool ParameterFileReader::readFile(const string& filename, bool requireAllParams
         }
     }
 
-    validateParameters(requireAllParams);
+    finalizeParameters(requireAllParams);
     return true;
 }
 
@@ -35,13 +46,17 @@ enum class LineType { // Enum to categorize line types
     STEPS,
     ROBOTS,
     ROBOT_INFO,
+    SEED,
     UNKNOWN
 };
+
+const int MISSING_INT = -1;
 
 LineType getLineType(const string& lowerLine) { // Determine the type of line based on its content
     if (lowerLine.rfind("m by n", 0) == 0) return LineType::M_BY_N;
     if (lowerLine.rfind("steps:", 0) == 0) return LineType::STEPS;
     if (lowerLine.rfind("robots:", 0) == 0) return LineType::ROBOTS;
+    if (lowerLine.rfind("seed:", 0) == 0) return LineType::SEED;
     return LineType::ROBOT_INFO; // Default case
 }
 
@@ -56,36 +71,34 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
             if (colonPos == string::npos) {
                 throw runtime_error("Expected ':' after 'M by N'");
             }
-            string numbers = trimmedLine.substr(colonPos + 1);
-            istringstream iss(numbers);
-            if (!(iss >> m >> n)) {
-                throw runtime_error("Expected two integers after 'M by N:'");
-            }
-            if (m <= 0 || n <= 0) {
-                throw runtime_error("Field dimensions must be positive integers");
-            }
+            istringstream numbers = istringstream(trimmedLine.substr(colonPos + 1));
+            m = parseInt(numbers, "Exptected an integer for 'm'");
+            n = parseInt(numbers, "Exptected an integer for 'n'");
             break;
         }
 
         case LineType::STEPS: {
             istringstream iss(trimmedLine.substr(6)); // Skip "steps:"
-            if (!(iss >> steps) || steps <= 0) {
-                throw runtime_error("Steps must be a positive integer");
-            }
+            steps = parseInt(iss, "Expected an integer after 'steps:'");
+            break;
+        }
+
+        case LineType::SEED: {
+            istringstream iss(trimmedLine.substr(5)); // Skip "seed:"
+            seed = parseInt(iss, "Expected an integer after 'seed:'");
             break;
         }
 
         case LineType::ROBOTS: {
             istringstream iss(trimmedLine.substr(7)); // Skip "robots:"
-            if (!(iss >> robotCount) || robotCount <= 0) {
-                throw runtime_error("Robot count must be a positive integer");
-            }
+            robotCount = parseInt(iss, "Expected an integer after 'robots:'");
             break;
         }
 
         case LineType::ROBOT_INFO: {
             istringstream iss(trimmedLine);
-            RobotInfo robot;
+            RawRobotInfo robot;
+            robot.isRandomPosition = false;
             if (!(iss >> robot.type >> robot.name)) {
                 throw runtime_error("Missing robot type or name");
             }
@@ -96,8 +109,8 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
             }
 
             if (isRandomPos(posX) || isRandomPos(posY)) {
-                robot.x = -1;
-                robot.y = -1;
+                robot.x = MISSING_INT;
+                robot.y = MISSING_INT;
                 robot.isRandomPosition = true;
             } else {
                 try {
@@ -111,7 +124,7 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
                 }
             }
 
-            robots.push_back(robot);
+            rawRobotInfo.push_back(robot);
             break;
         }
 
@@ -120,20 +133,64 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
     }
 }
 
-
-
-void ParameterFileReader::validateParameters(bool requireAllParams) { // Validate the parameters read from the file
-    if (requireAllParams) {
-        if (m == -1 || n == -1) {
-            throw ParseError("Missing field dimensions (M by N)");
-        }
-        if (steps == -1) {
-            throw ParseError("Missing number of steps");
-        }
+int ParameterFileReader::parseInt(istringstream& stream, const string& errorMsg) {
+    unsigned int result;
+    if (!(stream >> result)) {
+        throw runtime_error(errorMsg);
     }
 
-    if (robotCount != static_cast<int>(robots.size())) {
+    return result;
+}
+
+void ParameterFileReader::finalizeParameters(bool requireAllParams) { // Validate the parameters read from the file
+    // Stop if validation is not needed
+    if (!requireAllParams)
+        return;
+
+    if (m <= 0 || n <= 0) {
+        throw runtime_error("Field dimensions must be positive integers");
+    }
+
+    if (steps <= 0)
+        throw runtime_error("Step must be a positive integer");
+
+    if (robotCount <= 0)
+        throw runtime_error("Robot count must be a positive integer");
+
+    if (steps == MISSING_INT) {
+        throw ParseError("Missing number of steps");
+    }
+
+    if (robotCount != static_cast<int>(rawRobotInfo.size())) {
         throw ParseError("Robot count does not match declared number");
+    }
+
+    Rng rng(seed);
+    // Generate x within 0 or m
+    // Generate y within 0 or n
+    auto x_gen = uniform_int_distribution<int>(0,m);
+    auto y_gen = uniform_int_distribution<int>(0,n);
+
+    // Process raw robot info into robot parameters
+    for (const RawRobotInfo& rawInfo : rawRobotInfo) {
+        RobotParameter finalInfo;
+
+        finalInfo.name = rawInfo.name;
+        finalInfo.type = rawInfo.type;
+        finalInfo.seed = rng();
+
+        if (rawInfo.isRandomPosition) {
+            Vector2D randomizedPos = Vector2D(x_gen(rng), y_gen(rng));
+            finalInfo.position = randomizedPos;
+        }
+        else {
+            finalInfo.position = Vector2D(rawInfo.x, rawInfo.y);
+        }
+
+        // Use first char of name as symbol, fallback to 'R' if name empty
+        finalInfo.symbol = !rawInfo.name.empty() ? rawInfo.name[0] : 'R';
+
+        finalRobotInfo.push_back(finalInfo);
     }
 }
 
