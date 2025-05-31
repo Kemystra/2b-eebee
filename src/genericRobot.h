@@ -24,6 +24,7 @@
 class Environment;
 
 struct RobotParameter {
+    string type;
     string name;
     Vector2D position;
     char symbol;

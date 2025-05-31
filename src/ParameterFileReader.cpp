@@ -1,5 +1,9 @@
 #include "ParameterFileReader.h"
+#include "genericRobot.h"
+#include "utils/types.h"
+#include "vector2d.h"
 #include <fstream>
+#include <random>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
@@ -7,6 +11,11 @@
 #include <stdexcept>
 
 using namespace std;
+
+ParameterFileReader::ParameterFileReader() {
+    // Generate a seed, in case the input file don't have this parameter
+    seed = time(0);
+}
 
 bool ParameterFileReader::readFile(const string& filename, bool requireAllParams) { // Open the file
     ifstream file(filename);
@@ -27,7 +36,7 @@ bool ParameterFileReader::readFile(const string& filename, bool requireAllParams
         }
     }
 
-    validateParameters(requireAllParams);
+    finalizeParameters(requireAllParams);
     return true;
 }
 
@@ -87,7 +96,7 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
 
         case LineType::ROBOT_INFO: {
             istringstream iss(trimmedLine);
-            RobotInfo robot;
+            RawRobotInfo robot;
             if (!(iss >> robot.type >> robot.name)) {
                 throw runtime_error("Missing robot type or name");
             }
@@ -113,7 +122,7 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
                 }
             }
 
-            robots.push_back(robot);
+            rawRobotInfo.push_back(robot);
             break;
         }
 
@@ -131,7 +140,7 @@ int ParameterFileReader::parseInt(istringstream& stream, const string& errorMsg)
     return result;
 }
 
-void ParameterFileReader::validateParameters(bool requireAllParams) { // Validate the parameters read from the file
+void ParameterFileReader::finalizeParameters(bool requireAllParams) { // Validate the parameters read from the file
     // Stop if validation is not needed
     if (!requireAllParams)
         return;
@@ -150,8 +159,30 @@ void ParameterFileReader::validateParameters(bool requireAllParams) { // Validat
         throw ParseError("Missing number of steps");
     }
 
-    if (robotCount != static_cast<int>(robots.size())) {
+    if (robotCount != static_cast<int>(rawRobotInfo.size())) {
         throw ParseError("Robot count does not match declared number");
+    }
+
+    // Process raw robot info into robot parameters
+    for (const RawRobotInfo& rawInfo : rawRobotInfo) {
+        RobotParameter finalInfo;
+        finalInfo.name = rawInfo.name;
+        finalInfo.type = rawInfo.type;
+
+        if (rawInfo.isRandomPosition) {
+            Rng rng(seed);
+
+            // Generate x within 0 or m
+            // Generate y within 0 or n
+            auto x_gen = uniform_int_distribution<int>(0,m);
+            auto y_gen = uniform_int_distribution<int>(0,n);
+
+            Vector2D randomizedPos = Vector2D(x_gen(rng), y_gen(rng));
+            finalInfo.position = randomizedPos;
+        }
+
+        // Use first char of name as symbol, fallback to 'R' if name empty
+        finalInfo.symbol = !rawInfo.name.empty() ? rawInfo.name[0] : 'R';
     }
 }
 

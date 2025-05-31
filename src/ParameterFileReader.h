@@ -6,11 +6,12 @@
 #include <vector>
 #include <stdexcept>
 
+#include "genericRobot.h"
 #include "utils/types.h"
 
 using namespace std;
 
-struct RobotInfo{ // Structure to hold robot information
+struct RawRobotInfo{ // Structure to hold robot information
     string type;
     string name;
     int x;
@@ -24,7 +25,7 @@ class ParameterFileReader{ // Class to read and parse a parameter file for a rob
         using runtime_error::runtime_error;
     };
 
-    ParameterFileReader() = default;
+    ParameterFileReader();
 
     bool readFile(const string&filename, bool requireAllParams = true); // Read and parse the parameter file
 
@@ -32,7 +33,7 @@ class ParameterFileReader{ // Class to read and parse a parameter file for a rob
     int getN() const {return n;}
     int getSteps() const {return steps;}
     int getRobotCount() const { return robotCount;}
-    const vector<RobotInfo>& getRobots() const {return robots;}
+    const vector<RobotParameter>& getRobots() const {return finalRobotInfo;}
 
     private:
     // Size of the battlefield
@@ -48,13 +49,14 @@ class ParameterFileReader{ // Class to read and parse a parameter file for a rob
 
     // Number of robots
     int robotCount = 0;
-    vector<RobotInfo> robots;
+    vector<RawRobotInfo> rawRobotInfo;
+    vector<RobotParameter> finalRobotInfo;
     
     void parseLine(const string&line);
     int parseInt(istringstream& stream, const string& errorMsg);
     int parseIntOrRandom(istringstream& stream, const string& errorMsg);
 
-    void validateParameters(bool requuireAllParams);
+    void finalizeParameters(bool requuireAllParams);
     static string trim(const string&str);
     static string toLower(const string&str);
     static bool isRandomPos(const string&s);
