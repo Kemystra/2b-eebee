@@ -99,6 +99,8 @@ protected:
     // What to add on the next upgrade cycle (see Environment::applyRobotUpgrades)
     vector<Upgrade> pendingUpgrades = {};
 
+    Vector2D closestRobotPosition = Vector2D::ZERO;
+
     // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
     bool randomBool(double probability);
 

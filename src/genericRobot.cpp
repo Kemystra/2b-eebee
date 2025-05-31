@@ -54,8 +54,18 @@ void GenericRobot::thinkAndExecute() {
     int bulletsPerShot = getBulletsPerShot();
 
     Vector2D nextLookCenter = randomizeLookCenter();
-
     vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
+
+    for (const Vector2D& pos : lookResult) {
+        // If haven't set yet, set it to current look result
+        // And skip to compare to the next look result
+        if (closestRobotPosition == Vector2D::ZERO) {
+            closestRobotPosition = pos;
+            continue;
+        }
+
+        if (closestRobotPosition)
+    }
 
     for (const Vector2D &pos : lookResult) {
         selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
@@ -67,6 +77,10 @@ void GenericRobot::thinkAndExecute() {
             selfLog("Attemting to fire at: (" + to_string(pos.x)+ ", " + to_string(pos.y) + ")");
             fire(pos.x, pos.y);
         }
+
+        // You can only shoot once per turn
+        // If you succeed shooting once, break out of the loop
+        break;
     }
 
     Vector2D nextMove = randomizeMove();

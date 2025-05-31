@@ -48,6 +48,12 @@ int Vector2D::distance(const Vector2D& other) const {
     int diff_squared_y = pow(this->y - other.y, 2);
 
     return static_cast<int>(
-        sqrt(x + y)
+        sqrt(diff_squared_x + diff_squared_y)
+    );
+}
+
+int Vector2D::magnitude() const {
+    return static_cast<int>(
+        sqrt(pow(x, 2) + pow(y, 2))
     );
 }
