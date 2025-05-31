@@ -3,6 +3,7 @@
 #include "utils/types.h"
 #include "vector2d.h"
 #include <fstream>
+#include <ctime>
 #include <random>
 #include <sstream>
 #include <algorithm>
