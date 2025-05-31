@@ -329,7 +329,7 @@ void Environment::applyRobotUpgrades() {
         // Get the pending upgrade
         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
         GenericRobot* newRobot = nullptr;
-        for (const Upgrade &upgrade : pendingUpgrades)
+        for (Upgrade upgrade : pendingUpgrades)
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
 
