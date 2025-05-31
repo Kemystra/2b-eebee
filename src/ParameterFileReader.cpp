@@ -35,6 +35,7 @@ enum class LineType { // Enum to categorize line types
     STEPS,
     ROBOTS,
     ROBOT_INFO,
+    SEED,
     UNKNOWN
 };
 
@@ -42,6 +43,7 @@ LineType getLineType(const string& lowerLine) { // Determine the type of line ba
     if (lowerLine.rfind("m by n", 0) == 0) return LineType::M_BY_N;
     if (lowerLine.rfind("steps:", 0) == 0) return LineType::STEPS;
     if (lowerLine.rfind("robots:", 0) == 0) return LineType::ROBOTS;
+    if (lowerLine.rfind("seed:", 0) == 0) return LineType::SEED;
     return LineType::ROBOT_INFO; // Default case
 }
 
