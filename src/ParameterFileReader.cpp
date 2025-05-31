@@ -133,7 +133,7 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
 }
 
 int ParameterFileReader::parseInt(istringstream& stream, const string& errorMsg) {
-    uint result;
+    unsigned int result;
     if (!(stream >> result)) {
         throw runtime_error(errorMsg);
     }
