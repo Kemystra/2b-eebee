@@ -1,5 +1,8 @@
 #include "upgrades.h"
 
+// Ensure UpgradeTrack and Upgrade are enums
+// (Removed duplicate enum definitions; they should be in upgrades.h)
+
 
 vector<Upgrade> getUpgradesUnderTrack(UpgradeTrack track) {
     switch (track) {
