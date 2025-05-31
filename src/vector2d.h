@@ -36,6 +36,7 @@ public:
     // Putting it as friend function isn't technically needed; operator== doesn't need private members anyway
     // it's simply just to imply that it is related to this class
     friend bool operator==(const Vector2D& a, const Vector2D& b);
+    friend bool operator!=(const Vector2D& a, const Vector2D& b);
 
     friend ostream& operator<<(ostream& stream, const Vector2D& vec);
 
