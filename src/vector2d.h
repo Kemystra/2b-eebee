@@ -7,6 +7,8 @@ class Vector2D {
 public:
     int x;
     int y;
+
+    static const Vector2D ZERO;
     
     Vector2D(int x_val = 0, int y_val = 0);
     

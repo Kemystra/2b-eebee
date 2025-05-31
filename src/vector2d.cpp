@@ -4,6 +4,10 @@
 
 using namespace std;
 
+
+
+const Vector2D Vector2D::ZERO = Vector2D(0,0);
+
 Vector2D::Vector2D(int x, int y) {
     this->x = x;
     this->y = y;
