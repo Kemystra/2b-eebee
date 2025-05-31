@@ -10,7 +10,8 @@ using namespace std;
 class Logger{
     private:
         ofstream logFile;
-        stringstream buffer;
+        stringstream consoleBuffer;
+        stringstream fileBuffer;
     public:
         Logger();
         ~Logger();
