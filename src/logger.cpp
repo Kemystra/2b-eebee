@@ -32,9 +32,20 @@ void Logger::error(const string& message){
     outputToFile(errorMessage,"log.txt");
 }
 
-void Logger::setColor(const char* color) {
-    cout << color;
+void Logger::setBufferColor(const char* color) {
+    buffer << color;
 }
-void Logger::resetColor() {
-    cout << "\033[0m"; // Reset color to default
+void Logger::resetBufferColor() {
+    buffer << "\033[0m"; // Reset color to default
+}
+
+void Logger::bufferedLog(const string& message) {
+    buffer << message;
+};
+
+void Logger::flushBufferedLog() {
+    if (buffer.str().empty()) return; // No buffered log to flush
+    outputToConsole(buffer.str());
+    outputToFile(buffer.str(), "log.txt");
+    buffer.str(""); // Clear the buffer after flushing
 }
