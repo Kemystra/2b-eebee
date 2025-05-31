@@ -33,6 +33,7 @@ class ParameterFileReader{ // Class to read and parse a parameter file for a rob
     int getN() const {return n;}
     int getSteps() const {return steps;}
     int getRobotCount() const { return robotCount;}
+    RngSeed getSeed() const { return seed;}
     const vector<RobotParameter>& getRobots() const {return finalRobotInfo;}
 
     private:
