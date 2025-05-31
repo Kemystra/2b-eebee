@@ -295,6 +295,6 @@ GenericRobot* chooseUpgradeStage(GenericRobot* robot, Upgrade upgrade) {
         return chooseStage2Upgrade(robot, upgrade);
     }
     else {
-        return chooseStage3Upgrade(robot, upgrade);
+        return new class ScoutBot(robot); // Default case, should not happen
     }
 }

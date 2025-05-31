@@ -4,7 +4,7 @@
 #include "../stage1Upgrades/stage1Upgrades.h"
 class LandmineScoutBot: virtual public LandmineBot, virtual public ScoutBot{
     public:
-        void thinkAndExecute() override;
+        void thinkAndExecute() override{ selfLog("Kill me please");};
         LandmineScoutBot(GenericRobot* g) : LandmineBot(g), ScoutBot(g), GenericRobot(*g) {
             selfLog("LandmineScoutBot created with scout count: " + to_string(scoutCount));
         };
