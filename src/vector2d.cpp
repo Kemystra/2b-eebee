@@ -35,6 +35,24 @@ Vector2D& Vector2D::operator-=(const Vector2D& other) {
     return *this;
 }
 
+Vector2D& Vector2D::operator*=(const int& rhs) {
+    x *= rhs;
+    y *= rhs;
+    return *this;
+}
+
+Vector2D operator*(const Vector2D& lhs, const int& rhs) {
+    Vector2D result = lhs;
+    result *= rhs;
+    return result;
+}
+
+Vector2D operator*(const int& lhs, const Vector2D& rhs) {
+    Vector2D result = rhs;
+    result *= lhs;
+    return result;
+}
+
 bool operator==(const Vector2D& a, const Vector2D& b) {
     return (a.x == b.x) && (a.y == b.y);
 }

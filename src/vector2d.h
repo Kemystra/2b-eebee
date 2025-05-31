@@ -21,6 +21,10 @@ public:
     Vector2D& operator+=(const Vector2D& other);
     Vector2D& operator-=(const Vector2D& other);
 
+    Vector2D& operator*=(const int& rhs);
+    friend Vector2D operator*(const Vector2D& lhs, const int& rhs);
+    friend Vector2D operator*(const int& lhs, const Vector2D& rhs);
+
     // Magnitude of the vector
     int magnitude() const;
 
