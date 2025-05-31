@@ -6,7 +6,7 @@ import os
 # Folders with cpp files
 SRC_FOLDER = [
     ".",
-    "upgrades"
+    "stage1Upgrades"
 ]
 
 BUILD_FOLDER = "build"

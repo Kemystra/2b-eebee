@@ -1,8 +1,8 @@
 #include "environment.h"
 #include "abstractRobot/robot.h"
 #include "genericRobot.h"
-#include "upgrades/upgrades.h"
-#include "upgrades/scoutBot.h"
+#include "stage1Upgrades/upgrades.h"
+#include "stage1Upgrades/scoutBot.h"
 #include "vector2d.h"
 
 #include <memory>
@@ -445,7 +445,7 @@ void Environment::printwelcomemessage() const
     ss << "##                                                                                                        ##\n";
     ss << ".++######################################################################################################++.\n";
     logger->log(ss.str());
-
+};
 // void Environment::printwelcomemessage() const {
 //     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";
 //     cout << "       |\"  |/  \\|  \"|/\"     |\"  |    /\" _  \"\\ /    \" \\|\"  \\    /\"  |/\"     \"|    (\"     _   \")    \" \\      \n";

@@ -3,11 +3,11 @@
 
 BUILD_FOLDER := build
 
-SOURCES := $(wildcard *.cpp upgrades/*.cpp)
+SOURCES := $(wildcard *.cpp stage1Upgrades/*.cpp)
 # For each name in SOURCES (notdir removes the folder name, basename removes the file extension), append .o
 OBJECTS := $(foreach x, $(basename $(notdir $(SOURCES))), $(BUILD_FOLDER)/$(x).o)
 
-LIBS := abstractRobot/ upgrades/
+LIBS := abstractRobot/ stage1Upgrades/
 
 FLAGS := -std=c++11 -g
 
@@ -15,7 +15,7 @@ FLAGS := -std=c++11 -g
 $(BUILD_FOLDER)/%.o: %.cpp
 	g++ $(FLAGS) $< -c -o $@
 
-$(BUILD_FOLDER)/%.o: upgrades/%.cpp
+$(BUILD_FOLDER)/%.o: stage1Upgrades/%.cpp
 	g++ $(FLAGS) $< -c -o $@
 
 main.out: $(OBJECTS)
