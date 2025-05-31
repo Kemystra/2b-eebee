@@ -166,12 +166,13 @@ void ParameterFileReader::finalizeParameters(bool requireAllParams) { // Validat
     // Process raw robot info into robot parameters
     for (const RawRobotInfo& rawInfo : rawRobotInfo) {
         RobotParameter finalInfo;
+        Rng rng(seed);
+
         finalInfo.name = rawInfo.name;
         finalInfo.type = rawInfo.type;
+        finalInfo.seed = rng();
 
         if (rawInfo.isRandomPosition) {
-            Rng rng(seed);
-
             // Generate x within 0 or m
             // Generate y within 0 or n
             auto x_gen = uniform_int_distribution<int>(0,m);

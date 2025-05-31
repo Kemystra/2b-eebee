@@ -19,20 +19,19 @@ using namespace std;
 GenericRobot::GenericRobot(
     RobotParameter robotParam,
     Environment* env,
-    RngSeed rngSeed,
     Logger* logger
 ) {
     this->position = robotParam.position;
     this->name = robotParam.name;
     this->symbol = robotParam.symbol;
 
-    this->environment = env;
-    this->logger = logger;
-
     // A seed initialize the random number generator (RNG)
     // The advantage is that if we gave it the same seed
     // it will always generate the same sequence of random numbers
-    this->rng = Rng(rngSeed);
+    this->rng = Rng(robotParam.seed);
+
+    this->environment = env;
+    this->logger = logger;
 }
 
 void GenericRobot::die() {
@@ -158,6 +157,8 @@ Vector2D GenericRobot::randomizeLookCenter() {
         // simply for efficiency
         validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
     }
+
+    return Vector2D(next_x, next_y);
 }
 
 Vector2D GenericRobot::randomizeMove() {

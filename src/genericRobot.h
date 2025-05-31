@@ -26,6 +26,7 @@ class Environment;
 struct RobotParameter {
     string type;
     string name;
+    RngSeed seed;
     Vector2D position;
     char symbol;
 };
@@ -48,7 +49,6 @@ public:
     GenericRobot(
         RobotParameter robotParam,
         Environment* env,
-        RngSeed rngSeed,
         Logger* logger
     );
 
