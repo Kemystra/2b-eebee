@@ -2,7 +2,7 @@
 #define JUMPBOT_H
 
 #include "../genericRobot.h"
-class JumpBot:public GenericRobot{
+class JumpBot:virtual public GenericRobot{
     public:
         void jump(Vector2D target); // Jump to a target position
         void testJump();

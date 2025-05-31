@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 
-class SemiAutoBot:public GenericRobot{
+class SemiAutoBot:virtual public GenericRobot{
     public:
         SemiAutoBot(GenericRobot* g) : GenericRobot(*g) {
             selfLog("SemiAutoBot created");

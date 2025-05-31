@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 
-class ScoutBot:public GenericRobot{
+class ScoutBot:virtual public GenericRobot{
     public:
         ScoutBot(GenericRobot* g) : GenericRobot(*g) {
             selfLog("ScoutBot created with scout count: " + to_string(scoutCount));

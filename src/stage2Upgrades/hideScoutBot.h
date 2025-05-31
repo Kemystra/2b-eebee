@@ -2,8 +2,11 @@
 #define HIDESCOUTBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class HideScoutBot: public HideBot, public ScoutBot{
+class HideScoutBot: virtual public HideBot, virtual public ScoutBot{
     public:
         void thinkAndExecute() override;
+        HideScoutBot(GenericRobot* g) : HideBot(g), ScoutBot(g),GenericRobot(*g) {
+            selfLog("HideScoutBot created");
+        };
 };
 #endif

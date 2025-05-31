@@ -2,8 +2,11 @@
 #define HIDETRACKBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class HideTrackBot: public HideBot, public TrackBot{
+class HideTrackBot: virtual public HideBot, virtual public TrackBot{
     public:
         void thinkAndExecute() override;
+        HideTrackBot(GenericRobot* g) : HideBot(g), TrackBot(g), GenericRobot(*g) {
+            selfLog("HideTrackBot created");
+        };
 };
 #endif

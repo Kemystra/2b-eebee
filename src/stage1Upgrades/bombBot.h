@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 
-class BombBot:public GenericRobot{
+class BombBot:virtual public GenericRobot{
     private:
         vector<int> areaOfEffect = {3,3};
     public:

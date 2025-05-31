@@ -3,7 +3,11 @@
 
 #include "../genericRobot.h"
 
-class LaserBot:public GenericRobot{
+class LaserBot:virtual public GenericRobot{
+    public:
+        LaserBot(GenericRobot* g) : GenericRobot(*g) {
+            selfLog("LaserBot created");
+        };
 };
 
 #endif
