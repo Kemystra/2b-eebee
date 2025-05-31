@@ -1,6 +1,8 @@
 #include "trackBot.h"
 #include "../environment.h"
 
+#include <sstream>
+
 void TrackBot::track(Vector2D positionOfRobot) {
     positionOfRobot = this->getPosition() + positionOfRobot;
     if (environment->isRobotHere(positionOfRobot)) {
@@ -13,40 +15,28 @@ void TrackBot::track(Vector2D positionOfRobot) {
 }
 
 void TrackBot::thinkAndExecute(){
-    int maxFireDistance = getMaxFiringDistance();
-    int bulletsPerShot = getBulletsPerShot();
-    // Generate x and y between -1, 0, or 1
-    // Note that we only generate integers here
-    uniform_int_distribution<int> next_x_generator(this->movementRange[0], this->movementRange[1]);
-    uniform_int_distribution<int> next_y_generator(this->movementRange[0],this->movementRange[1]);
-
-    // Will be used for look() and move()
-    int next_x = 0;
-    int next_y = 0;
-
-    bool validLookCenter = false;
-    while (!validLookCenter) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
-
-        // Center of vision must be within bounds
-        // simply for efficiency
-        validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
+    Vector2D nextLookCenter;
+    if (closestRobotPosition == Vector2D::ZERO)
+        nextLookCenter = randomizeMove();
+    else {
+        nextLookCenter = closestRobotPosition.normalized() * seeingRange;
     }
 
-    Vector2D closestRobotCoordinates;
-    for(const GenericRobot* robot: trackedBots){
-        // get the relative coordinates of the current iterated bot
-        Vector2D currentRobotRelativeCoordinate = this->getPosition() - robot->getPosition();
-        // if closest robot is further than current robot, then update closest robot
-        if(calcDistance(closestRobotCoordinates)>calcDistance(currentRobotRelativeCoordinate)){
-            closestRobotCoordinates = currentRobotRelativeCoordinate;
+    vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
+
+    // Reset the closestRobotPosition after look()
+    // If no lookResult(), then it won't be set
+    // But if there's lookResult, closestRobotPosition will be updated with the closest one
+    closestRobotPosition = Vector2D::ZERO;
+
+    for (const Vector2D& pos : lookResult) {
+        // If haven't set yet, set it to current look result
+        // And skip to compare to the next look result
+        if (closestRobotPosition == Vector2D::ZERO) {
+            closestRobotPosition = pos;
+            continue;
         }
-    }
 
-    vector<Vector2D> lookResult = look(next_x, next_y);
-    for (const Vector2D &pos : lookResult) {
-        selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
         if(trackedBots.size()<3){
             // if still can track bots, randomise to decide to track or not
             bool trackOrNot = randomBool(0.5);
@@ -55,34 +45,40 @@ void TrackBot::thinkAndExecute(){
                 track(pos);
             }
         }
-        if(calcDistance(pos)<calcDistance(closestRobotCoordinates)){
-            closestRobotCoordinates = pos;
-        };
+
+        // Since the positions are relative, we can use its vector magnitude
+        if (closestRobotPosition.magnitude() > pos.magnitude())
+            closestRobotPosition = pos;
     }
-    if (closestRobotCoordinates.x != 0 && closestRobotCoordinates.y != 0){
-        if(calcDistance(closestRobotCoordinates) < maxFireDistance){
-            selfLog("Attemting to fire at: (" + to_string(closestRobotCoordinates.x)+ ", " + to_string(closestRobotCoordinates.y) + ")");
-            fire(closestRobotCoordinates.x, closestRobotCoordinates.y);
+
+    for(const GenericRobot* robot: trackedBots){
+        // get the relative coordinates of the current iterated bot
+        Vector2D relativePos = this->getPosition() - robot->getPosition();
+        // if closest robot is further than current robot, then update closest robot
+        if(closestRobotPosition.magnitude()>relativePos.magnitude()){
+            closestRobotPosition = relativePos;
         }
     }
 
-    bool validMovement = false;
+    ostringstream oss;
+    oss << "Closest robot: " << closestRobotPosition;
+    selfLog(oss.str());
 
-    // Keep generating next movement
-    // until a valid one is found
-    while (!validMovement) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
+    int maxFireDistance = getMaxFiringDistance();
+    int bulletsPerShot = getBulletsPerShot();
 
-        validMovement = environment->isPositionAvailable(
-            this->position + Vector2D(next_x, next_y)
-        );
+    int distance = calcDistance(closestRobotPosition);
+    if (distance <= maxFireDistance && closestRobotPosition != Vector2D::ZERO) {
+        for (int i = 0; i < bulletsPerShot; i++)
+            fire(closestRobotPosition.x, closestRobotPosition.y);
     }
-    // if closestRobotCoordinates is further or equal to next_x, then move towards closest robot anyways, else just randomly move 
-    Vector2D robotPosition = this->getPosition();
-    if (robotPosition.distance(closestRobotCoordinates) >= Vector2D(next_x, next_y).distance(Vector2D(0, 0))) {
-        next_x = closestRobotCoordinates.x;
-        next_y = closestRobotCoordinates.y;
+
+    Vector2D nextMove;
+    if (closestRobotPosition == Vector2D::ZERO)
+        nextMove = randomizeMove();
+    else {
+        nextMove = closestRobotPosition.normalized() * movementRange;
     }
-    move(next_x, next_y);
+
+    move(nextMove.x, nextMove.y);
 }
