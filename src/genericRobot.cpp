@@ -9,6 +9,7 @@
 #include "genericRobot.h"
 #include "logger.h"
 #include "stage1Upgrades/upgrades.h"
+#include "utils/types.h"
 #include "vector2d.h"
 #include "environment.h"
 
@@ -18,20 +19,19 @@ using namespace std;
 GenericRobot::GenericRobot(
     RobotParameter robotParam,
     Environment* env,
-    uint_fast64_t rngSeed,
     Logger* logger
 ) {
     this->position = robotParam.position;
     this->name = robotParam.name;
     this->symbol = robotParam.symbol;
 
-    this->environment = env;
-    this->logger = logger;
-
     // A seed initialize the random number generator (RNG)
     // The advantage is that if we gave it the same seed
     // it will always generate the same sequence of random numbers
-    this->rng = mt19937_64(rngSeed);
+    this->rng = Rng(robotParam.seed);
+
+    this->environment = env;
+    this->logger = logger;
 }
 
 void GenericRobot::die() {
@@ -53,26 +53,9 @@ void GenericRobot::thinkAndExecute() {
     int maxFireDistance = getMaxFiringDistance();
     int bulletsPerShot = getBulletsPerShot();
 
-    // Generate x and y between -1, 0, or 1
-    // Note that we only generate integers here
-    uniform_int_distribution<int> next_x_generator(this->movementRange[0], this->movementRange[1]);
-    uniform_int_distribution<int> next_y_generator(this->movementRange[0],this->movementRange[1]);
+    Vector2D nextLookCenter = randomizeLookCenter();
 
-    // Will be used for look() and move()
-    int next_x = 0;
-    int next_y = 0;
-
-    bool validLookCenter = false;
-    while (!validLookCenter) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
-
-        // Center of vision must be within bounds
-        // simply for efficiency
-        validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
-    }
-
-    vector<Vector2D> lookResult = look(next_x, next_y);
+    vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
 
     for (const Vector2D &pos : lookResult) {
         selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
@@ -86,20 +69,8 @@ void GenericRobot::thinkAndExecute() {
         }
     }
 
-    bool validMovement = false;
-
-    // Keep generating next movement
-    // until a valid one is found
-    while (!validMovement) {
-        next_x = next_x_generator(rng);
-        next_y = next_y_generator(rng);
-
-        validMovement = environment->isPositionAvailable(
-            this->position + Vector2D(next_x, next_y)
-        );
-    }
-
-    move(next_x, next_y);
+    Vector2D nextMove = randomizeMove();
+    move(nextMove.x, nextMove.y);
 }
 
 vector<Vector2D> GenericRobot::look(int x, int y) {
@@ -166,6 +137,52 @@ void GenericRobot::fire(int x, int y) {
         selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
     }
     shellCount--;
+}
+
+Vector2D GenericRobot::randomizeLookCenter() {
+    // Generate x and y between -1 and 1
+    // Note that we only generate integers here
+    uniform_int_distribution<int> next_x_generator(-1, 1);
+    uniform_int_distribution<int> next_y_generator(-1, 1);
+
+    int next_x = 0;
+    int next_y = 0;
+
+    bool validLookCenter = false;
+    while (!validLookCenter) {
+        next_x = next_x_generator(rng);
+        next_y = next_y_generator(rng);
+
+        // Center of vision must be within bounds
+        // simply for efficiency
+        validLookCenter = environment->isWithinBounds(Vector2D(next_x, next_y));
+    }
+
+    return Vector2D(next_x, next_y);
+}
+
+Vector2D GenericRobot::randomizeMove() {
+    // Generate x and y between the movement range
+    // Note that we only generate integers here
+    uniform_int_distribution<int> next_x_generator(this->movementRange[0], this->movementRange[1]);
+    uniform_int_distribution<int> next_y_generator(this->movementRange[0],this->movementRange[1]);
+
+    bool validMovement = false;
+    int next_x;
+    int next_y;
+
+    // Keep generating next movement
+    // until a valid one is found
+    while (!validMovement) {
+        next_x = next_x_generator(rng);
+        next_y = next_y_generator(rng);
+
+        validMovement = environment->isPositionAvailable(
+            this->position + Vector2D(next_x, next_y)
+        );
+    }
+
+    return Vector2D(next_x, next_y);
 }
 
 int GenericRobot::getBulletsPerShot() const {

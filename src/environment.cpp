@@ -2,12 +2,11 @@
 #include "genericRobot.h"
 #include "stage1Upgrades/bombBot.h"
 #include "stage1Upgrades/upgrades.h"
-#include "upgradeBots.h"
 #include "vector2d.h"
 
 #include <memory>
-#include <random>
 #include <sstream>
+#include "upgradeBots.h"
 
 // Needed for sleep function
 #include <chrono>
@@ -33,11 +32,6 @@ Environment::Environment(
     // Initialize grid for marks ('.' means empty)
     grid.resize(dimension.x, vector<char>(dimension.y, '.'));
 
-    // Temporary RNG to seed the robots RNG
-    // We are using another RNG instead of just passing the same seed
-    // so that all the robots won't do the same thing at the same time
-    mt19937_64 rng(69420);
-
     this->logger = logger;
 
     // By default, C++ store objects on the stack memory
@@ -54,7 +48,7 @@ Environment::Environment(
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
     for (const RobotParameter &param : robotParams) {
-        GenericRobot* robot = new GenericRobot(param, this, rng(), logger);
+        GenericRobot* robot = new GenericRobot(param, this, logger);
 
         this->robotList.push_back(unique_ptr<GenericRobot>(robot));
     }

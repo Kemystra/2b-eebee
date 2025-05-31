@@ -1,9 +1,8 @@
 #include <iostream>
-#include <fstream>
 #include <sstream>
 
-#include "abstractRobot/robot.h"
 #include "environment.h"
+#include "genericRobot.h"
 
 #include "logger.h"
 #include "ParameterFileReader.h"
@@ -29,13 +28,7 @@ int main (int argc, char *argv[]) {
     Logger logger;
 
     // Convert RobotInfo to RobotParameter
-    vector<RobotParameter> robotParams;
-    for (const auto& info : paramReader.getRobots()) {
-        Vector2D pos(info.x, info.y);
-        // Use first char of name as symbol, fallback to 'R' if name empty
-        char symbol = !info.name.empty() ? info.name[0] : 'R';
-        robotParams.push_back({info.name, pos, symbol});
-    }
+    vector<RobotParameter> robotParams = paramReader.getRobots();
 
     Environment env(maxStep, dimension, robotParams, &logger);
     env.printwelcomemessage();
@@ -48,7 +41,7 @@ int main (int argc, char *argv[]) {
         oss << "  Type: " << info.type
             << ", Name: " << info.name
             << ", Position (x, y): ";
-        oss << "(" << info.x << ", " << info.y << ")";
+        oss << "(" << info.position.x << ", " << info.position.y << ")";
         logger.log(oss.str());
     }
     logger.log("");

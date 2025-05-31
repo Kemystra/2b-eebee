@@ -8,6 +8,7 @@
 #include "abstractRobot/seeingRobot.h"
 #include "abstractRobot/shootingRobot.h"
 
+#include "utils/types.h"
 #include "vector2d.h"
 #include "logger.h"
 #include "stage1Upgrades/upgrades.h"
@@ -23,7 +24,9 @@
 class Environment;
 
 struct RobotParameter {
+    string type;
     string name;
+    RngSeed seed;
     Vector2D position;
     char symbol;
 };
@@ -46,7 +49,6 @@ public:
     GenericRobot(
         RobotParameter robotParam,
         Environment* env,
-        uint_fast64_t rngSeed,
         Logger* logger
     );
 
@@ -85,9 +87,8 @@ protected:
     Environment* environment;
     Logger* logger;
 
-    // The pseudorandom number generator, Mersenne Twister 19937 generator (64 bit)
-    // I chose a random one lol
-    mt19937_64 rng;
+    Rng rng;
+
     vector<UpgradeTrack> possibleUpgradeTrack= {
         UpgradeTrack("Moving", {HideBot, JumpBot}),
         UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, LandmineBot, BombBot, LaserBot}),
@@ -100,6 +101,9 @@ protected:
 
     // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
     bool randomBool(double probability);
+
+    Vector2D randomizeLookCenter();
+    Vector2D randomizeMove();
 
     // SeeingRobot
     vector<Vector2D> look(int x, int y) override;
