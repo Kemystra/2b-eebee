@@ -145,27 +145,39 @@ void Environment::printMap() const
 {
     // Build the map as a string and log it
     stringstream ss;
-    ss << BLUE_COLOR; // Set blue color
-    ss << "X ";
+    logger->setBufferColor(BLUE_COLOR);
+    logger->bufferedLog("X ");
     for (int x = 0; x < dimension.x; ++x)
     {
-        ss << "X ";
+        logger->bufferedLog("X ");
     }
-    ss << "X" << RESET_COLOR << "\n"; // Reset color
+    logger->bufferedLog("X");
+    logger->resetBufferColor();
+    logger->bufferedLog("\n");
 
     for (int y = 0; y < dimension.y; ++y)
-    {
-        ss << BLUE_COLOR << "X" << RESET_COLOR << " "; // Left border in blue with space
+    {// Left border in blue with space
+        logger->setBufferColor(BLUE_COLOR);
+        logger->bufferedLog("X");
+        logger->resetBufferColor();
+        logger->bufferedLog(" ");
+
         for (int x = 0; x < dimension.x; ++x)
         {
             // Priority: fire mark > line mark > robot > empty
             if (grid[x][y] == '!')
             { 
-                ss << RED_COLOR << '!' << RESET_COLOR << ' ' ; // Red fire mark
+                logger->setBufferColor(RED_COLOR);
+                logger->bufferedLog("!");
+                logger->resetBufferColor();
+                logger->bufferedLog(" ");
             }
             else if (grid[x][y] == '*')
             {
-                ss << ORANGE_COLOR <<'*' << RESET_COLOR << ' '; // Yellow line mark
+                logger->setBufferColor(ORANGE_COLOR);
+                logger->bufferedLog("*");
+                logger->resetBufferColor();
+                logger->bufferedLog(" ");
             }
             else
             {
@@ -177,26 +189,37 @@ void Environment::printMap() const
                         continue;
                     if (robot->getPosition() == pos)
                     {
-                        ss << robot->getSymbol() << " ";
+                        logger->bufferedLog(string(1,robot->getSymbol()));
+                        logger->bufferedLog(" ");
                         found = true;
                         break;
                     }
                 }
                 if (!found)
-                    ss << ". ";
+                    logger->bufferedLog(". ");
             }
         }
-        ss << BLUE_COLOR << "X" << RESET_COLOR << "\n"; // Right border in blue
+        // Right border in blue
+        logger->setBufferColor(BLUE_COLOR);
+        logger->bufferedLog("X");
+        logger->resetBufferColor();
+        logger->bufferedLog("\n");
     }
-    // Print bottom border
-    ss << BLUE_COLOR;
-    ss << "X ";
+    // Print bottom borde
+    logger->setBufferColor(BLUE_COLOR);
+    logger->bufferedLog("X ");
     for (int x = 0; x < dimension.x; ++x)
     {
-        ss << "X ";
+        logger->bufferedLog("X ");
     }
-    ss << "X" << RESET_COLOR << "\n";
-    logger->log(ss.str());
+    logger->bufferedLog("X");
+    logger->resetBufferColor();
+    logger->bufferedLog("\n");
+    
+    logger->setBufferColor(BLUE_COLOR);
+    logger->bufferedLog(ss.str());
+    logger->resetBufferColor();
+    logger->flushBufferedLog();
 }
 
 // Place a fire mark at (x, y)

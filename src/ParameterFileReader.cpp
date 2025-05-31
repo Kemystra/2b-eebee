@@ -3,6 +3,7 @@
 #include "utils/types.h"
 #include "vector2d.h"
 #include <fstream>
+#include <ctime>
 #include <random>
 #include <sstream>
 #include <algorithm>
@@ -133,7 +134,7 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
 }
 
 int ParameterFileReader::parseInt(istringstream& stream, const string& errorMsg) {
-    uint result;
+    unsigned int result;
     if (!(stream >> result)) {
         throw runtime_error(errorMsg);
     }
