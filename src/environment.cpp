@@ -1,7 +1,8 @@
 #include "environment.h"
 #include "genericRobot.h"
+#include "stage1Upgrades/bombBot.h"
 #include "stage1Upgrades/upgrades.h"
-#include "stage1Upgrades/scoutBot.h"
+#include "upgradeBots.h"
 #include "vector2d.h"
 
 #include <memory>
@@ -338,42 +339,41 @@ void Environment::applyRobotUpgrades() {
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
 
-            if (upgrade == ScoutBot) {
-                logger->log("ScoutBot upgrade detected, creating ScoutBot instance");
+            switch (upgrade)
+            {
+            case ScoutBot:
                 newRobot = new class ScoutBot(robotPtr);
-            }
-            else if (upgrade == HideBot) {
-                logger->log("HideBot upgrade detected, creating HideBot instance");
+                break;
+            case HideBot:
                 newRobot = new class HideBot(robotPtr);
-            }
-            else if (upgrade == JumpBot) {
-                logger->log("JumpBot upgrade detected, creating JumpBot instance");
+                break;
+            case JumpBot:
                 newRobot = new class JumpBot(robotPtr);
-            }
-            else if (upgrade == LongShotBot) {
-                logger->log("LongShotBot upgrade detected, creating LongShotBot instance");
+                break;
+            case LongShotBot:
                 newRobot = new class LongShotBot(robotPtr);
-            }
-            else if (upgrade == SemiAutoBot) {
-                logger->log("SemiAutoBot upgrade detected, creating SemiAutoBot instance");
+                break;
+            case SemiAutoBot:
                 newRobot = new class SemiAutoBot(robotPtr);
-            }
-            else if (upgrade == ThirtyShotBot) {
-                logger->log("ThirtyShotBot upgrade detected, creating ThirtyShotBot instance");
+                break;
+            case ThirtyShotBot:
                 newRobot = new class ThirtyShotBot(robotPtr);
-            }
-            else if (upgrade == LandmineBot) {
-                logger->log("LandmineBot upgrade detected, creating LandmineBot instance");
+                break;
+            case LandmineBot:
                 newRobot = new class LandmineBot(robotPtr);
-            }
-            else if (upgrade == BombBot) {
-                logger->log("BombBot upgrade detected, creating BombBot instance");
+                break;
+            case BombBot:
                 newRobot = new class BombBot(robotPtr);
-            }
-            else if (upgrade == TrackBot) {
-                logger->log("TrackBot upgrade detected, creating TrackBot instance");
+                break;
+            case LaserBot:
+                // Replace with LaserBot later
+                newRobot = new class BombBot(robotPtr);
+                break;
+            case TrackBot:
                 newRobot = new class TrackBot(robotPtr);
             }
+
+            logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + robotPtr->getName());
 
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
@@ -499,7 +499,7 @@ void Environment::printwelcomemessage() const
     ss << "##                                                                                                        ##\n";
     ss << ".++######################################################################################################++.\n";
     logger->log(ss.str());
-};}
+}
 // void Environment::printwelcomemessage() const {
 //     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";
 //     cout << "       |\"  |/  \\|  \"|/\"     |\"  |    /\" _  \"\\ /    \" \\|\"  \\    /\"  |/\"     \"|    (\"     _   \")    \" \\      \n";
