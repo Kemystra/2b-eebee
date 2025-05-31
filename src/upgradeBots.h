@@ -1,13 +1,13 @@
 #ifndef UPGRADEBOTS_H
 #define UPGRADEBOTS_H
 
-#include "upgrades/scoutBot.h"
-#include "upgrades/hideBot.h"
-#include "upgrades/longShotBot.h"
-#include "upgrades/semiAutoBot.h"
-#include "upgrades/thirtyShotBot.h"
-#include "upgrades/landmineBot.h"
-#include "upgrades/bombBot.h"
-#include "upgrades/jumpBot.h"
-#include "upgrades/trackBot.h"
+#include "stage1Upgrades/scoutBot.h"
+#include "stage1Upgrades/hideBot.h"
+#include "stage1Upgrades/longShotBot.h"
+#include "stage1Upgrades/semiAutoBot.h"
+#include "stage1Upgrades/thirtyShotBot.h"
+#include "stage1Upgrades/landmineBot.h"
+#include "stage1Upgrades/bombBot.h"
+#include "stage1Upgrades/jumpBot.h"
+#include "stage1Upgrades/trackBot.h"
 #endif  // UPGRADEBOTS_H

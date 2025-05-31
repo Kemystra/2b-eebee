@@ -8,7 +8,7 @@
 
 #include "genericRobot.h"
 #include "logger.h"
-#include "upgrades/upgrades.h"
+#include "stage1Upgrades/upgrades.h"
 #include "vector2d.h"
 #include "environment.h"
 
