@@ -1,5 +1,6 @@
 #include "scoutBot.h"
 #include "../environment.h"
+#include <sstream>
 
 vector<Vector2D> ScoutBot::scout(){
     vector<Vector2D> scoutedBots;
