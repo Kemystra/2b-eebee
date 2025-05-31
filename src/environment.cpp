@@ -4,6 +4,9 @@
 #include "upgrades/upgrades.h"
 #include "upgrades/scoutBot.h"
 #include "vector2d.h"
+#include "upgrades/laserBot.h"  // 包含 LaserBot 类定义
+#include "upgrades/scoutBot.h"  // 包含 ScoutBot 类定义
+
 
 #include <memory>
 #include <random>
@@ -352,34 +355,60 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot *robot)
 // Upgrading the robot involves destroying the original object and replacing them with a new one
 // If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
 // So we will only actually upgrade them at the start of each round
-void Environment::applyRobotUpgrades()
-{
-    for (const RobotPtrIterator &robotIterator : robotsToUpgrade)
-    {
-        // Get the raw robot pointer
-        // For some reason you can't access it like normal pointer
-        // even though at other places can
-        GenericRobot *robotPtr = robotIterator->get();
-        logger->log("Upgrading " + robotPtr->getName());
+// void Environment::applyRobotUpgrades()
+// {
+//     for (const RobotPtrIterator &robotIterator : robotsToUpgrade)
+//     {
+//         // Get the raw robot pointer
+//         // For some reason you can't access it like normal pointer
+//         // even though at other places can
+//         GenericRobot *robotPtr = robotIterator->get();
+//         logger->log("Upgrading " + robotPtr->getName());
 
-        // Get the pending upgrade
+//         // Get the pending upgrade
+//         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
+
+//         for (const Upgrade &upgrade : pendingUpgrades)
+//         {
+//             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
+//             // Will apply upgrades later
+
+//             GenericRobot* newRobot = new class ScoutBot(robotPtr);
+
+
+//             // Destroy the old GenericRobot, and switch to the new robot
+//             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
+//             robotIterator->reset(newRobot);
+
+//             // Each upgrade will destroy the old robot and update it with a new pointer
+//             // If we keep using the old pointer it will cause havoc
+//             // Update it to use the new one after each upgrade
+//             robotPtr = newRobot;
+//         }
+//     }
+// }
+
+void Environment::applyRobotUpgrades() {
+    for (const RobotPtrIterator &robotIterator : robotsToUpgrade) {
+        GenericRobot *robotPtr = robotIterator->get();
+        logger->log("upgrades " + robotPtr->getName());
+
         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
 
-        for (const Upgrade &upgrade : pendingUpgrades)
-        {
-            logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
-            // Will apply upgrades later
+        for (const Upgrade &upgrade : pendingUpgrades) {
+            logger->log("upgrade: " + stringifyUpgrade(upgrade));
+            
+            GenericRobot* newRobot;
+            
+            if (upgrade == Upgrade::LaserBot) {
+                newRobot = new LaserBot(*robotPtr);
+            } else if (upgrade == Upgrade::ScoutBot) {  
+                newRobot = new ScoutBot(*robotPtr);
+            } else {
+                newRobot = new GenericRobot(*robotPtr);
+            }
 
-            GenericRobot* newRobot = new class ScoutBot(robotPtr);
-
-
-            // Destroy the old GenericRobot, and switch to the new robot
-            // Using iterator allow us to edit in-place, so we don't have to push it into robotList
             robotIterator->reset(newRobot);
-
-            // Each upgrade will destroy the old robot and update it with a new pointer
-            // If we keep using the old pointer it will cause havoc
-            // Update it to use the new one after each upgrade
             robotPtr = newRobot;
         }
     }
@@ -444,7 +473,7 @@ void Environment::printwelcomemessage() const
     ss << "##                                                                                                        ##\n";
     ss << "##                                                                                                        ##\n";
     ss << ".++######################################################################################################++.\n";
-    logger->log(ss.str());
+    logger->log(ss.str());}
 
 // void Environment::printwelcomemessage() const {
 //     cout << "        __   __  ___  _______ ___      ______   ______  ___      ___  _______      ___________ ______       \n";

@@ -46,3 +46,4 @@ string stringifyUpgrade(Upgrade upgrade) {
 			return "TrackBot";
     }
 }
+
