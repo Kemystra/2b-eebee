@@ -32,3 +32,9 @@ void Logger::error(const string& message){
     outputToFile(errorMessage,"log.txt");
 }
 
+void Logger::setColor(const char* color) {
+    cout << color;
+}
+void Logger::resetColor() {
+    cout << "\033[0m"; // Reset color to default
+}

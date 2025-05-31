@@ -196,7 +196,9 @@ void Environment::printMap() const
         ss << "X ";
     }
     ss << "X" << RESET_COLOR << "\n";
+    logger->setColor(BLUE_COLOR);
     logger->log(ss.str());
+    logger->resetColor();
 }
 
 // Place a fire mark at (x, y)

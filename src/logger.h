@@ -16,7 +16,8 @@ class Logger{
         void outputToConsole(const string& message) ;
         void outputToFile(const string& message, const string& filename);
         void error(const string& message);
-
+        void setColor(const char* color);
+        void resetColor();
 };
 
 
