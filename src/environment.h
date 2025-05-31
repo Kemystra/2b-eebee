@@ -93,6 +93,9 @@ public:
     void applyRobotRespawn();
     void applyRobotDie();
 
+    Vector2D getGridSize() const {return dimension; }
+
+    vector<GenericRobot*> getAllRobots() const;
     const vector<GenericRobot*> getAllAvailableRobots() const;
 };
 

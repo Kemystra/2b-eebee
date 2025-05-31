@@ -58,9 +58,7 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "*.embeddedhtml": "html",
-    "thread": "cpp"
-  },
-  "files.associations": {
+    "thread": "cpp",
     "array": "cpp",
     "atomic": "cpp",
     "bit": "cpp",
@@ -115,8 +113,8 @@
     "stdexcept": "cpp",
     "stop_token": "cpp",
     "streambuf": "cpp",
-    "thread": "cpp",
     "typeinfo": "cpp",
     "variant": "cpp"
-  }
+  },
+  "C_Cpp.errorSquiggles": "enabled"
 }
