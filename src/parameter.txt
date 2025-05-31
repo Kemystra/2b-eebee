@@ -1,6 +1,7 @@
 M by N : 20 20
 steps: 300
 robots: 5
+seed: 69420
 GenericRobot Didd 3 6
 GenericRobot Jet 12 1
 GenericRobot Alpha 8 9
