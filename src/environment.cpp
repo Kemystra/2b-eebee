@@ -348,6 +348,9 @@ RobotPtrIterator Environment::getRobotIterator(GenericRobot* robot) {
 // If the robot is destroyed while thinkAndExecute() is running, it lead to segfault
 // So we will only actually upgrade them at the start of each round
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b6a7bbda98db64a315943cf78c6addb117d05092
 // void Environment::applyRobotUpgrades()
 // {
 //     for (const RobotPtrIterator &robotIterator : robotsToUpgrade)
@@ -385,6 +388,7 @@ void Environment::applyRobotUpgrades() {
     for (const RobotPtrIterator &robotIterator : robotsToUpgrade) {
         GenericRobot *robotPtr = robotIterator->get();
         logger->log("upgrades " + robotPtr->getName());
+<<<<<<< HEAD
 =======
 void Environment::applyRobotUpgrades() {
     for (const RobotPtrIterator& robotIterator : robotsToUpgrade) {
@@ -394,6 +398,8 @@ void Environment::applyRobotUpgrades() {
         GenericRobot* robotPtr = robotIterator->get();
         logger->log("Upgrading " + robotPtr->getName());
 >>>>>>> df60028676fe46b8199637aeddbbe593e35a8372
+=======
+>>>>>>> b6a7bbda98db64a315943cf78c6addb117d05092
 
         vector<Upgrade> pendingUpgrades = robotPtr->getPendingUpgrades();
 <<<<<<< HEAD
@@ -410,6 +416,7 @@ void Environment::applyRobotUpgrades() {
             } else {
                 newRobot = new GenericRobot(*robotPtr);
             }
+<<<<<<< HEAD
 
             robotIterator->reset(newRobot);
 =======
@@ -463,6 +470,10 @@ void Environment::applyRobotUpgrades() {
             // Update it to use the new one after each upgrade
             newRobot->insertNewUpgrade(upgrade);
 >>>>>>> df60028676fe46b8199637aeddbbe593e35a8372
+=======
+
+            robotIterator->reset(newRobot);
+>>>>>>> b6a7bbda98db64a315943cf78c6addb117d05092
             robotPtr = newRobot;
         }
 
@@ -579,6 +590,9 @@ void Environment::printwelcomemessage() const
     ss << "##                                                                                                        ##\n";
     ss << ".++######################################################################################################++.\n";
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b6a7bbda98db64a315943cf78c6addb117d05092
     logger->log(ss.str());}
 
 =======
