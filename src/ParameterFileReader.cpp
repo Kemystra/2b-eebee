@@ -97,6 +97,7 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
         case LineType::ROBOT_INFO: {
             istringstream iss(trimmedLine);
             RawRobotInfo robot;
+            robot.isRandomPosition = false;
             if (!(iss >> robot.type >> robot.name)) {
                 throw runtime_error("Missing robot type or name");
             }
@@ -163,23 +164,26 @@ void ParameterFileReader::finalizeParameters(bool requireAllParams) { // Validat
         throw ParseError("Robot count does not match declared number");
     }
 
+    Rng rng(seed);
+    // Generate x within 0 or m
+    // Generate y within 0 or n
+    auto x_gen = uniform_int_distribution<int>(0,m);
+    auto y_gen = uniform_int_distribution<int>(0,n);
+
     // Process raw robot info into robot parameters
     for (const RawRobotInfo& rawInfo : rawRobotInfo) {
         RobotParameter finalInfo;
-        Rng rng(seed);
 
         finalInfo.name = rawInfo.name;
         finalInfo.type = rawInfo.type;
         finalInfo.seed = rng();
 
         if (rawInfo.isRandomPosition) {
-            // Generate x within 0 or m
-            // Generate y within 0 or n
-            auto x_gen = uniform_int_distribution<int>(0,m);
-            auto y_gen = uniform_int_distribution<int>(0,n);
-
             Vector2D randomizedPos = Vector2D(x_gen(rng), y_gen(rng));
             finalInfo.position = randomizedPos;
+        }
+        else {
+            finalInfo.position = Vector2D(rawInfo.x, rawInfo.y);
         }
 
         // Use first char of name as symbol, fallback to 'R' if name empty
