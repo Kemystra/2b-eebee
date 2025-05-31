@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -60,27 +61,27 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
             if (colonPos == string::npos) {
                 throw runtime_error("Expected ':' after 'M by N'");
             }
-            string numbers = trimmedLine.substr(colonPos + 1);
-            istringstream iss(numbers);
-            if (!(iss >> m >> n)) {
-                throw runtime_error("Expected two integers after 'M by N:'");
-            }
+            istringstream numbers = istringstream(trimmedLine.substr(colonPos + 1));
+            m = parseInt(numbers, "Exptected an integer for 'm'");
+            n = parseInt(numbers, "Exptected an integer for 'n'");
             break;
         }
 
         case LineType::STEPS: {
             istringstream iss(trimmedLine.substr(6)); // Skip "steps:"
-            if (!(iss >> steps)) {
-                throw runtime_error("Expected an integer after 'steps:'");
-            }
+            steps = parseInt(iss, "Expected an integer after 'steps:'");
+            break;
+        }
+
+        case LineType::SEED: {
+            istringstream iss(trimmedLine.substr(5)); // Skip "seed:"
+            seed = parseInt(iss, "Expected an integer after 'seed:'");
             break;
         }
 
         case LineType::ROBOTS: {
             istringstream iss(trimmedLine.substr(7)); // Skip "robots:"
-            if (!(iss >> robotCount)) {
-                throw runtime_error("Expected an integer after 'robots:'");
-            }
+            robotCount = parseInt(iss, "Expected an integer after 'robots:'");
             break;
         }
 
@@ -121,7 +122,14 @@ void ParameterFileReader::parseLine(const string& line){ // Parse a single line 
     }
 }
 
+int ParameterFileReader::parseInt(istringstream& stream, const string& errorMsg) {
+    uint result;
+    if (!(stream >> result)) {
+        throw runtime_error(errorMsg);
+    }
 
+    return result;
+}
 
 void ParameterFileReader::validateParameters(bool requireAllParams) { // Validate the parameters read from the file
     // Stop if validation is not needed

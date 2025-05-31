@@ -51,11 +51,13 @@ class ParameterFileReader{ // Class to read and parse a parameter file for a rob
     vector<RobotInfo> robots;
     
     void parseLine(const string&line);
+    int parseInt(istringstream& stream, const string& errorMsg);
+    int parseIntOrRandom(istringstream& stream, const string& errorMsg);
+
     void validateParameters(bool requuireAllParams);
     static string trim(const string&str);
     static string toLower(const string&str);
     static bool isRandomPos(const string&s);
-
 };
 
 #endif
