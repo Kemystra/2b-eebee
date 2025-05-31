@@ -56,6 +56,11 @@ void GenericRobot::thinkAndExecute() {
     Vector2D nextLookCenter = randomizeLookCenter();
     vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
 
+    // Reset the closestRobotPosition after look()
+    // If no lookResult(), then it won't be set
+    // But if there's lookResult, closestRobotPosition will be updated with the closest one
+    closestRobotPosition = Vector2D::ZERO;
+
     for (const Vector2D& pos : lookResult) {
         // If haven't set yet, set it to current look result
         // And skip to compare to the next look result
@@ -74,12 +79,18 @@ void GenericRobot::thinkAndExecute() {
     selfLog(oss.str());
 
     int distance = calcDistance(closestRobotPosition);
-    if (distance <= maxFireDistance)
-        for (int i = 0; i < bulletsPerShot; i++) {
+    if (distance <= maxFireDistance && closestRobotPosition != Vector2D::ZERO) {
+        for (int i = 0; i < bulletsPerShot; i++)
             fire(closestRobotPosition.x, closestRobotPosition.y);
-        }
+    }
 
-    Vector2D nextMove = randomizeMove();
+    Vector2D nextMove;
+    if (closestRobotPosition == Vector2D::ZERO)
+        nextMove = randomizeMove();
+    else {
+        nextMove = closestRobotPosition.normalized() * movementRange;
+    }
+
     move(nextMove.x, nextMove.y);
 }
 
@@ -174,8 +185,8 @@ Vector2D GenericRobot::randomizeLookCenter() {
 Vector2D GenericRobot::randomizeMove() {
     // Generate x and y between the movement range
     // Note that we only generate integers here
-    uniform_int_distribution<int> next_x_generator(this->movementRange[0], this->movementRange[1]);
-    uniform_int_distribution<int> next_y_generator(this->movementRange[0],this->movementRange[1]);
+    uniform_int_distribution<int> next_x_generator(-movementRange, movementRange);
+    uniform_int_distribution<int> next_y_generator(-movementRange, movementRange);
 
     bool validMovement = false;
     int next_x;
