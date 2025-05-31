@@ -64,24 +64,20 @@ void GenericRobot::thinkAndExecute() {
             continue;
         }
 
-        if (closestRobotPosition)
+        // Since the positions are relative, we can use its vector magnitude
+        if (closestRobotPosition.magnitude() > pos.magnitude())
+            closestRobotPosition = pos;
     }
 
-    for (const Vector2D &pos : lookResult) {
-        selfLog("Robot found at: ("+ to_string(pos.x)+ ", " + to_string(pos.y) + ")");
-        int distance = calcDistance(pos);
-        if (distance > maxFireDistance)
-            continue;
+    ostringstream oss;
+    oss << "Closest robot: " << closestRobotPosition;
+    selfLog(oss.str());
 
+    int distance = calcDistance(closestRobotPosition);
+    if (distance <= maxFireDistance)
         for (int i = 0; i < bulletsPerShot; i++) {
-            selfLog("Attemting to fire at: (" + to_string(pos.x)+ ", " + to_string(pos.y) + ")");
-            fire(pos.x, pos.y);
+            fire(closestRobotPosition.x, closestRobotPosition.y);
         }
-
-        // You can only shoot once per turn
-        // If you succeed shooting once, break out of the loop
-        break;
-    }
 
     Vector2D nextMove = randomizeMove();
     move(nextMove.x, nextMove.y);
