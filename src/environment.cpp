@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <sstream>
+#include "upgradeBots.h"
 
 // Needed for sleep function
 #include <chrono>
