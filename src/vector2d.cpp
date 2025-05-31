@@ -62,3 +62,10 @@ int Vector2D::magnitude() const {
         sqrt(pow(x, 2) + pow(y, 2))
     );
 }
+
+Vector2D Vector2D::normalized() const {
+    int m = this->magnitude();
+    return Vector2D(
+        x / m, y / m
+    );
+}

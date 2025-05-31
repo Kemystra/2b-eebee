@@ -24,6 +24,10 @@ public:
     // Magnitude of the vector
     int magnitude() const;
 
+    // Returns the unit vector version of a vector2d
+    // Which is essentially the 'direction' part of a vector
+    Vector2D normalized() const;
+
     // This function doesn't accept 'self' parameter, so it must not be a member function
     // Putting it as friend function isn't technically needed; operator== doesn't need private members anyway
     // it's simply just to imply that it is related to this class
