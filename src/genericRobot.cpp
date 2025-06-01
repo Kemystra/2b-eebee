@@ -158,6 +158,7 @@ void GenericRobot::fire(int x, int y) {
         targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
         environment->notifyKill(this, targetRobot);
+        killCount++;
     }
     else {
         selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));

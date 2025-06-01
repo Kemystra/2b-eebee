@@ -78,6 +78,14 @@ public:
     void setPosition(Vector2D pos);
     bool getIsVisible();
 
+    int getKillCount() const {
+        return killCount;
+    }
+
+    int getUpgradeCount() const {
+        return upgradeCount;
+    }
+
 protected:
     // These will have to be initialized
     string name;
@@ -133,6 +141,13 @@ protected:
     //
     // I love Goh
     virtual int calcDistance(Vector2D a) const;
+
+    private:
+    int killCount = 0;
+    int upgradeCount = 0;
+
 };
+
+
 
 #endif  // GENERIC_ROBOT_H

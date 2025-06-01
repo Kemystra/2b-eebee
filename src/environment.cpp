@@ -3,7 +3,7 @@
 #include "stage1Upgrades/bombBot.h"
 #include "stage1Upgrades/upgrades.h"
 #include "vector2d.h"
-
+#include <iomanip>
 #include <memory>
 #include <sstream>
 #include "upgradeBots.h"
@@ -33,7 +33,7 @@ Environment::Environment(
     grid.resize(dimension.x, vector<char>(dimension.y, '.'));
 
     this->logger = logger;
-
+    bool hasInvalidPosition = false;
     // By default, C++ store objects on the stack memory
     // Every time an object goes out-of-scope (here, on each loop iteration), it will be destroyed
     // Using raw pointers, all the robots that are created will be destroyed except the last one.
@@ -48,16 +48,25 @@ Environment::Environment(
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
     for (const RobotParameter &param : robotParams) {
-        GenericRobot* robot = new GenericRobot(param, this, logger);
-
-        this->robotList.push_back(unique_ptr<GenericRobot>(robot));
+        if (param.position.x <= 0 || param.position.x >= dimension.x ||
+            param.position.y <= 0 || param.position.y >= dimension.y) {
+            logger->log("Error: Robot " + param.name + " has an invalid position (" +
+                        to_string(param.position.x) + ", " + to_string(param.position.y) + ").");
+            hasInvalidPosition = true;
+        } else {
+            GenericRobot* robot = new GenericRobot(param, this, logger);
+            this->robotList.push_back(unique_ptr<GenericRobot>(robot));
+        }
+    }
+        if (hasInvalidPosition) {
+        exit(EXIT_FAILURE); 
     }
 }
 
 void Environment::gameLoop() {
     while (maxStep > step) {
         logger->log("Round " + to_string(step));
-        logger->log("Applying robot upgrades");
+
 
         applyRobotRespawn();
 
@@ -77,7 +86,7 @@ void Environment::gameLoop() {
 
         applyRobotUpgrades();
         applyRobotDie();
-
+        applyRobotRespawn();
         if (robotList.size() == 1) {
             logger->log("Only one bot remains: " + robotList[0]->getName());
             gameOver();
@@ -98,16 +107,20 @@ void Environment::gameOver()
     if (robotList.size() == 1)
     {
         logger->log("Winner: " + robotList[0]->getName());
+        logger->log("");
+        printMap();
     }
     else if (robotList.size() == 0)
     {
         logger->log("No winner.");
+        printMap();
     }
     else
     {
         logger->log("Multiple robots survived.");
+        printMap();
     }
-    logger->log("Game finished");
+    Printscoreboard();
 }
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
@@ -485,6 +498,67 @@ const vector<GenericRobot*> Environment::getAllAvailableRobots() const {
 
     return result;
 }
+
+const vector<GenericRobot*> Environment::getAllAvailableRobotsforscoreboard() const {
+    vector<GenericRobot*> result;
+
+    for (const unique_ptr<GenericRobot>& robotPtr : AllRobot) {
+        if (!robotPtr->isDead())
+            result.push_back(robotPtr.get());
+    }
+
+    return result;
+}
+
+
+
+void Environment::Printscoreboard() {
+    std::stringstream ss;
+    ss << "\n===== SCOREBOARD =====\n";
+
+    // Calculate the max width for the Upgrades column
+    size_t maxUpgradeLen = 8; // "Upgrades" length as minimum
+    auto AllRobot = getAllAvailableRobots();
+    vector<string> upgradesStrList;
+    for (const auto& robotPtr : AllRobot) {
+        string upgradesStr;
+        const auto& upgrades = robotPtr->getUpgrades();
+        for (size_t i = 0; i < upgrades.size(); ++i) {
+            upgradesStr += stringifyUpgrade(upgrades[i]);
+            if (i + 1 < upgrades.size()) upgradesStr += ", ";
+        }
+        if (upgradesStr.length() > maxUpgradeLen)
+            maxUpgradeLen = upgradesStr.length();
+        upgradesStrList.push_back(upgradesStr);
+    }
+
+    // Table formatting
+    ss << "------------------------------------------------------------------\n";
+    ss << "| Name           | Symbol | Kills | " << setw((int)maxUpgradeLen) << left << "Upgrades" << " |\n";
+    ss << "------------------------------------------------------------------\n";
+    for (size_t idx = 0; idx < AllRobot.size(); ++idx) {
+        const auto& robotPtr = AllRobot[idx];
+        const string& upgradesStr = upgradesStrList[idx];
+        ss << "| " << setw(14) << left << robotPtr->getName()
+           << " |   " << setw(3) << robotPtr->getSymbol()
+           << " | " << setw(5) << right << robotPtr->getKillCount()
+           << " | " << setw((int)maxUpgradeLen) << left << upgradesStr << " |\n";
+    }
+    ss << "-------------------------------------------------------------------\n";
+    logger->log(ss.str());
+}
+
+void Environment::printgameover() {
+    stringstream ss;
+    ss << '\n';
+    ss << ",---.                   ,---.                \n";
+    ss << "|  _.,---.,-.-.,---.    |   |.    ,,---.,---.\n";
+    ss << "|   |,---|| | ||---'    |   | \\  / |---'|     \n";
+    ss << "`---'`---^` ' '`---'    `---'  `'  `---'`    \n";
+    ss << '\n';
+    logger->log(ss.str());
+}
+
 
 
 void Environment::printwelcomemessage() const
