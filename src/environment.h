@@ -11,6 +11,7 @@
 #include "logger.h"
 #include "vector2d.h"
 #include "genericRobot.h"
+#include "stageUpgradeLogic.h"
 
 using namespace std;
 
