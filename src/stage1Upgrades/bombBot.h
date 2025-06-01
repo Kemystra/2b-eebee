@@ -2,13 +2,12 @@
 #define BOMBBOT_H
 
 #include "../genericRobot.h"
-
+#include "../environment.h"
 class BombBot:public GenericRobot{
-    private:
-        vector<int> areaOfEffect = {3,3};
     public:
         BombBot(GenericRobot* g) : GenericRobot(*g) {};
-        // void fire(int x, int y) override;
+        void bomb(int x, int y);
+        void thinkAndExecute() override;
 };
 
 #endif

@@ -74,6 +74,7 @@ public:
     void logUpgrades();
 
     void setPosition(Vector2D pos);
+    bool getIsVisible();
 
 protected:
     // These will have to be initialized
@@ -105,7 +106,6 @@ protected:
 
     // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
     bool randomBool(double probability);
-
     Vector2D randomizeLookCenter();
     Vector2D randomizeMove();
 
