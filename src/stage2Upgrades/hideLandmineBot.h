@@ -2,11 +2,8 @@
 #define HIDELANDMINEBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class HideLandmineBot: virtual public HideBot, virtual public LandmineBot{
+class HideLandmineBot: public HideBot, public LandmineBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
-        HideLandmineBot(GenericRobot* g) : HideBot(g), LandmineBot(g), GenericRobot(*g) {
-            selfLog("HideLandmineBot created");
-        };
+        void thinkAndExecute() override;
 };
 #endif

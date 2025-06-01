@@ -2,11 +2,8 @@
 #define HIDELASERBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class HideLaserBot: virtual public HideBot, virtual public LaserBot{
+class HideLaserBot: public HideBot, public LaserBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
-        HideLaserBot(GenericRobot* g) : HideBot(g), LaserBot(g), GenericRobot(*g) {
-            selfLog("HideLaserBot created");
-        };
+        void thinkAndExecute() override;
 };
 #endif

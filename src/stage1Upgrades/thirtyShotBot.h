@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 
-class ThirtyShotBot:virtual public GenericRobot{
+class ThirtyShotBot:public GenericRobot{
     public:
         ThirtyShotBot(GenericRobot* g) : GenericRobot(*g) {
             setShellCount();

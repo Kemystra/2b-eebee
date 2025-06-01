@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 
-class LongShotBot:virtual public GenericRobot{
+class LongShotBot:public GenericRobot{
     public:
         LongShotBot(GenericRobot* g) : GenericRobot(*g) {
             selfLog("LongShotBot created");

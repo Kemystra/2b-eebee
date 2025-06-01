@@ -2,11 +2,8 @@
 #define HIDETHIRTYSHOTBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class HideThirtyShotBot: virtual public HideBot, virtual public ThirtyShotBot{
+class HideThirtyShotBot: public HideBot, public ThirtyShotBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
-        HideThirtyShotBot(GenericRobot* g) : HideBot(g), ThirtyShotBot(g), GenericRobot(*g) {
-            selfLog("HideThirtyShotBot created");
-        };
+        void thinkAndExecute() override;
 };
 #endif

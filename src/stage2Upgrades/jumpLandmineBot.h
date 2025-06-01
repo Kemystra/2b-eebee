@@ -2,11 +2,8 @@
 #define JUMPLANDMINEBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class JumpLandmineBot: virtual public JumpBot, virtual public LandmineBot {
+class JumpLandmineBot: public JumpBot, public LandmineBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
-        JumpLandmineBot(GenericRobot* g) : JumpBot(g), LandmineBot(g), GenericRobot(*g) {
-            selfLog("JumpLandmineBot created with jump amount: " + to_string(jumpAmount));
-        };
+        void thinkAndExecute() override;
 };
 #endif

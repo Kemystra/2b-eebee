@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 
-class HideBot:virtual public GenericRobot{
+class HideBot:public GenericRobot{
     public:
         HideBot(GenericRobot* g) : GenericRobot(*g) {};
         void hide();
