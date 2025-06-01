@@ -429,7 +429,8 @@ void Environment::applyRobotRespawn() {
     unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
     logger->log("Respawning " + robotUniquePtr->getName());
 
-    robotUniquePtr->setPosition(Vector2D::ZERO);
+    Vector2D newPos = robotUniquePtr->getPosition();
+    robotUniquePtr->setPosition(newPos);
 
     GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
     robotUniquePtr.reset(resettedRobotPtr);
