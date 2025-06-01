@@ -77,9 +77,6 @@ public:
         return killCount;
     }
 
-    int getUpgradeCount() const {
-        return upgradeCount;
-    }
 
 protected:
     // These will have to be initialized
@@ -140,7 +137,6 @@ protected:
 
 private:
     int killCount = 0;
-    int upgradeCount = 0;
 };
 
 #endif  // GENERIC_ROBOT_H

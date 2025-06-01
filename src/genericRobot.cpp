@@ -90,21 +90,6 @@ void GenericRobot::thinkAndExecute() {
         nextMove = closestRobotPosition.normalized() * movementRange;
     }
 
-    // Check if the target position is occupied by another robot
-    Vector2D targetPosition = position + nextMove;
-    if (environment->isRobotHere(targetPosition)) {
-        selfLog("Target move position occupied by another robot. Staying in place.");
-        // Optionally, you could try to pick another random move here
-        nextMove = randomizeMove();
-        targetPosition = position + nextMove;
-        if (environment->isRobotHere(targetPosition)) {
-            selfLog("Random move also occupied. Staying in place.");
-            return;
-        }
-        
-        // nextMove = Vector2D(0, 0); // Stay in place
-    }
-
     move(nextMove.x, nextMove.y);
 }
 
