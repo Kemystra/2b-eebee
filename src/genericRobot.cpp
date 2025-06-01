@@ -357,6 +357,8 @@ UpgradeState GenericRobot::chosenForUpgrade() {
 
 void GenericRobot::notifyRespawn() {
     livingState = Alive;
+    Vector2D newPos = randomizeMove();
+    this->setPosition(newPos);
 }
 
 
