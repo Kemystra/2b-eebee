@@ -3,6 +3,7 @@
 #include "stage1Upgrades/bombBot.h"
 #include "stage1Upgrades/upgrades.h"
 #include "vector2d.h"
+#include "stageUpgradeLogic.h"
 
 #include <memory>
 #include <sstream>
@@ -363,39 +364,7 @@ void Environment::applyRobotUpgrades() {
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
 
-            switch (upgrade)
-            {
-            case ScoutBot:
-                newRobot = new class ScoutBot(robotPtr);
-                break;
-            case HideBot:
-                newRobot = new class HideBot(robotPtr);
-                break;
-            case JumpBot:
-                newRobot = new class JumpBot(robotPtr);
-                break;
-            case LongShotBot:
-                newRobot = new class LongShotBot(robotPtr);
-                break;
-            case SemiAutoBot:
-                newRobot = new class SemiAutoBot(robotPtr);
-                break;
-            case ThirtyShotBot:
-                newRobot = new class ThirtyShotBot(robotPtr);
-                break;
-            case LandmineBot:
-                newRobot = new class LandmineBot(robotPtr);
-                break;
-            case BombBot:
-                newRobot = new class BombBot(robotPtr);
-                break;
-            case LaserBot:
-                // Replace with LaserBot later
-                newRobot = new class BombBot(robotPtr);
-                break;
-            case TrackBot:
-                newRobot = new class TrackBot(robotPtr);
-            }
+            newRobot = chooseUpgradeStage(robotPtr, upgrade);
 
             logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + newRobot->getName());
 
@@ -407,7 +376,7 @@ void Environment::applyRobotUpgrades() {
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
             // Update it to use the new one after each upgrade
-            // newRobot->insertNewUpgrade(upgrade);
+            newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
         }
 
