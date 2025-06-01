@@ -26,7 +26,7 @@ private:
     // We cannot use raw pointer here
     // See the constructor implementation in environment.cpp
     vector<unique_ptr<GenericRobot>> robotList;
-
+    vector<unique_ptr<GenericRobot>> AllRobot;
     // First robot in, first robot out (on each turn)
     queue<unique_ptr<GenericRobot>> respawnQueue;
 
@@ -84,15 +84,17 @@ public:
     void printMap() const;
 
     void gameLoop();
+    void printgameover();
     void gameOver();
-
+    void Printscoreboard();
+    
     void notifyKill(GenericRobot* killer, GenericRobot* victim);
     RobotPtrIterator getRobotIterator(GenericRobot* robot);
 
     void applyRobotUpgrades();
     void applyRobotRespawn();
     void applyRobotDie();
-
+    const vector<GenericRobot*> getAllAvailableRobotsforscoreboard() const;
     const vector<GenericRobot*> getAllAvailableRobots() const;
 };
 

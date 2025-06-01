@@ -59,19 +59,13 @@ void GenericRobot::thinkAndExecute() {
     vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
 
     // Reset the closestRobotPosition after look()
-    // If no lookResult(), then it won't be set
-    // But if there's lookResult, closestRobotPosition will be updated with the closest one
     closestRobotPosition = Vector2D::ZERO;
 
     for (const Vector2D& pos : lookResult) {
-        // If haven't set yet, set it to current look result
-        // And skip to compare to the next look result
         if (closestRobotPosition == Vector2D::ZERO) {
             closestRobotPosition = pos;
             continue;
         }
-
-        // Since the positions are relative, we can use its vector magnitude
         if (closestRobotPosition.magnitude() > pos.magnitude())
             closestRobotPosition = pos;
     }
@@ -94,6 +88,21 @@ void GenericRobot::thinkAndExecute() {
         nextMove = randomizeMove();
     else {
         nextMove = closestRobotPosition.normalized() * movementRange;
+    }
+
+    // Check if the target position is occupied by another robot
+    Vector2D targetPosition = position + nextMove;
+    if (environment->isRobotHere(targetPosition)) {
+        selfLog("Target move position occupied by another robot. Staying in place.");
+        // Optionally, you could try to pick another random move here
+        nextMove = randomizeMove();
+        targetPosition = position + nextMove;
+        if (environment->isRobotHere(targetPosition)) {
+            selfLog("Random move also occupied. Staying in place.");
+            return;
+        }
+        
+        // nextMove = Vector2D(0, 0); // Stay in place
     }
 
     move(nextMove.x, nextMove.y);
@@ -158,6 +167,7 @@ void GenericRobot::fire(int x, int y) {
         targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
         environment->notifyKill(this, targetRobot);
+        killCount++;
     }
     else {
         selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
@@ -351,4 +361,6 @@ UpgradeState GenericRobot::chosenForUpgrade() {
 
 void GenericRobot::notifyRespawn() {
     livingState = Alive;
+    Vector2D newPos = randomizeMove();
+    this->setPosition(newPos);
 }
