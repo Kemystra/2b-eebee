@@ -13,8 +13,8 @@ string stringifyUpgrade(Upgrade upgrade) {
             return "SemiAutoBot";
         case ThirtyShotBot:
             return "ThirtyShotBot";
-        case LandmineBot:
-            return "LandmineBot";
+        case NukeBot:
+            return "NukeBot";
         case BombBot:
             return "BombBot";
         case LaserBot:

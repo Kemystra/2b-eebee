@@ -31,7 +31,7 @@ The advantage is that compilation will be much faster since it has the ability t
       <li>LongShotBot</li>
       <li>SemiAutoBot</li>
       <li>ThirtyShotBot</li>
-      <li>LandmineBot</li>
+      <li>NukeBot</li>
       <li>BombBot</li>
       <li>LaserBot</li>
     </ul>
@@ -60,8 +60,8 @@ The advantage is that compilation will be much faster since it has the ability t
     - [ ] SemiAutoTrackBot
     - [ ] ThirtyShotScoutBot
     - [ ] ThirtyShotTrackBot
-    - [ ] LandmineScoutBot
-    - [ ] LandmineTrackBot
+    - [ ] NukeScoutBot
+    - [ ] NukeTrackBot
     - [ ] BombScoutBot
     - [ ] BombTrackBot
     - [ ] LaserScoutBot
@@ -71,13 +71,13 @@ The advantage is that compilation will be much faster since it has the ability t
     - [ ] HideLongShotBot
     - [ ] HideSemiAutoBot
     - [ ] HideThirtyShotBot
-    - [ ] HideLandmineBot
+    - [ ] HideNukeBot
     - [ ] HideBombBot
     - [ ] HideLaserBot
     - [ ] JumpLongShotBot
     - [ ] JumpSemiAutoBot
     - [ ] JumpThirtyShotBot
-    - [ ] JumpLandmineBot
+    - [ ] JumpNukeBot
     - [ ] JumpBombBot
     - [ ] JumpLaserBot
 
@@ -91,8 +91,8 @@ Total: 28
 - [ ] HideSemiAutoTrackBot
 - [ ] HideThirtyShotScoutBot
 - [ ] HideThirtyShotTrackBot
-- [ ] HideLandmineScoutBot
-- [ ] HideLandmineTrackBot
+- [ ] HideNukeScoutBot
+- [ ] HideNukeTrackBot
 - [ ] HideBombScoutBot
 - [ ] HideBombTrackBot
 - [ ] HideLaserScoutBot
@@ -103,8 +103,8 @@ Total: 28
 - [ ] JumpSemiAutoTrackBot
 - [ ] JumpThirtyShotScoutBot
 - [ ] JumpThirtyShotTrackBot
-- [ ] JumpLandmineScoutBot
-- [ ] JumpLandmineTrackBot
+- [ ] JumpNukeScoutBot
+- [ ] JumpNukeTrackBot
 - [ ] JumpBombScoutBot
 - [ ] JumpBombTrackBot
 - [ ] JumpLaserScoutBot
