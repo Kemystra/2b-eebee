@@ -114,6 +114,10 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
     return getRobotAtPosition(positionToCheck) != nullptr;
 }
 
+Vector2D Environment::getGridSize() const {
+    return dimension;
+}
+
 GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) const {
     for (const unique_ptr<GenericRobot> &robot : this->robotList) {
         // Skip dead robots
