@@ -2,7 +2,7 @@
 #define STAGEUPGRADELOGIC_H
 
 #include "genericRobot.h"
-#include "stage1Upgrades\stage1Upgrades.h"
+#include "stage1Upgrades/stage1Upgrades.h"
 #include "stage1Upgrades/upgrades.h"
 #include "stage2Upgrades/stage2Upgrades.h"
 #include "stage3Upgrades/stage3Upgrades.h"
