@@ -371,7 +371,7 @@ void Environment::applyRobotUpgrades() {
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
             robotIterator->reset(newRobot);
-            logger->log("Upgrade " + stringifyUpgrade(upgrade) + " applied to " + robotPtr->getName());
+            logger->log("Upgrade " + stringifyUpgrade(upgrade) + " applied to " + newRobot->getName());
 
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
