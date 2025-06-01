@@ -426,22 +426,14 @@ void Environment::applyRobotRespawn() {
     }
 
     // Get the first element
-    unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
+    unique_ptr<GenericRobot> robotUniquePtr = move(respawnQueue.front());
+    // remove the first element
+    respawnQueue.pop();
+
     logger->log("Respawning " + robotUniquePtr->getName());
-
-    robotUniquePtr->setPosition(Vector2D::ZERO);
-
-    GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
-    robotUniquePtr.reset(resettedRobotPtr);
-
-    // Make the robot alive again
-    robotUniquePtr->notifyRespawn();
 
     // Re-transfer ownership back to robotList
     robotList.push_back(move(robotUniquePtr));
-
-    // remove the first element
-    respawnQueue.pop();
 }
 
 const vector<GenericRobot*> Environment::getAllAvailableRobots() const {
