@@ -6,7 +6,8 @@
 #include "../stage2Upgrades/hideLongShotBot.h"
 class HideLongShotTrackBot : public HideLongShotBot, public TrackBot {
 public:
-    HideLongShotTrackBot(GenericRobot* g) : HideLongShotBot(g), TrackBot(g) {};
+    HideLongShotTrackBot(GenericRobot* g) : GenericRobot(*g), HideLongShotBot(g), TrackBot(g),HideBot(g),LongShotBot(g) {};
+    void thinkAndExecute() override;
 };
 
 #endif

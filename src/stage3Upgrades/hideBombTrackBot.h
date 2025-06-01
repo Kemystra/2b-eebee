@@ -5,8 +5,9 @@
 #include "../stage1Upgrades/trackBot.h"
 #include "../stage2Upgrades/hideBombBot.h"
 class HideBombTrackBot : public HideBombBot, public TrackBot {
-public:
-    HideBombTrackBot(GenericRobot* g) : HideBombBot(g), TrackBot(g) {};
+    public:
+        HideBombTrackBot(GenericRobot* g) :HideBombBot(g), TrackBot(g),GenericRobot(*g),BombBot(g),HideBot(g) {};
+        void thinkAndExecute() override;
 };
 
 #endif

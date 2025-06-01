@@ -1,15 +1,24 @@
-#include "hideBombBot.h"
+#include "hideBombScoutBot.h"
 
-void HideBombBot::thinkAndExecute() {
-    Vector2D nextLookCenter;
-    if (closestRobotPosition == Vector2D::ZERO)
-        nextLookCenter = randomizeMove();
-    else {
-        nextLookCenter = closestRobotPosition.normalized() * seeingRange;
+void HideBombScoutBot::thinkAndExecute() {
+    if (scoutCount>0){
+        useScout = randomBool(0.5);  
     }
 
-    vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
+    // Decide between scout() or normal look()
+    vector<Vector2D> lookResult;
+    if (useScout)
+        lookResult = scout();
+    else {
+        Vector2D nextLookCenter;
+        if (closestRobotPosition == Vector2D::ZERO)
+            nextLookCenter = randomizeMove();
+        else {
+            nextLookCenter = closestRobotPosition.normalized() * seeingRange;
+        }
 
+        lookResult = look(nextLookCenter.x, nextLookCenter.y);
+    }
     // Reset the closestRobotPosition after look()
     // If no lookResult(), then it won't be set
     // But if there's lookResult, closestRobotPosition will be updated with the closest one

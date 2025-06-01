@@ -6,7 +6,8 @@
 #include "../stage2Upgrades/hideThirtyShotBot.h"
 class HideThirtyShotScoutBot : public HideThirtyShotBot, public ScoutBot {
 public:
-    HideThirtyShotScoutBot(GenericRobot* g) : HideThirtyShotBot(g), ScoutBot(g) {};
+    HideThirtyShotScoutBot(GenericRobot* g) : GenericRobot(*g), HideThirtyShotBot(g), ScoutBot(g),ThirtyShotBot(g), HideBot(g) {};
+    void thinkAndExecute() override;
 };
 
 #endif

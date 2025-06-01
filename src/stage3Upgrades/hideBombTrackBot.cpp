@@ -1,6 +1,6 @@
-#include "hideBombBot.h"
+#include "hideBombTrackBot.h"
 
-void HideBombBot::thinkAndExecute() {
+void HideBombTrackBot::thinkAndExecute() {
     Vector2D nextLookCenter;
     if (closestRobotPosition == Vector2D::ZERO)
         nextLookCenter = randomizeMove();
@@ -23,11 +23,28 @@ void HideBombBot::thinkAndExecute() {
             continue;
         }
 
+        if(trackedBots.size()<3){
+            // if still can track bots, randomise to decide to track or not
+            bool trackOrNot = randomBool(0.5);
+            if (trackOrNot){
+                //if want track, track it
+                track(pos);
+            }
+        }
+
         // Since the positions are relative, we can use its vector magnitude
         if (closestRobotPosition.magnitude() > pos.magnitude())
             closestRobotPosition = pos;
     }
 
+    for(const GenericRobot* robot: trackedBots){
+        // get the relative coordinates of the current iterated bot
+        Vector2D relativePos = this->getPosition() - robot->getPosition();
+        // if closest robot is further than current robot, then update closest robot
+        if(closestRobotPosition.magnitude()>relativePos.magnitude()){
+            closestRobotPosition = relativePos;
+        }
+    }
     ostringstream oss;
     oss << "Closest robot: " << closestRobotPosition;
     selfLog(oss.str());
