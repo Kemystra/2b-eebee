@@ -5,8 +5,11 @@ void BombBot::bomb(int x, int y){
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
             Vector2D targetPosition = Vector2D(x, y) + Vector2D(i, j);
+            bool isRobotAtPosition = environment->isRobotHere(this->position + targetPosition);
+            selfLog("isRobotAtPosition: " + to_string(isRobotAtPosition) + " at " + to_string(targetPosition.x) + ", " + to_string(targetPosition.y));
             // IF TARGET IS not self, position is not available cuz got bot, kaboom
-            if (targetPosition != Vector2D::ZERO && !(environment->isPositionAvailable(targetPosition))) {
+            if (targetPosition != Vector2D::ZERO && isRobotAtPosition) {
+                selfLog("Firing at " + to_string(targetPosition.x) + ", " + to_string(targetPosition.y));
                 fire(targetPosition.x, targetPosition.y);
             }
         }
