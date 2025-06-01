@@ -2,11 +2,8 @@
 #define BOMBTRACKBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class BombTrackBot: virtual public BombBot, virtual public TrackBot{
+class BombTrackBot: public BombBot, public TrackBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
-        BombTrackBot(GenericRobot* g) : BombBot(g), TrackBot(g),GenericRobot(*g) {
-            selfLog("BombTrackBot created");
-        };
+        void thinkAndExecute() override;
 };
 #endif

@@ -59,19 +59,13 @@ void GenericRobot::thinkAndExecute() {
     vector<Vector2D> lookResult = look(nextLookCenter.x, nextLookCenter.y);
 
     // Reset the closestRobotPosition after look()
-    // If no lookResult(), then it won't be set
-    // But if there's lookResult, closestRobotPosition will be updated with the closest one
     closestRobotPosition = Vector2D::ZERO;
 
     for (const Vector2D& pos : lookResult) {
-        // If haven't set yet, set it to current look result
-        // And skip to compare to the next look result
         if (closestRobotPosition == Vector2D::ZERO) {
             closestRobotPosition = pos;
             continue;
         }
-
-        // Since the positions are relative, we can use its vector magnitude
         if (closestRobotPosition.magnitude() > pos.magnitude())
             closestRobotPosition = pos;
     }
@@ -158,6 +152,7 @@ void GenericRobot::fire(int x, int y) {
         targetRobot->die();
         selfLog("Killed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
         environment->notifyKill(this, targetRobot);
+        killCount++;
     }
     else {
         selfLog("Missed " + targetRobot->getName() + " at " + to_string(targetAbsolutePosition.x) + ", " + to_string(targetAbsolutePosition.y));
@@ -248,9 +243,6 @@ Vector2D GenericRobot::getPosition() const {
     return position;
 }
 
-vector<UpgradeTrack> GenericRobot::getPossibleUpgradeTracks() {
-    return possibleUpgradeTrack;
-}
 void GenericRobot::setPosition(Vector2D pos) {
     this->position = pos;
 }
@@ -357,22 +349,10 @@ UpgradeState GenericRobot::chosenForUpgrade() {
 
 void GenericRobot::notifyRespawn() {
     livingState = Alive;
-}
-
-
-void GenericRobot::removeUpgradeTrack(string trackName) {
-    // go through each possible track and match the name
-    for(int i =0; i < this->possibleUpgradeTrack.size(); i++) {
-        if (this->possibleUpgradeTrack[i].getName() == trackName) {
-            // if found, remove it. the begin+i will point to the found track
-            selfLog("Removed upgrade track: " + trackName);
-            this->possibleUpgradeTrack.erase(this->possibleUpgradeTrack.begin() + i);
-            return;
-        }
-    }
+    Vector2D newPos = randomizeMove();
+    this->setPosition(newPos);
 }
 
 void GenericRobot::clearPendingUpgrades() {
     pendingUpgrades.clear();
 }
-

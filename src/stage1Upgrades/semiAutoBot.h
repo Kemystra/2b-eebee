@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 #include "../environment.h"
-class SemiAutoBot:virtual public GenericRobot{
+class SemiAutoBot:public GenericRobot{
     public:
         SemiAutoBot(GenericRobot* g) : GenericRobot(*g){};
         void fire(int x, int y) override;

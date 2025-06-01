@@ -1,4 +1,3 @@
-
 #ifndef GENERIC_ROBOT_H
 #define GENERIC_ROBOT_H
 
@@ -79,6 +78,11 @@ public:
     vector<UpgradeTrack> getPossibleUpgradeTracks();
     void removeUpgradeTrack(string trackName);
 
+    int getKillCount() const {
+        return killCount;
+    }
+
+
 protected:
     // These will have to be initialized
     string name;
@@ -134,6 +138,9 @@ protected:
     //
     // I love Goh
     virtual int calcDistance(Vector2D a) const;
+  
+private:
+    int killCount = 0;
 };
 
 #endif  // GENERIC_ROBOT_H

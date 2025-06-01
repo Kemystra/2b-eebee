@@ -3,7 +3,7 @@
 #include "stage1Upgrades/bombBot.h"
 #include "stage1Upgrades/upgrades.h"
 #include "vector2d.h"
-
+#include <iomanip>
 #include <memory>
 #include <sstream>
 #include "upgradeBots.h"
@@ -33,6 +33,7 @@ Environment::Environment(
     grid.resize(dimension.x, vector<char>(dimension.y, '.'));
 
     this->logger = logger;
+    bool hasInvalidPosition = false;
 
     // By default, C++ store objects on the stack memory
     // Every time an object goes out-of-scope (here, on each loop iteration), it will be destroyed
@@ -47,19 +48,29 @@ Environment::Environment(
     //
     // Note that unique_ptr also means that Environment now 'owns' the robots object
     // Important note for later.
+    
     for (const RobotParameter &param : robotParams) {
-        GenericRobot* robot = new GenericRobot(param, this, logger);
-
-        this->robotList.push_back(unique_ptr<GenericRobot>(robot));
+        if (param.position.x <= 0 || param.position.x >= dimension.x ||
+            param.position.y <= 0 || param.position.y >= dimension.y) {
+            logger->log("Error: Robot " + param.name + " has an invalid position (" +
+                        to_string(param.position.x) + ", " + to_string(param.position.y) + ").");
+            hasInvalidPosition = true;
+        } else {
+            GenericRobot* robot = new GenericRobot(param, this, logger);
+            this->robotList.push_back(unique_ptr<GenericRobot>(robot));
+        }
     }
+
+    if (hasInvalidPosition) {
+        exit(EXIT_FAILURE); 
+    }
+
 }
 
 void Environment::gameLoop() {
     while (maxStep > step) {
         logger->log("Round " + to_string(step));
-        logger->log("Applying robot upgrades");
 
-        applyRobotRespawn();
 
         for (unique_ptr<GenericRobot>& robot : robotList) {
             // Skip dead robot
@@ -74,10 +85,9 @@ void Environment::gameLoop() {
                 chrono::milliseconds(robotActionInterval)
             );
         }
-
         applyRobotUpgrades();
         applyRobotDie();
-
+        applyRobotRespawn();
         if (robotList.size() == 1) {
             logger->log("Only one bot remains: " + robotList[0]->getName());
             gameOver();
@@ -87,28 +97,35 @@ void Environment::gameLoop() {
     step++;
     }
 
-    logger->log("Steps finished");
+    logger->log("Steps finished\n");
     gameOver();
 }
 
 void Environment::gameOver()
 {
-    logger->log("Game Over");
+    printgameover();
     logger->log("Remaining robots: " + to_string(robotList.size()));
     if (robotList.size() == 1)
     {
         logger->log("Winner: " + robotList[0]->getName());
+        logger->log("");
+        printMap();
+        
+        
     }
     else if (robotList.size() == 0)
     {
         logger->log("No winner.");
+        printMap();
     }
     else
     {
         logger->log("Multiple robots survived.");
+        printMap();
     }
-    logger->log("Game finished");
+    Printscoreboard();
 }
+
 
 bool Environment::isRobotHere(Vector2D positionToCheck) const {
     return getRobotAtPosition(positionToCheck) != nullptr;
@@ -363,14 +380,46 @@ void Environment::applyRobotUpgrades() {
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
 
-            newRobot = chooseUpgradeStage(robotPtr, upgrade);
+            switch (upgrade)
+            {
+            case ScoutBot:
+                newRobot = new class ScoutBot(robotPtr);
+                break;
+            case HideBot:
+                newRobot = new class HideBot(robotPtr);
+                break;
+            case JumpBot:
+                newRobot = new class JumpBot(robotPtr);
+                break;
+            case LongShotBot:
+                newRobot = new class LongShotBot(robotPtr);
+                break;
+            case SemiAutoBot:
+                newRobot = new class SemiAutoBot(robotPtr);
+                break;
+            case ThirtyShotBot:
+                newRobot = new class ThirtyShotBot(robotPtr);
+                break;
+            case LandmineBot:
+                newRobot = new class LandmineBot(robotPtr);
+                break;
+            case BombBot:
+                newRobot = new class BombBot(robotPtr);
+                break;
+            case LaserBot:
+                // Replace with LaserBot later
+                newRobot = new class BombBot(robotPtr);
+                break;
+            case TrackBot:
+                newRobot = new class TrackBot(robotPtr);
+                break;
+            }
 
             logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + newRobot->getName());
 
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
             robotIterator->reset(newRobot);
-            logger->log("Upgrade " + stringifyUpgrade(upgrade) + " applied to " + robotPtr->getName());
 
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
@@ -378,8 +427,8 @@ void Environment::applyRobotUpgrades() {
             // newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
         }
-
         robotPtr->clearPendingUpgrades();
+
     }
 
     // Clear out robotToUpgrades set
@@ -426,7 +475,6 @@ void Environment::applyRobotRespawn() {
 
     // Get the first element
     unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
-    logger->log("Respawning " + robotUniquePtr->getName());
 
     robotUniquePtr->setPosition(Vector2D::ZERO);
 
@@ -434,6 +482,8 @@ void Environment::applyRobotRespawn() {
     robotUniquePtr.reset(resettedRobotPtr);
 
     // Make the robot alive again
+    Vector2D pos = robotUniquePtr->getPosition();
+    logger->log("Respawning " + robotUniquePtr->getName() + " at position (" + to_string(pos.x) + ", " + to_string(pos.y) + ")");
     robotUniquePtr->notifyRespawn();
 
     // Re-transfer ownership back to robotList
@@ -441,6 +491,7 @@ void Environment::applyRobotRespawn() {
 
     // remove the first element
     respawnQueue.pop();
+
 }
 
 const vector<GenericRobot*> Environment::getAllAvailableRobots() const {
@@ -452,6 +503,66 @@ const vector<GenericRobot*> Environment::getAllAvailableRobots() const {
     }
 
     return result;
+}
+
+const vector<GenericRobot*> Environment::getAllAvailableRobotsforscoreboard() const {
+    vector<GenericRobot*> result;
+
+    for (const unique_ptr<GenericRobot>& robotPtr : AllRobot) {
+        if (!robotPtr->isDead())
+            result.push_back(robotPtr.get());
+    }
+
+    return result;
+}
+
+
+
+void Environment::Printscoreboard() {
+    std::stringstream ss;
+    ss << "\n===== SCOREBOARD =====\n";
+
+    // Calculate the max width for the Upgrades column
+    size_t maxUpgradeLen = 8; // "Upgrades" length as minimum
+    auto AllRobot = getAllAvailableRobots();
+    vector<string> upgradesStrList;
+    for (const auto& robotPtr : AllRobot) {
+        string upgradesStr;
+        const auto& upgrades = robotPtr->getUpgrades();
+        for (size_t i = 0; i < upgrades.size(); ++i) {
+            upgradesStr += stringifyUpgrade(upgrades[i]);
+            if (i + 1 < upgrades.size()) upgradesStr += ", ";
+        }
+        if (upgradesStr.length() > maxUpgradeLen)
+            maxUpgradeLen = upgradesStr.length();
+        upgradesStrList.push_back(upgradesStr);
+    }
+
+    // Table formatting
+    ss << "------------------------------------------------------------------\n";
+    ss << "| Name           | Symbol | Kills | " << setw((int)maxUpgradeLen) << left << "Upgrades" << " |\n";
+    ss << "------------------------------------------------------------------\n";
+    for (size_t idx = 0; idx < AllRobot.size(); ++idx) {
+        const auto& robotPtr = AllRobot[idx];
+        const string& upgradesStr = upgradesStrList[idx];
+        ss << "| " << setw(14) << left << robotPtr->getName()
+           << " |   " << setw(3) << robotPtr->getSymbol()
+           << " | " << setw(5) << right << robotPtr->getKillCount()
+           << " | " << setw((int)maxUpgradeLen) << left << upgradesStr << " |\n";
+    }
+    ss << "-------------------------------------------------------------------\n";
+    logger->log(ss.str());
+}
+
+void Environment::printgameover() {
+    stringstream ss;
+    ss << '\n';
+    ss << ",---.                   ,---.                \n";
+    ss << "|  _.,---.,-.-.,---.    |   |.    ,,---.,---.\n";
+    ss << "|   |,---|| | ||---'    |   | \\  / |---'|     \n";
+    ss << "`---'`---^` ' '`---'    `---'  `'  `---'`    \n";
+    ss << '\n';
+    logger->log(ss.str());
 }
 
 
