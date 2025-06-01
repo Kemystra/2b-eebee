@@ -4,7 +4,7 @@
 #include "../stage1Upgrades/stage1Upgrades.h"
 class JumpSemiAutoBot: virtual public JumpBot, virtual public SemiAutoBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
+        void thinkAndExecute() override;
         JumpSemiAutoBot(GenericRobot* g) : JumpBot(g), SemiAutoBot(g), GenericRobot(*g) {
             selfLog("JumpSemiAutoBot created with jump amount: " + to_string(jumpAmount));
         };

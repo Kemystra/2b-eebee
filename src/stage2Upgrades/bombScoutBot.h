@@ -4,7 +4,7 @@
 
 class BombScoutBot: virtual public BombBot, virtual public ScoutBot {
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
+        void thinkAndExecute() override;
         BombScoutBot(GenericRobot* g) : BombBot(g), ScoutBot(g),GenericRobot(*g) {
             selfLog("BombScoutBot created");
         };
