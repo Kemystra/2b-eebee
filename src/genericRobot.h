@@ -76,9 +76,6 @@ public:
     void setPosition(Vector2D pos);
     bool getIsVisible();
 
-    vector<UpgradeTrack> getPossibleUpgradeTracks();
-    void removeUpgradeTrack(string trackName);
-
 protected:
     // These will have to be initialized
     string name;
