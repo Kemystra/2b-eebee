@@ -4,7 +4,7 @@
 #include "bombBot.h"
 #include "hideBot.h"
 #include "jumpBot.h"
-#include "landmineBot.h"
+#include "nukeBot.h"
 #include "longShotBot.h"
 #include "scoutBot.h"
 #include "semiAutoBot.h"
