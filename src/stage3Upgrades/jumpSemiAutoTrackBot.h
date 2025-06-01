@@ -6,7 +6,8 @@
 #include "../stage2Upgrades/jumpSemiAutoBot.h"
 class JumpSemiAutoTrackBot : public JumpSemiAutoBot, public TrackBot {
 public:
-    JumpSemiAutoTrackBot(GenericRobot* g) : JumpSemiAutoBot(g), TrackBot(g) {};
+    JumpSemiAutoTrackBot(GenericRobot* g) : GenericRobot(*g),JumpSemiAutoBot(g), TrackBot(g),JumpBot(g),SemiAutoBot(g) {};
+    void thinkAndExecute() override;
 };
 
 #endif

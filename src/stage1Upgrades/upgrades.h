@@ -15,7 +15,7 @@ enum Upgrade {
     LongShotBot,
     SemiAutoBot,
     ThirtyShotBot,
-    LandmineBot,
+    NukeBot,
     BombBot,
     LaserBot,
 

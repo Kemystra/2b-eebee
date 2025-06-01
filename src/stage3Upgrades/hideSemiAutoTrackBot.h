@@ -6,7 +6,8 @@
 #include "../stage2Upgrades/hideSemiAutoBot.h"
 class HideSemiAutoTrackBot : public HideSemiAutoBot, public TrackBot {
 public:
-    HideSemiAutoTrackBot(GenericRobot* g) : HideSemiAutoBot(g), TrackBot(g) {};
+    HideSemiAutoTrackBot(GenericRobot* g) : GenericRobot(*g),HideSemiAutoBot(g), TrackBot(g), HideBot(g),SemiAutoBot(g) {};
+    void thinkAndExecute() override;
 };
 
 #endif

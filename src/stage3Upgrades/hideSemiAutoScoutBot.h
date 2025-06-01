@@ -6,7 +6,8 @@
 #include "../stage2Upgrades/hideSemiAutoBot.h"
 class HideSemiAutoScoutBot : public HideSemiAutoBot, public ScoutBot {
 public:
-    HideSemiAutoScoutBot(GenericRobot* g) : HideSemiAutoBot(g), ScoutBot(g) {};
+    HideSemiAutoScoutBot(GenericRobot* g) : GenericRobot(*g),HideSemiAutoBot(g), ScoutBot(g),HideBot(g), SemiAutoBot(g) {};
+    void thinkAndExecute() override;
 };
 
 #endif

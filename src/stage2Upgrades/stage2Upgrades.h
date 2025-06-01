@@ -29,5 +29,9 @@
 #include "landmineScoutBot.h"
 #include "longShotScoutBot.h"
 #include "longShotTrackBot.h"
+#include "nukeHideBot.h"
+#include "nukeJumpBot.h"
+#include "nukeScoutBot.h"
+#include "nukeTrackBot.h"
 
 #endif  

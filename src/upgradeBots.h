@@ -6,7 +6,7 @@
 #include "stage1Upgrades/longShotBot.h"
 #include "stage1Upgrades/semiAutoBot.h"
 #include "stage1Upgrades/thirtyShotBot.h"
-#include "stage1Upgrades/landmineBot.h"
+#include "stage1Upgrades/nukeBot.h"
 #include "stage1Upgrades/bombBot.h"
 #include "stage1Upgrades/jumpBot.h"
 #include "stage1Upgrades/trackBot.h"
