@@ -131,6 +131,10 @@ bool Environment::isRobotHere(Vector2D positionToCheck) const {
     return getRobotAtPosition(positionToCheck) != nullptr;
 }
 
+Vector2D Environment::getGridSize() const {
+    return dimension;
+}
+
 GenericRobot* Environment::getRobotAtPosition(Vector2D positionToCheck) const {
     for (const unique_ptr<GenericRobot> &robot : this->robotList) {
         // Skip dead robots
@@ -376,52 +380,23 @@ void Environment::applyRobotUpgrades() {
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
 
-            switch (upgrade)
-            {
-            case ScoutBot:
-                newRobot = new class ScoutBot(robotPtr);
-                break;
-            case HideBot:
-                newRobot = new class HideBot(robotPtr);
-                break;
-            case JumpBot:
-                newRobot = new class JumpBot(robotPtr);
-                break;
-            case LongShotBot:
-                newRobot = new class LongShotBot(robotPtr);
-                break;
-            case SemiAutoBot:
-                newRobot = new class SemiAutoBot(robotPtr);
-                break;
-            case ThirtyShotBot:
-                newRobot = new class ThirtyShotBot(robotPtr);
-                break;
-            case LandmineBot:
-                newRobot = new class LandmineBot(robotPtr);
-                break;
-            case BombBot:
-                newRobot = new class BombBot(robotPtr);
-                break;
-            case LaserBot:
-                // Replace with LaserBot later
-                newRobot = new class BombBot(robotPtr);
-                break;
-            case TrackBot:
-                newRobot = new class TrackBot(robotPtr);
-            }
+            newRobot = chooseUpgradeStage(robotPtr, upgrade);
 
-            logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + robotPtr->getName());
+            logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + newRobot->getName());
 
             // Destroy the old GenericRobot, and switch to the new robot
             // Using iterator allow us to edit in-place, so we don't have to push it into robotList
             robotIterator->reset(newRobot);
+            logger->log("Upgrade " + stringifyUpgrade(upgrade) + " applied to " + robotPtr->getName());
 
             // Each upgrade will destroy the old robot and update it with a new pointer
             // If we keep using the old pointer it will cause havoc
             // Update it to use the new one after each upgrade
-            newRobot->insertNewUpgrade(upgrade);
+            // newRobot->insertNewUpgrade(upgrade);
             robotPtr = newRobot;
         }
+        robotPtr->clearPendingUpgrades();
+
     }
 
     // Clear out robotToUpgrades set
@@ -468,6 +443,8 @@ void Environment::applyRobotRespawn() {
 
     // Get the first element
     unique_ptr<GenericRobot>& robotUniquePtr = respawnQueue.front();
+
+    robotUniquePtr->setPosition(Vector2D::ZERO);
 
     GenericRobot* resettedRobotPtr = new GenericRobot(*robotUniquePtr);
     robotUniquePtr.reset(resettedRobotPtr);

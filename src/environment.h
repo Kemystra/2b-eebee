@@ -11,6 +11,7 @@
 #include "logger.h"
 #include "vector2d.h"
 #include "genericRobot.h"
+#include "stageUpgradeLogic.h"
 
 using namespace std;
 
@@ -76,6 +77,8 @@ public:
     bool isRobotHere(Vector2D positionToCheck) const;
     bool isPositionAvailable(Vector2D positionToCheck) const;
     bool isWithinBounds(Vector2D positionToCheck) const;
+
+    Vector2D getGridSize() const;
 
     GenericRobot* getRobotAtPosition(Vector2D positionToCheck) const;
     void printwelcomemessage() const;

@@ -243,6 +243,9 @@ Vector2D GenericRobot::getPosition() const {
     return position;
 }
 
+vector<UpgradeTrack> GenericRobot::getPossibleUpgradeTracks() {
+    return possibleUpgradeTrack;
+}
 void GenericRobot::setPosition(Vector2D pos) {
     this->position = pos;
 }
@@ -277,6 +280,9 @@ void GenericRobot::selfLog(const string& msg) {
     );
 }
 
+bool GenericRobot::getIsVisible() {
+    return isVisible;
+}
 // A crude way to give the distance based on 'square area'
 int GenericRobot::calcDistance(Vector2D a) const {
     // Return the bigger difference, either x or y
@@ -349,3 +355,21 @@ void GenericRobot::notifyRespawn() {
     Vector2D newPos = randomizeMove();
     this->setPosition(newPos);
 }
+
+
+void GenericRobot::removeUpgradeTrack(string trackName) {
+    // go through each possible track and match the name
+    for(int i =0; i < this->possibleUpgradeTrack.size(); i++) {
+        if (this->possibleUpgradeTrack[i].getName() == trackName) {
+            // if found, remove it. the begin+i will point to the found track
+            selfLog("Removed upgrade track: " + trackName);
+            this->possibleUpgradeTrack.erase(this->possibleUpgradeTrack.begin() + i);
+            return;
+        }
+    }
+}
+
+void GenericRobot::clearPendingUpgrades() {
+    pendingUpgrades.clear();
+}
+
