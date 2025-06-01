@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 #include "../environment.h"
-class BombBot:virtual public GenericRobot{
+class BombBot:public GenericRobot{
     public:
         BombBot(GenericRobot* g) : GenericRobot(*g) {};
         void bomb(int x, int y);

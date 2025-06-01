@@ -2,11 +2,8 @@
 #define HIDESEMIAUTOBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class HideSemiAutoBot: virtual public HideBot, virtual public SemiAutoBot{
+class HideSemiAutoBot: public HideBot, public SemiAutoBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
-        HideSemiAutoBot(GenericRobot* g) : HideBot(g), SemiAutoBot(g), GenericRobot(*g) {
-            selfLog("HideSemiAutoBot created");
-        };
+        void thinkAndExecute() override;
 };
 #endif

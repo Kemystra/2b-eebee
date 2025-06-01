@@ -2,11 +2,8 @@
 #define JUMPLASERBOT_H
 
 #include "../stage1Upgrades/stage1Upgrades.h"
-class JumpLaserBot: virtual public JumpBot, virtual public LaserBot{
+class JumpLaserBot: public JumpBot, public LaserBot{
     public:
-        void thinkAndExecute() override{ selfLog("Kill me please");};
-        JumpLaserBot(GenericRobot* g) : JumpBot(g), LaserBot(g), GenericRobot(*g) {
-            selfLog("JumpLaserBot created with jump amount: " + to_string(jumpAmount));
-        };
+        void thinkAndExecute() override;
 };
 #endif

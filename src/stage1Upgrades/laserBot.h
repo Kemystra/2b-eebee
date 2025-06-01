@@ -3,14 +3,11 @@
 
 #include "../genericRobot.h"
 
-class LaserBot:virtual public GenericRobot{
+class LaserBot:public GenericRobot{
     public:
     using GenericRobot::GenericRobot;
 
     void fire(int x, int y) override;
-    LaserBot(GenericRobot* g) : GenericRobot(*g) {
-        selfLog("LaserBot created");
-    };
 
     private:
     void fireHorizontal(int y);

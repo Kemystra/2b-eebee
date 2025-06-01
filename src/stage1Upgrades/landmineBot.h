@@ -3,7 +3,7 @@
 
 #include "../genericRobot.h"
 
-class LandmineBot:virtual public GenericRobot{
+class LandmineBot:public GenericRobot{
     public:
         LandmineBot(GenericRobot* g) : GenericRobot(*g) {
             selfLog("LandmineBot created");

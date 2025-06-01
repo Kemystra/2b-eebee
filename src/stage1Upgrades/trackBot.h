@@ -4,7 +4,7 @@
 #include "../genericRobot.h"
 #include <variant>
 #include <memory>
-class TrackBot:virtual public GenericRobot{
+class TrackBot:public GenericRobot{
     protected:
         vector<GenericRobot*> trackedBots;  //  saves tracked robot pointers
         int trackCount = 3; // max number of robots to track
