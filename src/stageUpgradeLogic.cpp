@@ -21,9 +21,9 @@ GenericRobot* chooseStage1Upgrade(GenericRobot* robot, Upgrade upgrade){
     case ThirtyShotBot:
         robot->removeUpgradeTrack("Shooting");
         return new class ThirtyShotBot(robot);
-    case LandmineBot:
+    case NukeBot:
         robot->removeUpgradeTrack("Shooting");
-        return new class LandmineBot(robot);
+        return new class NukeBot(robot);
     case BombBot:
         robot->removeUpgradeTrack("Shooting");
         return new class BombBot(robot);
@@ -62,9 +62,9 @@ GenericRobot* chooseStage2Upgrade(GenericRobot* robot, Upgrade upgrade){
                 robot->removeUpgradeTrack("Shooting");
                 return new class ThirtyShotScoutBot(robot);
             }
-            else if (upgrade == LandmineBot) {
+            else if (upgrade == NukeBot) {
                 robot->removeUpgradeTrack("Shooting");
-                return new class LandmineScoutBot(robot);
+                return new class NukeScoutBot(robot);
             }
             else if (upgrade == BombBot) {
                 robot->removeUpgradeTrack("Shooting");
@@ -92,9 +92,9 @@ GenericRobot* chooseStage2Upgrade(GenericRobot* robot, Upgrade upgrade){
                 robot->removeUpgradeTrack("Shooting");
                 return new class HideThirtyShotBot(robot);
             }
-            else if (upgrade == LandmineBot) {
+            else if (upgrade == NukeBot) {
                 robot->removeUpgradeTrack("Shooting");
-                return new class HideLandmineBot(robot);
+                return new class NukeHideBot(robot);
             }
             else if (upgrade == BombBot) {
                 robot->removeUpgradeTrack("Shooting");
@@ -126,9 +126,9 @@ GenericRobot* chooseStage2Upgrade(GenericRobot* robot, Upgrade upgrade){
                 robot->removeUpgradeTrack("Shooting");
                 return new class JumpThirtyShotBot(robot);
             }
-            else if (upgrade == LandmineBot) {
+            else if (upgrade == NukeBot) {
                 robot->removeUpgradeTrack("Shooting");
-                return new class JumpLandmineBot(robot);
+                return new class NukeJumpBot(robot);
             }
             else if (upgrade == BombBot) {
                 robot->removeUpgradeTrack("Shooting");
@@ -197,22 +197,22 @@ GenericRobot* chooseStage2Upgrade(GenericRobot* robot, Upgrade upgrade){
                 return new class ThirtyShotTrackBot(robot);
             }
             break;
-        case LandmineBot:
+        case NukeBot:
             if (upgrade == ScoutBot) {
                 robot->removeUpgradeTrack("Seeing");
-                return new class LandmineScoutBot(robot);
+                return new class NukeScoutBot(robot);
             }
             else if (upgrade == HideBot) {
                 robot->removeUpgradeTrack("Moving");
-                return new class HideLandmineBot(robot);
+                return new class NukeHideBot(robot);
             }
             else if (upgrade == JumpBot) {
                 robot->removeUpgradeTrack("Moving");
-                return new class JumpLandmineBot(robot);
+                return new class NukeJumpBot(robot);
             }
             else if (upgrade == TrackBot){
                 robot->removeUpgradeTrack("Seeing");
-                return new class LandmineTrackBot(robot);
+                return new class NukeTrackBot(robot);
             }
             break;
         case BombBot:
@@ -272,9 +272,9 @@ GenericRobot* chooseStage2Upgrade(GenericRobot* robot, Upgrade upgrade){
                 robot->removeUpgradeTrack("Shooting");
                 return new class ThirtyShotTrackBot(robot);
             }
-            else if (upgrade == LandmineBot) {
+            else if (upgrade == NukeBot) {
                 robot->removeUpgradeTrack("Shooting");
-                return new class LandmineTrackBot(robot);
+                return new class NukeTrackBot(robot);
             }
             else if (upgrade == BombBot) {
                 robot->removeUpgradeTrack("Shooting");
@@ -296,6 +296,7 @@ GenericRobot* chooseStage3Upgrade(GenericRobot* robot, Upgrade upgrade){
     bool hasSemiAuto = false;
     bool hasThirtyShot = false;
     bool hasBomb = false;
+    bool hasNuke = false;
     bool hasLaser = false;
     bool hasTrack = false;
 
@@ -327,6 +328,9 @@ GenericRobot* chooseStage3Upgrade(GenericRobot* robot, Upgrade upgrade){
         }
         else if (u == TrackBot) {
             hasTrack = true;
+        }
+        else if (u == NukeBot) {
+            hasNuke = true;
         }
     }
     if (hasScout && hasHide && hasBomb){
@@ -549,6 +553,50 @@ GenericRobot* chooseStage3Upgrade(GenericRobot* robot, Upgrade upgrade){
                 robot->removeUpgradeTrack("Shooting");
         }
         return new class JumpLaserScoutBot(robot);
+    }
+    else if (hasNuke && hasHide && hasScout){
+        switch (upgrade) {
+            case NukeBot:
+                robot->removeUpgradeTrack("Shooting");
+            case HideBot:
+                robot->removeUpgradeTrack("Moving");
+            case ScoutBot:
+                robot->removeUpgradeTrack("Seeing");
+        }
+        return new class HideNukeScoutBot(robot);
+    }
+    else if (hasNuke && hasHide && hasTrack){
+        switch (upgrade) {
+            case NukeBot:
+                robot->removeUpgradeTrack("Shooting");
+            case HideBot:
+                robot->removeUpgradeTrack("Moving");
+            case TrackBot:
+                robot->removeUpgradeTrack("Seeing");
+        }
+        return new class HideNukeTrackBot(robot);
+    }
+    else if (hasNuke && hasJump && hasScout){
+        switch (upgrade) {
+            case NukeBot:
+                robot->removeUpgradeTrack("Shooting");
+            case JumpBot:
+                robot->removeUpgradeTrack("Moving");
+            case ScoutBot:
+                robot->removeUpgradeTrack("Seeing");
+        }
+        return new class JumpNukeScoutBot(robot);
+    }
+    else if (hasNuke && hasJump && hasTrack){
+        switch (upgrade) {
+            case NukeBot:
+                robot->removeUpgradeTrack("Shooting");
+            case JumpBot:
+                robot->removeUpgradeTrack("Moving");
+            case TrackBot:
+                robot->removeUpgradeTrack("Seeing");
+        }
+        return new class JumpNukeTrackBot(robot);
     }
 }
 GenericRobot* chooseUpgradeStage(GenericRobot* robot, Upgrade upgrade) {
