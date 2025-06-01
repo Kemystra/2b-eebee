@@ -63,10 +63,12 @@ public:
     Vector2D getPosition() const override;
     const vector<Upgrade>& getPendingUpgrades() const;
     const vector<Upgrade>& getUpgrades() const;
+    void removeUpgradeTrack(string trackName);
     void insertNewUpgrade(const Upgrade& upgrade);
     bool isDead() const;
     bool getIsVisible() const;
     LivingState getLivingState() const;
+    vector<UpgradeTrack> getPossibleUpgradeTracks();
 
     // Print the map grid with robot positions and cardinal directions
     // Assumes Environment will call this and provide access to all robots
@@ -75,9 +77,6 @@ public:
 
     void setPosition(Vector2D pos);
     bool getIsVisible();
-
-    vector<UpgradeTrack> getPossibleUpgradeTracks();
-    void removeUpgradeTrack(string trackName);
 
 protected:
     // These will have to be initialized

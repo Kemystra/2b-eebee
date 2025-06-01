@@ -6,7 +6,7 @@
 class SemiAutoBot:virtual public GenericRobot{
     public:
         SemiAutoBot(GenericRobot* g) : GenericRobot(*g){};
-        void fire(int x, int y) override;
+        int getBulletsPerShot() const override;
 };
 
 #endif
