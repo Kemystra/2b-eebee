@@ -77,6 +77,8 @@ public:
     bool isPositionAvailable(Vector2D positionToCheck) const;
     bool isWithinBounds(Vector2D positionToCheck) const;
 
+    Vector2D getGridSize() const;
+
     GenericRobot* getRobotAtPosition(Vector2D positionToCheck) const;
     void printwelcomemessage() const;
 
