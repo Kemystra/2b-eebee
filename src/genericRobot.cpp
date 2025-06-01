@@ -349,7 +349,18 @@ UpgradeState GenericRobot::chosenForUpgrade() {
 
 void GenericRobot::notifyRespawn() {
     livingState = Alive;
-    Vector2D newPos = randomizeMove();
+    // Get grid size from environment
+    auto gridSize = environment->getGridSize();
+    // Randomize a new position anywhere in the grid using GenericRobot's rng
+    uniform_int_distribution<int> xDist(0, gridSize.x - 1);
+    uniform_int_distribution<int> yDist(0, gridSize.y - 1);
+
+    Vector2D newPos;
+    // Ensure the new position is available
+    do {
+        newPos = Vector2D(xDist(rng), yDist(rng));
+    } while (!environment->isPositionAvailable(newPos));
+
     this->setPosition(newPos);
 }
 
