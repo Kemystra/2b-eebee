@@ -285,6 +285,9 @@ void GenericRobot::selfLog(const string& msg) {
     );
 }
 
+bool GenericRobot::getIsVisible() {
+    return isVisible;
+}
 // A crude way to give the distance based on 'square area'
 int GenericRobot::calcDistance(Vector2D a) const {
     // Return the bigger difference, either x or y
