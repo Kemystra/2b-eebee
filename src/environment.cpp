@@ -363,7 +363,39 @@ void Environment::applyRobotUpgrades() {
         {
             logger->log("Apply " + stringifyUpgrade(upgrade) + " to " + robotPtr->getName());
 
-            newRobot = chooseUpgradeStage(robotPtr, upgrade);
+            switch (upgrade)
+            {
+            case ScoutBot:
+                newRobot = new class ScoutBot(robotPtr);
+                break;
+            case HideBot:
+                newRobot = new class HideBot(robotPtr);
+                break;
+            case JumpBot:
+                newRobot = new class JumpBot(robotPtr);
+                break;
+            case LongShotBot:
+                newRobot = new class LongShotBot(robotPtr);
+                break;
+            case SemiAutoBot:
+                newRobot = new class SemiAutoBot(robotPtr);
+                break;
+            case ThirtyShotBot:
+                newRobot = new class ThirtyShotBot(robotPtr);
+                break;
+            case LandmineBot:
+                newRobot = new class LandmineBot(robotPtr);
+                break;
+            case BombBot:
+                newRobot = new class BombBot(robotPtr);
+                break;
+            case LaserBot:
+                // Replace with LaserBot later
+                newRobot = new class BombBot(robotPtr);
+                break;
+            case TrackBot:
+                newRobot = new class TrackBot(robotPtr);
+            }
 
             logger->log("Applying " + stringifyUpgrade(upgrade) + " upgrade to " + newRobot->getName());
 
