@@ -1,14 +1,12 @@
 #include "bombBot.h"
 
 void BombBot::bomb(int x, int y){
-    selfLog("Bombing around " + to_string(x) + ", " + to_string(y));
+    selfLog("Bombing at " + to_string(x) + ", " + to_string(y));
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
             Vector2D targetPosition = Vector2D(x, y) + Vector2D(i, j);
-            bool isRobotAtPosition = environment->isRobotHere(this->position + targetPosition);
             // IF TARGET IS not self, position is not available cuz got bot, kaboom
-            if (targetPosition != Vector2D::ZERO && isRobotAtPosition) {
-                selfLog("Firing at " + to_string(targetPosition.x) + ", " + to_string(targetPosition.y));
+            if (targetPosition != Vector2D::ZERO && !(environment->isPositionAvailable(targetPosition))) {
                 fire(targetPosition.x, targetPosition.y);
             }
         }

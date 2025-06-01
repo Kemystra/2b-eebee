@@ -8,6 +8,7 @@ class LongShotBot:virtual public GenericRobot{
         LongShotBot(GenericRobot* g) : GenericRobot(*g) {
             selfLog("LongShotBot created");
         };
+        void fire(int x, int y) override;
         int getMaxFiringDistance() const override;
         int calcDistance(Vector2D a) const override;
 };
