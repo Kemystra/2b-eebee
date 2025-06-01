@@ -74,6 +74,7 @@ public:
     void logUpgrades();
 
     void setPosition(Vector2D pos);
+    bool getIsVisible();
 
     vector<UpgradeTrack> getPossibleUpgradeTracks();
     void removeUpgradeTrack(string trackName);
@@ -108,7 +109,6 @@ protected:
 
     // Probability is a number between 0 and 1, where 1 is always true and 0 is always false
     bool randomBool(double probability);
-
     Vector2D randomizeLookCenter();
     Vector2D randomizeMove();
 
@@ -133,7 +133,7 @@ protected:
     // These 2 way of checking is incompatible, so you have to override it
     //
     // I love Goh
-    int calcDistance(Vector2D a) const;
+    virtual int calcDistance(Vector2D a) const;
 };
 
 #endif  // GENERIC_ROBOT_H

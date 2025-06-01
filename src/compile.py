@@ -7,7 +7,8 @@ import os
 SRC_FOLDER = [
     ".",
     "stage1Upgrades",
-    "stage2Upgrades"
+    "stage2Upgrades",
+    "stage3Upgrades",
 ]
 
 BUILD_FOLDER = "build"
