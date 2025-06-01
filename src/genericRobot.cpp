@@ -356,6 +356,7 @@ void GenericRobot::notifyRespawn() {
     livingState = Alive;
 }
 
+
 void GenericRobot::removeUpgradeTrack(string trackName) {
     // go through each possible track and match the name
     for(int i =0; i < this->possibleUpgradeTrack.size(); i++) {
@@ -367,3 +368,8 @@ void GenericRobot::removeUpgradeTrack(string trackName) {
         }
     }
 }
+
+void GenericRobot::clearPendingUpgrades() {
+    pendingUpgrades.clear();
+}
+
