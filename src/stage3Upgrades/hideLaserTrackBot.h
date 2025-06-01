@@ -6,7 +6,8 @@
 #include "../stage2Upgrades/hideLaserBot.h"
 class HideLaserTrackBot : public HideLaserBot, public TrackBot {
 public:
-    HideLaserTrackBot(GenericRobot* g) : HideLaserBot(g), TrackBot(g) {};
+    HideLaserTrackBot(GenericRobot* g) : HideLaserBot(g), TrackBot(g),GenericRobot(*g), LaserBot(g),HideBot(g) {};
+    void thinkAndExecute() override;
 };
 
 #endif

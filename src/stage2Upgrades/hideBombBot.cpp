@@ -1,7 +1,7 @@
 #include "hideBombBot.h"
 
 void HideBombBot::thinkAndExecute() {
-Vector2D nextLookCenter;
+    Vector2D nextLookCenter;
     if (closestRobotPosition == Vector2D::ZERO)
         nextLookCenter = randomizeMove();
     else {

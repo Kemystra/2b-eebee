@@ -96,7 +96,7 @@ protected:
 
     vector<UpgradeTrack> possibleUpgradeTrack= {
         UpgradeTrack("Moving", {HideBot, JumpBot}),
-        UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, LandmineBot, BombBot, LaserBot}),
+        UpgradeTrack("Shooting", {LongShotBot, SemiAutoBot, ThirtyShotBot, NukeBot, BombBot, LaserBot}),
         UpgradeTrack("Seeing", {ScoutBot, TrackBot})
     };
     // Current upgrades

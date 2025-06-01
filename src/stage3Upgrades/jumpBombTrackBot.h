@@ -6,7 +6,8 @@
 #include "../stage2Upgrades/jumpBombBot.h"
 class JumpBombTrackBot : public JumpBombBot, public TrackBot {
 public:
-    JumpBombTrackBot(GenericRobot* g) : JumpBombBot(g), TrackBot(g) {};
+    JumpBombTrackBot(GenericRobot* g) : GenericRobot(*g),JumpBombBot(g), TrackBot(g),JumpBot(g),BombBot(g) {};
+    void thinkAndExecute() override;
 };
 
 #endif
