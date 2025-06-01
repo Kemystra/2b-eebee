@@ -8,7 +8,7 @@ SRC_FOLDER = [
     ".",
     "stage1Upgrades",
     "stage2Upgrades",
-    "stage3Upgrades",
+    # "stage3Upgrades",
 ]
 
 BUILD_FOLDER = "build"
